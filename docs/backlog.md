@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 1 — initial phased delivery plan (Phase 0 complete, Phases 1–5 open)
+**Version:** 2 — PB-P1 complete (design approved via PR #2); PB-P2 ready to start
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -66,11 +66,18 @@ run inside the Maven container (Linux CI writes `target/` as root).
 
 ---
 
-### PB-P1 — Design document + project governance docs — Status: READY TO START
+### PB-P1 — Design document + project governance docs ✅ COMPLETE 2026-07-22
 
 **Goal:** fix the project's scope and shape on paper, get owner sign-off, and only then
 allow test code. This is the portfolio's design-document-first rule; the scoping plan §3
 lists what must be fixed.
+
+**Evidence:** [PR #2](https://github.com/GBrooks1970/parabank-bank-automation/pull/2)
+(merge `906a00d`, CI green on head `ea67809`). Owner decisions recorded: **FULL scope
+A1–A5 + B1–B4** (design doc §1/§11) and **MIT licence**. Delivered:
+`docs/design-document.md` v1.0, `docs/decision-register.md` (DR-PB-01…07),
+`docs/qa-strategy.md`, `docs/naming-conventions.md`, `docs/project-contract.md`,
+`LICENSE`, README updates.
 
 **Work items (all documents follow the portfolio `templates/`):**
 
@@ -98,18 +105,21 @@ lists what must be fixed.
    later.
 
 **Acceptance criteria (gate for PB-P2):**
-- [ ] `docs/design-document.md` exists, covers every bullet above, and its PR was
-      **approved and merged by the owner** (sign-off = the merge)
-- [ ] Scope variant (full A1–A5/B1–B4 vs trim) is recorded in the design doc as an explicit
-      owner decision, not a default
-- [ ] DR-PB-01…06 present in-repo with rationale
-- [ ] `LICENSE` committed and README licence section updated to match
-- [ ] Project contract exists and names the verify command the later phases will implement
-- [ ] Repo still contains **no test code** (`git ls-files` shows docs/scripts/workflow only)
+- [x] `docs/design-document.md` exists, covers every bullet above, and its PR was
+      **approved and merged by the owner** (sign-off = the merge — PR #2, `906a00d`)
+- [x] Scope variant (full A1–A5/B1–B4 vs trim) is recorded in the design doc as an explicit
+      owner decision, not a default (FULL, owner 2026-07-22, design doc §1/§11)
+- [x] DR-PB-01…06 present in-repo with rationale (plus DR-PB-07, SOAP ability —
+      `docs/decision-register.md`)
+- [x] `LICENSE` committed (MIT, owner 2026-07-22) and README licence section updated to match
+- [x] Project contract exists and names the verify command the later phases will implement
+      (`docs/project-contract.md`: `npm run verify` inserted at PB-P2)
+- [x] Repo still contains **no test code** (`git ls-files` at `906a00d`: docs, scripts,
+      workflow, LICENSE, compose only)
 
 ---
 
-### PB-P2 — API lane (Lane B) — Status: BLOCKED (needs PB-P1)
+### PB-P2 — API lane (Lane B) — Status: READY TO START
 
 **Goal:** the API-first screenplay BDD suite. Delivered before the UI lane deliberately: it
 needs no Serenity plumbing, proves the SUT contract early, and its client becomes the UI
@@ -224,8 +234,8 @@ lane's verification hook (scoping plan §5).
 | Phase | Title | Status | Gate evidence |
 |---|---|---|---|
 | PB-P0 | SUT infrastructure + CI boot gate | ✅ Complete 2026-07-22 | CI run 29918600202; commit `fcd96a7` |
-| PB-P1 | Design document + governance docs | READY TO START | — |
-| PB-P2 | API lane (B1–B4) | Blocked on P1 | — |
+| PB-P1 | Design document + governance docs | ✅ Complete 2026-07-22 | PR #2; merge `906a00d` |
+| PB-P2 | API lane (B1–B4) | READY TO START | — |
 | PB-P3 | UI lane (A1–A5) + Serenity report | Blocked on P2 | — |
 | PB-P4 | Logs, README truth, handover v1 | Blocked on P3 | — |
 | PB-P5 | Portfolio registration + publication decision | Blocked on P4 | — |
