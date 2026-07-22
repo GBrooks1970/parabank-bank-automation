@@ -1,4 +1,4 @@
-import { Before, BeforeAll, setDefaultTimeout } from '@cucumber/cucumber';
+import { After, Before, BeforeAll, setDefaultTimeout } from '@cucumber/cucumber';
 import { seedDatabase } from '../../src/api/reset';
 import { ParaBankRestClient } from '../../src/api/client';
 import { SpecConformance } from '../../src/api/spec-conformance';
@@ -25,4 +25,10 @@ Before(async function (this: PBWorld, { pickle }) {
     new CallParaBankRest(new ParaBankRestClient(BASE_URL)),
     new CallParaBankSoap(BASE_URL)
   );
+});
+
+// FR-A5 pins admin loan parameters (design doc §5.6); restore defaults afterwards by
+// re-seeding — initializeDB resets admin parameters along with the data.
+After('@loan', async function () {
+  await seedDatabase(BASE_URL);
 });

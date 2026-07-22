@@ -1,5 +1,6 @@
 # CI: build the ParaBank SUT from the pinned upstream commit, boot it to a verified
-# state (boot gate), then run the test lanes via the single verify entry point.
+# state (boot gate), then run both test lanes (API + Serenity/JS UI) and the Serenity
+# report generation/content check via the single `npm run verify` entry point.
 name: ci
 
 on:
@@ -10,7 +11,7 @@ on:
 jobs:
   sut-boot-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
 
@@ -30,11 +31,28 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Set up Java (Serenity BDD report generator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Install test toolchain
         run: npm ci
 
-      - name: Verify (typecheck + tag lint + API lane)
+      - name: Install Playwright browser (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify (typecheck, tag lint, smoke-safety, API + UI lanes, Serenity report)
         run: npm run verify
+
+      - name: Serenity report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serenity-report
+          path: target/site/serenity
+          if-no-files-found: ignore
 
       - name: SUT logs on failure
         if: failure()

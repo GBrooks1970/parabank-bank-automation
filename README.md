@@ -3,13 +3,16 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: Phases 0–2 complete — infrastructure, approved design, and the API lane.**
+> **Status: Phases 0–3 complete — both test lanes implemented.**
 > The SUT scaffold and CI boot gate are green (Phase 0); the design is owner-approved
-> (Phase 1, [`docs/design-document.md`](docs/design-document.md)); and the **API lane is
-> implemented** (Phase 2): 10 scenarios covering FR-B1 live-spec contract conformance,
-> FR-B2 stateful multi-step flow, FR-B3 REST↔SOAP parity, and FR-B4 negative paths
-> asserted as observed — all green behind `npm run verify`. The Serenity/JS UI lane
-> (A1–A5) arrives with Phase 3. **The delivery plan, current phase, and the acceptance
+> (Phase 1, [`docs/design-document.md`](docs/design-document.md)); the **API lane**
+> (Phase 2) is 10 scenarios — FR-B1 live-spec contract conformance, FR-B2 stateful
+> multi-step flow, FR-B3 REST↔SOAP parity, FR-B4 negative paths asserted as observed;
+> and the **Serenity/JS + Playwright + Cucumber UI lane** (Phase 3) is 8 scenarios —
+> FR-A1 register/login, FR-A2 open account, FR-A3 transfer, FR-A4 bill pay, FR-A5 loan
+> (approved & denied, pinned deterministic), each cross-checked through the REST client,
+> with a store-safe `@smoke` subset and a content-verified Serenity report. All green
+> behind `npm run verify`. **The delivery plan, current phase, and the acceptance
 > criteria gating each phase live in [`docs/backlog.md`](docs/backlog.md)** — any agent
 > picking this project up starts there.
 
@@ -29,19 +32,27 @@ reviewed changes, never implicit (portfolio decision DR-PB-02).
 
 ## Quickstart
 
-Requires Docker (Desktop on Windows) and PowerShell 7+ (`pwsh`); no Java/Maven needed —
-the WAR is built inside a Maven container.
+Requires Docker (Desktop on Windows) and PowerShell 7+ (`pwsh`); no Java/Maven needed to
+build the SUT — the WAR is built inside a Maven container.
 
 ```bash
-pwsh ./scripts/build-sut.ps1    # fetch pinned upstream, build WAR + image (~4 min cold)
-docker compose up -d            # boot (~18 s)
-pwsh ./scripts/gate.ps1         # verify UI/REST + OpenAPI + SOAP + reset
-npm ci                          # test toolchain (Node >= 20)
-npm run verify                  # typecheck + tag lint + API lane (10 scenarios)
+pwsh ./scripts/build-sut.ps1        # fetch pinned upstream, build WAR + image (~4 min cold)
+docker compose up -d                # boot (~18 s)
+pwsh ./scripts/gate.ps1             # verify UI/REST + OpenAPI + SOAP + reset
+npm ci                              # test toolchain (Node >= 20)
+npx playwright install chromium     # browser for the UI lane
+npm run verify                      # both lanes + smoke-safety + Serenity report check
 ```
 
-Useful subsets: `npx cucumber-js --tags "@smoke"` (store-safe read-only scenarios),
-`npx cucumber-js --tags "@negative"` (FR-B4 observed error contract).
+`npm run verify` = typecheck → tag lint → `@smoke` store-safety proof → API lane
+(10 scenarios) → UI lane (8 scenarios) → Serenity report generation → report content
+check. The Serenity **HTML** report needs a JDK; without one the report step is a no-op
+locally and the JSON artefacts are still content-verified (CI installs the JDK and
+enforces the HTML).
+
+Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
+`--profile ui --tags "@smoke"` (store-safe read-only), `--profile api --tags "@negative"`
+(FR-B4 observed error contract), `--profile ui` (UI journeys only).
 
 ### Seeding and resetting state (important)
 
@@ -57,8 +68,9 @@ Useful subsets: `npx cucumber-js --tags "@smoke"` (store-safe read-only scenario
 
 `.github/workflows/ci.yml` runs the same steps as local on every push/PR: build the image
 from the pinned commit, boot it, pass the four-point boot gate (`initializeDB` seed → 204,
-REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then
-`npm ci && npm run verify` on Node 24 for the test lanes.
+REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then `npm ci` +
+Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for both lanes. The
+generated Serenity report is uploaded as the `serenity-report` build artifact.
 
 ## Provenance
 
