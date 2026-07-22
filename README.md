@@ -3,15 +3,15 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: Phases 0–1 complete — infrastructure + approved design, no test code yet.**
-> The SUT scaffold and CI boot gate are green (Phase 0), and the design is fixed and
-> owner-approved (Phase 1): full scope — five UI journeys (A1–A5, Serenity/JS +
-> Playwright + Cucumber) and four API scenario shapes (B1–B4, including REST↔SOAP
-> parity) — see [`docs/design-document.md`](docs/design-document.md) and
-> [`docs/decision-register.md`](docs/decision-register.md). Test code arrives with
-> Phase 2 (API lane). **The delivery plan, current phase, and the acceptance criteria
-> gating each phase live in [`docs/backlog.md`](docs/backlog.md)** — any agent picking
-> this project up starts there.
+> **Status: Phases 0–2 complete — infrastructure, approved design, and the API lane.**
+> The SUT scaffold and CI boot gate are green (Phase 0); the design is owner-approved
+> (Phase 1, [`docs/design-document.md`](docs/design-document.md)); and the **API lane is
+> implemented** (Phase 2): 10 scenarios covering FR-B1 live-spec contract conformance,
+> FR-B2 stateful multi-step flow, FR-B3 REST↔SOAP parity, and FR-B4 negative paths
+> asserted as observed — all green behind `npm run verify`. The Serenity/JS UI lane
+> (A1–A5) arrives with Phase 3. **The delivery plan, current phase, and the acceptance
+> criteria gating each phase live in [`docs/backlog.md`](docs/backlog.md)** — any agent
+> picking this project up starts there.
 
 ## The system under test
 
@@ -36,7 +36,12 @@ the WAR is built inside a Maven container.
 pwsh ./scripts/build-sut.ps1    # fetch pinned upstream, build WAR + image (~4 min cold)
 docker compose up -d            # boot (~18 s)
 pwsh ./scripts/gate.ps1         # verify UI/REST + OpenAPI + SOAP + reset
+npm ci                          # test toolchain (Node >= 20)
+npm run verify                  # typecheck + tag lint + API lane (10 scenarios)
 ```
+
+Useful subsets: `npx cucumber-js --tags "@smoke"` (store-safe read-only scenarios),
+`npx cucumber-js --tags "@negative"` (FR-B4 observed error contract).
 
 ### Seeding and resetting state (important)
 
@@ -50,9 +55,10 @@ pwsh ./scripts/gate.ps1         # verify UI/REST + OpenAPI + SOAP + reset
 
 ## CI
 
-`.github/workflows/ci.yml` runs the same two scripts on every push/PR: build the image
-from the pinned commit, boot it, and pass the four-point gate (`initializeDB` seed → 204,
-REST login as seeded customer 12212, OpenAPI spec served, WSDL served).
+`.github/workflows/ci.yml` runs the same steps as local on every push/PR: build the image
+from the pinned commit, boot it, pass the four-point boot gate (`initializeDB` seed → 204,
+REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then
+`npm ci && npm run verify` on Node 24 for the test lanes.
 
 ## Provenance
 

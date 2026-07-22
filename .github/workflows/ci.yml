@@ -1,6 +1,5 @@
-# Phase-0 CI: prove the ParaBank SUT can be built from the pinned upstream commit and
-# booted to a fully verified state (UI/REST + OpenAPI + SOAP + reset) on every push/PR.
-# Test lanes are added behind this gate in later phases (see the scoping plan §5).
+# CI: build the ParaBank SUT from the pinned upstream commit, boot it to a verified
+# state (boot gate), then run the test lanes via the single verify entry point.
 name: ci
 
 on:
@@ -25,6 +24,17 @@ jobs:
       - name: Boot gate (UI/REST, OpenAPI, SOAP, initializeDB)
         shell: pwsh
         run: ./scripts/gate.ps1
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install test toolchain
+        run: npm ci
+
+      - name: Verify (typecheck + tag lint + API lane)
+        run: npm run verify
 
       - name: SUT logs on failure
         if: failure()
