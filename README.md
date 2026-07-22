@@ -3,12 +3,15 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: Phase 0 — SUT infrastructure only.** This repository currently contains the
-> Docker build/run scaffold and a CI boot gate that proves the SUT starts and serves all
-> of its surfaces. **No test code exists yet** — per the portfolio's design-document-first
-> rule, tests arrive only after `docs/design-document.md` is written and approved
-> (Phase 1). The intended shape: two lanes — Serenity/JS + Playwright + Cucumber UI
-> journeys, and API-first stateful BDD with REST↔SOAP parity checks.
+> **Status: Phase 0 complete — SUT infrastructure only.** This repository currently
+> contains the Docker build/run scaffold and a CI boot gate that proves the SUT starts and
+> serves all of its surfaces. **No test code exists yet** — per the portfolio's
+> design-document-first rule, tests arrive only after `docs/design-document.md` is written
+> and approved (Phase 1). The intended shape: two lanes — Serenity/JS + Playwright +
+> Cucumber UI journeys, and API-first stateful BDD with REST↔SOAP parity checks.
+> **The delivery plan, current phase, and the acceptance criteria gating each phase live
+> in [`docs/backlog.md`](docs/backlog.md)** — any agent picking this project up starts
+> there.
 
 ## The system under test
 
