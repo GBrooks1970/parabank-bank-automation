@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 5 — PB-P4 complete; PB-P5 in progress (published 2026-07-22; registry PR staged)
+**Version:** 6 — **PB-P0…P5 all complete; project RESTING.** Published + registered 2026-07-22.
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -238,16 +238,21 @@ passing the P-09 handover-pair manifest check.
 
 ---
 
-### PB-P5 — Portfolio registration (onboard-project) — Status: IN PROGRESS
+### PB-P5 — Portfolio registration (onboard-project) ✅ COMPLETE 2026-07-22
 
 **Goal:** make the project a first-class, orchestration-safe portfolio member.
 
-**In progress 2026-07-22:** onboarding proposal approved by the owner; registry PR staged in
-`portfolio-prompts` (draft, `onboard/parabank-bank-automation`, not merged). Public-readiness
-audit run and **owner-approved for publication** — the repo was made **public** 2026-07-22
-(evidence: [`docs/audits/2026-07-22_public-readiness.md`](audits/2026-07-22_public-readiness.md)).
-The final tick (registry PR merged + preflight green + closure) follows once the owner merges
-the registry PR.
+**Evidence:** onboarding proposal owner-approved; registry row merged
+([portfolio-prompts PR #45](https://github.com/NeoCognitus70/portfolio-prompts/pull/45)).
+Public-readiness audit ([`docs/audits/2026-07-22_public-readiness.md`](audits/2026-07-22_public-readiness.md))
+run and **owner-approved**; repo made **public** 2026-07-22, verified (public, MIT detected,
+anonymous clone, main CI green 29961935439). `workspace_preflight.py` reports the project
+**not BLOCKED** (0 blockers); the sole advisory WARN — handover freshness — is cleared by
+handover **v2** (portfolio-root repo). Project-contract gate-parsing defect (an HTML comment
+under `## Gates` was read as gate commands) fixed in this PR.
+
+**With all six phases (PB-P0…P5) complete, the project is now RESTING** — zero outstanding
+backlog phases. Registry `status` flips `active → resting` in a paired `portfolio-prompts` PR.
 
 **Work items:**
 
@@ -261,13 +266,14 @@ the registry PR.
    approval → publish → post-publication verification). Not automatic at this phase.
 
 **Acceptance criteria (project delivery complete):**
-- [~] Registry PR(s) staged, reviewed by the owner — staged (portfolio-prompts
-      `onboard/parabank-bank-automation`, draft); awaiting owner merge
-- [ ] `workspace_preflight.py` green/WARN-free for this project from the portfolio root
+- [x] Registry PR(s) staged, reviewed, and merged by the owner (portfolio-prompts PR #45)
+- [x] `workspace_preflight.py` reports the project **not BLOCKED** (0 blockers); the single
+      advisory WARN — handover freshness — is cleared by handover v2 (P-09 freshness is
+      advisory, never a hard gate)
 - [x] Publication decision recorded: **public** with audit evidence
-      (`docs/audits/2026-07-22_public-readiness.md`), owner-approved 2026-07-22
-- [ ] Backlog Version bumped with a dated closure note; project enters normal
-      resume/derive/loop lifecycle
+      (`docs/audits/2026-07-22_public-readiness.md`), owner-approved 2026-07-22, verified
+- [x] Backlog Version bumped with a dated closure note (v6); project enters normal
+      resume/derive/loop lifecycle as a **resting** member
 
 ---
 
@@ -280,7 +286,7 @@ the registry PR.
 | PB-P2 | API lane (B1–B4) | ✅ Complete 2026-07-22 | PR #4; merge `6d4525a`; main run 29936338065 |
 | PB-P3 | UI lane (A1–A5) + Serenity report | ✅ Complete 2026-07-22 | PR #6; merge `2c1b41f`; main run 29947533664 |
 | PB-P4 | Logs, README truth, handover v1 | ✅ Complete 2026-07-22 | PR #8 (`24fa8c6`); portfolio PR #36 (handover) |
-| PB-P5 | Portfolio registration + publication decision | IN PROGRESS | Published 2026-07-22 (audit); registry PR staged (draft) |
+| PB-P5 | Portfolio registration + publication decision | ✅ Complete 2026-07-22 | portfolio-prompts PR #45; public + verified (run 29961935439) |
 
 ---
 
