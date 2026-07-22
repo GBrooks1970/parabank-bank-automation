@@ -43,13 +43,12 @@ git -C $app checkout -q --detach $UpstreamCommit
 if ($LASTEXITCODE -ne 0) { throw "git checkout of pinned commit failed" }
 
 Write-Host 'Building parabank.war in maven:3.9-eclipse-temurin-17 (upstream tests skipped) ...'
+# The F-02 rename (pom emits parabank-5.0.0-SNAPSHOT.war; upstream Dockerfile expects
+# target/parabank.war) happens INSIDE the container: on Linux hosts the container writes
+# target/ as root, so a host-side copy would be permission-denied on CI runners.
 docker run --rm -v "${app}:/build" -v parabank-m2:/root/.m2 -w /build `
-    maven:3.9-eclipse-temurin-17 mvn -B -q clean package "-Dmaven.test.skip=true"
-if ($LASTEXITCODE -ne 0) { throw "Maven build failed" }
-
-# DR-PB-01 / probe F-02: upstream Dockerfile expects target/parabank.war.
-Copy-Item (Join-Path $app 'target/parabank-5.0.0-SNAPSHOT.war') `
-    (Join-Path $app 'target/parabank.war') -Force
+    maven:3.9-eclipse-temurin-17 sh -c 'mvn -B -q clean package -Dmaven.test.skip=true && cp target/parabank-5.0.0-SNAPSHOT.war target/parabank.war'
+if ($LASTEXITCODE -ne 0) { throw "Maven build (or WAR rename) failed" }
 
 Write-Host 'Building the SUT image (upstream Dockerfile, via docker compose) ...'
 docker compose --project-directory $root build
