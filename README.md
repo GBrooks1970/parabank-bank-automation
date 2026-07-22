@@ -19,7 +19,7 @@ banking demo application — run as a local, Docker-backed, resettable system un
 |---|---|
 | Upstream | [`parasoft/parabank`](https://github.com/parasoft/parabank) (Apache-2.0) |
 | Pinned commit | `d1bf0068a961e10f0d2d65c84b9a10dc7bd2c8b1` (see `scripts/build-sut.ps1`) |
-| Runtime | Single container: Tomcat 10.1 / JRE 21, embedded HSQLDB (self-seeding) |
+| Runtime | Single container: Tomcat 10.1 / JRE 21, embedded HSQLDB (seeded explicitly via `initializeDB` — DR-PB-06) |
 | App URL | http://localhost:8090/parabank/ |
 | Surfaces | Web UI · REST (`/parabank/services/bank/*`, serves its own OpenAPI 3.0.1 spec) · SOAP (`/parabank/services/ParaBank`, `/parabank/services/LoanProcessor`) |
 | Seeded identity | `john` / `demo` (customer 12212) |
