@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 4 — PB-P3 complete (UI lane, PR #6; PBR-02 recorded); PB-P4 ready to start
+**Version:** 5 — PB-P4 complete (logs + README + handover v1); PB-P5 ready to start
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -203,9 +203,15 @@ aligned across packages, playwright pinned to the peer `~1.61` range; `npm audit
 
 ---
 
-### PB-P4 — Documentation, implementation log, and handover — Status: READY TO START
+### PB-P4 — Documentation, implementation log, and handover ✅ COMPLETE 2026-07-22
 
 **Goal:** make the project resumable-cold and its public claims true.
+
+**Evidence:** project [PR #8](https://github.com/GBrooks1970/parabank-bank-automation/pull/8)
+(merge `24fa8c6`; CI green) — implementation log + README documentation map; portfolio-root
+[PR #36](https://github.com/GBrooks1970/test-automation-portfolio/pull/36) — session-notes
+handover v1 pair (`parabank-bank-automation_session-notes_v1_20260722T1929Z.{md,html}`),
+passing the P-09 handover-pair manifest check.
 
 **Work items:**
 
@@ -221,17 +227,18 @@ aligned across packages, playwright pinned to the peer `~1.61` range; `npm audit
    explicitly carried.
 
 **Acceptance criteria (gate for PB-P5):**
-- [ ] Implementation log committed; covers decisions AND deviations (anything done
-      differently from the design doc is recorded as a deviation, not silently)
-- [ ] README claims audited against reality at HEAD (each claim has a supporting artefact:
-      CI run, report, spec file)
-- [ ] Handover v1 pair exists at portfolio root `session-notes/` and passes the
-      handover-pair manifest check (`portfolio-prompts/tools/build-handover-manifest.py`)
-- [ ] This backlog shows PB-P0…P4 complete with evidence links and zero unstated gaps
+- [x] Implementation log committed; covers decisions AND deviations
+      (`docs/implementation-logs/2026-07-22_pb-p0-p3-two-lane-build.md` — in-container WAR
+      rename, tsx-over-ts-node, one-stdout-formatter, JDK-gated report, A5 loan two-gate)
+- [x] README claims audited against reality at HEAD (status, both lane counts, CI evidence,
+      quickstart, seed/reset contract all verified accurate; documentation map added)
+- [x] Handover v1 pair exists at portfolio root `session-notes/` and passes the manifest
+      check (builder re-run: 43 handovers, 10 projects; parabank indexed as latest)
+- [x] This backlog shows PB-P0…P4 complete with evidence links and zero unstated gaps
 
 ---
 
-### PB-P5 — Portfolio registration (onboard-project) — Status: BLOCKED (needs PB-P4)
+### PB-P5 — Portfolio registration (onboard-project) — Status: READY TO START
 
 **Goal:** make the project a first-class, orchestration-safe portfolio member.
 
@@ -264,8 +271,8 @@ aligned across packages, playwright pinned to the peer `~1.61` range; `npm audit
 | PB-P1 | Design document + governance docs | ✅ Complete 2026-07-22 | PR #2; merge `906a00d` |
 | PB-P2 | API lane (B1–B4) | ✅ Complete 2026-07-22 | PR #4; merge `6d4525a`; main run 29936338065 |
 | PB-P3 | UI lane (A1–A5) + Serenity report | ✅ Complete 2026-07-22 | PR #6; merge `2c1b41f`; main run 29947533664 |
-| PB-P4 | Logs, README truth, handover v1 | READY TO START | — |
-| PB-P5 | Portfolio registration + publication decision | Blocked on P4 | — |
+| PB-P4 | Logs, README truth, handover v1 | ✅ Complete 2026-07-22 | PR #8 (`24fa8c6`); portfolio PR #36 (handover) |
+| PB-P5 | Portfolio registration + publication decision | READY TO START | — |
 
 ---
 
