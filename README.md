@@ -3,7 +3,7 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: Phases 0–3 complete — both test lanes implemented.**
+> **Status: build complete (Phases 0–4) — both test lanes implemented; registration in progress (PB-P5).**
 > The SUT scaffold and CI boot gate are green (Phase 0); the design is owner-approved
 > (Phase 1, [`docs/design-document.md`](docs/design-document.md)); the **API lane**
 > (Phase 2) is 10 scenarios — FR-B1 live-spec contract conformance, FR-B2 stateful

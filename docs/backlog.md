@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 5 — PB-P4 complete (logs + README + handover v1); PB-P5 ready to start
+**Version:** 5 — PB-P4 complete; PB-P5 in progress (published 2026-07-22; registry PR staged)
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -53,7 +53,7 @@ Outstanding Risks using the portfolio's standard scoring.
 **What it was:** prove the pinned upstream can be built and booted to a verified state,
 locally and in CI, before any project design work.
 
-**Evidence:** repo `GBrooks1970/parabank-bank-automation` (private) at commit `fcd96a7`;
+**Evidence:** repo `GBrooks1970/parabank-bank-automation` (private then; made public 2026-07-22) at commit `fcd96a7`;
 CI run [29918600202](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/29918600202)
 green (`sut-boot-gate`, 2m14s); portfolio root PR #35 (gitignore entry) merged. Findings
 banked: fresh-container seeding is explicit (gate seeds first), and the F-02 WAR rename must
@@ -238,9 +238,16 @@ passing the P-09 handover-pair manifest check.
 
 ---
 
-### PB-P5 — Portfolio registration (onboard-project) — Status: READY TO START
+### PB-P5 — Portfolio registration (onboard-project) — Status: IN PROGRESS
 
 **Goal:** make the project a first-class, orchestration-safe portfolio member.
+
+**In progress 2026-07-22:** onboarding proposal approved by the owner; registry PR staged in
+`portfolio-prompts` (draft, `onboard/parabank-bank-automation`, not merged). Public-readiness
+audit run and **owner-approved for publication** — the repo was made **public** 2026-07-22
+(evidence: [`docs/audits/2026-07-22_public-readiness.md`](audits/2026-07-22_public-readiness.md)).
+The final tick (registry PR merged + preflight green + closure) follows once the owner merges
+the registry PR.
 
 **Work items:**
 
@@ -254,10 +261,11 @@ passing the P-09 handover-pair manifest check.
    approval → publish → post-publication verification). Not automatic at this phase.
 
 **Acceptance criteria (project delivery complete):**
-- [ ] Registry PR(s) staged, reviewed, and merged by the owner
+- [~] Registry PR(s) staged, reviewed by the owner — staged (portfolio-prompts
+      `onboard/parabank-bank-automation`, draft); awaiting owner merge
 - [ ] `workspace_preflight.py` green/WARN-free for this project from the portfolio root
-- [ ] Publication decision recorded (public with audit evidence, or explicitly private
-      with the reason) — no silent state
+- [x] Publication decision recorded: **public** with audit evidence
+      (`docs/audits/2026-07-22_public-readiness.md`), owner-approved 2026-07-22
 - [ ] Backlog Version bumped with a dated closure note; project enters normal
       resume/derive/loop lifecycle
 
@@ -272,7 +280,7 @@ passing the P-09 handover-pair manifest check.
 | PB-P2 | API lane (B1–B4) | ✅ Complete 2026-07-22 | PR #4; merge `6d4525a`; main run 29936338065 |
 | PB-P3 | UI lane (A1–A5) + Serenity report | ✅ Complete 2026-07-22 | PR #6; merge `2c1b41f`; main run 29947533664 |
 | PB-P4 | Logs, README truth, handover v1 | ✅ Complete 2026-07-22 | PR #8 (`24fa8c6`); portfolio PR #36 (handover) |
-| PB-P5 | Portfolio registration + publication decision | READY TO START | — |
+| PB-P5 | Portfolio registration + publication decision | IN PROGRESS | Published 2026-07-22 (audit); registry PR staged (draft) |
 
 ---
 
