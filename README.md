@@ -72,6 +72,18 @@ REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then `np
 Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for both lanes. The
 generated Serenity report is uploaded as the `serenity-report` build artifact.
 
+## Documentation
+
+- [`docs/design-document.md`](docs/design-document.md) — the approved design (scope,
+  requirements FR-A1…A5 / FR-B1…B4, screenplay inventory, policies).
+- [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…07 with rationale.
+- [`docs/qa-strategy.md`](docs/qa-strategy.md) — ISTQB levels, types, techniques, exit criteria.
+- [`docs/naming-conventions.md`](docs/naming-conventions.md) — files, Gherkin, screenplay, git.
+- [`docs/backlog.md`](docs/backlog.md) — phased delivery plan, gate status, and open risks
+  (**start here to resume the project**).
+- [`docs/implementation-logs/`](docs/implementation-logs/) — append-only build history
+  (what was built, decided, broke, learned).
+
 ## Provenance
 
 - Candidate selection: portfolio `portfolio-docs/PORTFOLIO_CANDIDATE_PROJECTS_RESEARCH_2026-07-20.md`
