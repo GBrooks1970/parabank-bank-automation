@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 2 — PB-P1 complete (design approved via PR #2); PB-P2 ready to start
+**Version:** 3 — PB-P2 complete (API lane, PR #4; PBR-01 recorded); PB-P3 ready to start
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -119,11 +119,20 @@ A1–A5 + B1–B4** (design doc §1/§11) and **MIT licence**. Delivered:
 
 ---
 
-### PB-P2 — API lane (Lane B) — Status: READY TO START
+### PB-P2 — API lane (Lane B) ✅ COMPLETE 2026-07-22
 
 **Goal:** the API-first screenplay BDD suite. Delivered before the UI lane deliberately: it
 needs no Serenity plumbing, proves the SUT contract early, and its client becomes the UI
 lane's verification hook (scoping plan §5).
+
+**Evidence:** [PR #4](https://github.com/GBrooks1970/parabank-bank-automation/pull/4)
+(merge `6d4525a`); post-merge `main` CI
+[run 29936338065](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/29936338065)
+green (boot gate + `npm ci` + `npm run verify` on Node 24). 10 scenarios (B1–B4) green;
+determinism 10/10 twice consecutively; smoke 2/2; `npm audit` 0. FR-B1 surfaced a real
+spec/implementation mismatch → risk **PBR-01** (below) with a narrow named allowance.
+Toolchain notes for the log: TypeScript 7 (NodeNext; `node10` resolution removed) with
+`tsx/cjs` as the cucumber loader (`ts-node` is incompatible with TS7's compiler API).
 
 **Work items (scenario set per the PB-P1-approved scope):**
 
@@ -140,17 +149,20 @@ lane's verification hook (scoping plan §5).
    existing boot gate.
 
 **Acceptance criteria (gate for PB-P3):**
-- [ ] Every scenario shape approved in PB-P1 for Lane B is implemented and green
-- [ ] Scenarios that mutate state are `initializeDB`-bracketed; suite passes **twice in a
-      row locally without manual intervention** (proves reset determinism)
-- [ ] No fixed sleeps; readiness is polled (gate.ps1 pattern)
-- [ ] `npm run verify` (contract name) is the single entry point, green locally and in CI
-- [ ] CI on `main` green with boot gate + API lane; run link recorded here on completion
-- [ ] Backlog updated: this phase ticked, defects found recorded under Outstanding Risks
+- [x] Every scenario shape approved in PB-P1 for Lane B is implemented and green
+      (B1: 3 scenarios, B2: 1, B3: 2, B4: 4 — 10 total)
+- [x] Scenarios that mutate state are `initializeDB`-bracketed (`@mutates` hook); suite
+      passed **10/10 twice consecutively locally** with no manual intervention
+- [x] No fixed sleeps; readiness is polled (`seedDatabase` doubles as the readiness wait)
+- [x] `npm run verify` (typecheck + tag lint + suite) is the single entry point, green
+      locally and in CI; recorded in `docs/project-contract.md` Gates
+- [x] CI on `main` green with boot gate + API lane:
+      [run 29936338065](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/29936338065)
+- [x] Backlog updated: this phase ticked; **PBR-01** recorded under Outstanding Risks
 
 ---
 
-### PB-P3 — UI lane (Lane A) — Status: BLOCKED (needs PB-P2)
+### PB-P3 — UI lane (Lane A) — Status: READY TO START
 
 **Goal:** the Serenity/JS + Playwright + Cucumber journey suite with living documentation.
 
@@ -235,8 +247,8 @@ lane's verification hook (scoping plan §5).
 |---|---|---|---|
 | PB-P0 | SUT infrastructure + CI boot gate | ✅ Complete 2026-07-22 | CI run 29918600202; commit `fcd96a7` |
 | PB-P1 | Design document + governance docs | ✅ Complete 2026-07-22 | PR #2; merge `906a00d` |
-| PB-P2 | API lane (B1–B4) | READY TO START | — |
-| PB-P3 | UI lane (A1–A5) + Serenity report | Blocked on P2 | — |
+| PB-P2 | API lane (B1–B4) | ✅ Complete 2026-07-22 | PR #4; merge `6d4525a`; main run 29936338065 |
+| PB-P3 | UI lane (A1–A5) + Serenity report | READY TO START | — |
 | PB-P4 | Logs, README truth, handover v1 | Blocked on P3 | — |
 | PB-P5 | Portfolio registration + publication decision | Blocked on P4 | — |
 
