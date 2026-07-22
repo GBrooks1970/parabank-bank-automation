@@ -3,15 +3,15 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: Phase 0 complete — SUT infrastructure only.** This repository currently
-> contains the Docker build/run scaffold and a CI boot gate that proves the SUT starts and
-> serves all of its surfaces. **No test code exists yet** — per the portfolio's
-> design-document-first rule, tests arrive only after `docs/design-document.md` is written
-> and approved (Phase 1). The intended shape: two lanes — Serenity/JS + Playwright +
-> Cucumber UI journeys, and API-first stateful BDD with REST↔SOAP parity checks.
-> **The delivery plan, current phase, and the acceptance criteria gating each phase live
-> in [`docs/backlog.md`](docs/backlog.md)** — any agent picking this project up starts
-> there.
+> **Status: Phases 0–1 complete — infrastructure + approved design, no test code yet.**
+> The SUT scaffold and CI boot gate are green (Phase 0), and the design is fixed and
+> owner-approved (Phase 1): full scope — five UI journeys (A1–A5, Serenity/JS +
+> Playwright + Cucumber) and four API scenario shapes (B1–B4, including REST↔SOAP
+> parity) — see [`docs/design-document.md`](docs/design-document.md) and
+> [`docs/decision-register.md`](docs/decision-register.md). Test code arrives with
+> Phase 2 (API lane). **The delivery plan, current phase, and the acceptance criteria
+> gating each phase live in [`docs/backlog.md`](docs/backlog.md)** — any agent picking
+> this project up starts there.
 
 ## The system under test
 
@@ -63,6 +63,8 @@ REST login as seeded customer 12212, OpenAPI spec served, WSDL served).
 
 ## Licence
 
-The upstream ParaBank application is Apache-2.0 (Parasoft). This repository contains no
-upstream source; it fetches it at build time at the pinned commit. A licence for this
-repository's own content will be declared alongside the design document (Phase 1).
+This repository's own content is **MIT-licensed** (see [`LICENSE`](LICENSE); owner
+decision 2026-07-22, recorded in the design document §11). The upstream ParaBank
+application is Apache-2.0 (Parasoft) and is never committed here — `scripts/build-sut.ps1`
+fetches it at build time at the pinned commit; the Apache-2.0 licence travels with that
+checkout (`target-app/`, gitignored) and the built image.
