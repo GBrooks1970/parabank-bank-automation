@@ -14,7 +14,7 @@
 **Date:** 2026-07-22
 **Author:** Claude (Fable 5) with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
-**Status:** In Review (becomes Approved on owner merge)
+**Status:** Approved (owner merge of PR #2, `906a00d`, 2026-07-22)
 
 ---
 
@@ -438,4 +438,4 @@ None blocking.
 
 | Role | Name | Vehicle | Date |
 |---|---|---|---|
-| Owner | Gary Brooks | PR review + merge of the PB-P1 PR | (merge date) |
+| Owner | Gary Brooks | PR review + merge of [PR #2](https://github.com/GBrooks1970/parabank-bank-automation/pull/2) (`906a00d`) | 2026-07-22 |
