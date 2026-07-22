@@ -1,0 +1,35 @@
+# Phase-0 CI: prove the ParaBank SUT can be built from the pinned upstream commit and
+# booted to a fully verified state (UI/REST + OpenAPI + SOAP + reset) on every push/PR.
+# Test lanes are added behind this gate in later phases (see the scoping plan §5).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  sut-boot-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build SUT image (pinned upstream, containerised Maven)
+        shell: pwsh
+        run: ./scripts/build-sut.ps1
+
+      - name: Start ParaBank
+        run: docker compose up -d
+
+      - name: Boot gate (UI/REST, OpenAPI, SOAP, initializeDB)
+        shell: pwsh
+        run: ./scripts/gate.ps1
+
+      - name: SUT logs on failure
+        if: failure()
+        run: docker logs parabank || true
+
+      - name: Teardown
+        if: always()
+        run: docker compose down

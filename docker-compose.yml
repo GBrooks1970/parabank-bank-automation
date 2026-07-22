@@ -1,0 +1,21 @@
+# ParaBank SUT — single container (probe finding F-03: embedded HSQLDB, no DB service).
+#
+# Prepare the image first with scripts/build-sut.ps1 (fetches the pinned upstream source,
+# builds the WAR in a containerised Maven, renames it for the upstream Dockerfile below).
+#
+# Lifecycle (probe finding F-06):
+#   docker compose up -d                      # start; first boot self-seeds (~18 s)
+#   POST /parabank/services/bank/initializeDB # in-place deterministic reset to seed data
+#   docker compose restart                    # NOT a reset — data persists in the container
+#   docker compose down && up -d              # clean slate (recreates the container)
+#
+# DR-PB-04: only Tomcat 8080 is mapped (host 8090); HSQLDB 9001 and ActiveMQ 61616 stay
+# unmapped — not needed by any test lane, and avoids the upstream-documented port-clash class.
+services:
+  parabank:
+    build:
+      context: ./target-app/parabank   # upstream Dockerfile at the pinned commit (DR-PB-02)
+    image: parabank:d1bf006
+    container_name: parabank
+    ports:
+      - "8090:8080"

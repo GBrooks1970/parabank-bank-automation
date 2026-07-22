@@ -1,0 +1,12 @@
+# Pinned upstream checkout + its Maven build output — recreated by scripts/build-sut.ps1.
+# Upstream source is never committed here; the pin (commit SHA) lives in that script.
+/target-app/
+
+# Node toolchain (arrives with the test lanes in later phases)
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
