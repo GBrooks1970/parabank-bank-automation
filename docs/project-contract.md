@@ -8,12 +8,13 @@
 pwsh ./scripts/build-sut.ps1
 docker compose up -d
 pwsh ./scripts/gate.ps1
+npm run verify
 docker compose down
 
-<!-- Gate evolution (per design doc §5.10 and backlog PB-P2): when the test toolchain
-     lands, `npm run verify` (typecheck + lanes + report content check) is INSERTED between
-     gate.ps1 and compose down, becoming the single test entry point. The SUT boot remains
-     the precondition, not part of verify. Update this file in the same PR that adds it. -->
+<!-- `npm run verify` = typecheck + tag lint + lane suites (single test entry point per
+     design doc §5.10; the PB-P3 report content check joins it in that phase). It assumes
+     `npm ci` has run and the SUT is up — the boot steps above are the precondition, not
+     part of verify. -->
 
 ## Working norms
 

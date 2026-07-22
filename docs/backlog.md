@@ -244,9 +244,30 @@ lane's verification hook (scoping plan §5).
 
 ## Outstanding Risks
 
-None recorded yet. Defects/risks discovered during any phase are added here using the
-template's risk block and scoring; phase gates cannot be ticked while a HIGH risk in that
-phase's scope is open.
+Defects/risks discovered during any phase are added here using the template's risk block
+and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
+
+### LOW Priority (Score: 0–9)
+
+#### Risk PBR-01: Live OpenAPI spec mis-declares `Transaction.date` — Score: 5
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
+**Impact:** The SUT's own spec declares `Transaction.date` as `string`/`date-time`, but the
+JSON responses return epoch milliseconds (observed live 2026-07-22, e.g. `1765411200000`).
+**Status:** RECORDED — asserted, not accommodated
+**Affected:** FR-B1 (`features/api/b1-rest-contract.feature`)
+
+**Problem:** A genuine upstream spec/implementation mismatch in the pinned SUT
+(`d1bf006`). Per FR-B1 and the assert-as-observed policy (design doc §5.7), the
+conformance scenario carries a **narrow, named allowance** (`/date must be string`)
+citing this risk, so any *other* deviation still fails the gate.
+
+**Refactor Strategy:** none in this repo (we do not patch the SUT). If the upstream pin is
+ever bumped (DR-PB-02), re-run FR-B1 without the allowance to check whether upstream fixed
+it; drop the allowance and resolve this risk if so.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, the allowance is re-justified or removed.
 
 ### Resolved Risks
 
