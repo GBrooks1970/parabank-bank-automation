@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 3 — PB-P2 complete (API lane, PR #4; PBR-01 recorded); PB-P3 ready to start
+**Version:** 4 — PB-P3 complete (UI lane, PR #6; PBR-02 recorded); PB-P4 ready to start
 **Last Updated:** 2026-07-22
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -162,9 +162,19 @@ Toolchain notes for the log: TypeScript 7 (NodeNext; `node10` resolution removed
 
 ---
 
-### PB-P3 — UI lane (Lane A) — Status: READY TO START
+### PB-P3 — UI lane (Lane A) ✅ COMPLETE 2026-07-22
 
 **Goal:** the Serenity/JS + Playwright + Cucumber journey suite with living documentation.
+
+**Evidence:** [PR #6](https://github.com/GBrooks1970/parabank-bank-automation/pull/6)
+(merge `2c1b41f`); post-merge `main` CI
+[run 29947533664](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/29947533664)
+green (boot gate + Java + Playwright Chromium + full `npm run verify`, Serenity report
+uploaded as the `serenity-report` artifact). 8 UI scenarios (A1–A5) green; full verify
+(10 API + 8 UI + smoke-safety + report content check) green **twice consecutively**
+locally. A5 loan pinned deterministic via admin `setParameter` after reading the upstream
+two-gate approval rule (funds ceiling 1692.67 + 20% down-payment ratio). Serenity/JS 3.44.1
+aligned across packages, playwright pinned to the peer `~1.61` range; `npm audit` 0.
 
 **Work items (journey set per the PB-P1-approved scope):**
 
@@ -178,17 +188,22 @@ Toolchain notes for the log: TypeScript 7 (NodeNext; `node10` resolution removed
    report shell went unnoticed at go-live; never trust generation alone).
 
 **Acceptance criteria (gate for PB-P4):**
-- [ ] Every journey approved in PB-P1 for Lane A is implemented and green
-- [ ] UI outcomes cross-checked via the API client where specified in the design doc
-- [ ] `@smoke` subset runs green, is provably side-effect-free (run it, then assert seed
-      state unchanged without an intervening reset), and its count matches the design doc
-- [ ] Serenity report generated in CI **and** content-verified (scenario names + counts
-      present, not an empty shell); verification is automated, not eyeballed
-- [ ] Full suite (boot gate + API lane + UI lane) green in CI on `main`; run link recorded
+- [x] Every journey approved in PB-P1 for Lane A is implemented and green (A1–A5, 8
+      scenarios incl. approved+denied loan)
+- [x] UI outcomes cross-checked via the API client where specified in the design doc
+      (balances, transaction records, opening balances via the shared REST client)
+- [x] `@smoke` subset runs green, is provably side-effect-free (`scripts/smoke-safety.mjs`:
+      seed → run @smoke both profiles → assert seed byte-identical with no reset), and its
+      count matches the design doc (3: 2 API + 1 UI, enforced by `scripts/check-tags.mjs`)
+- [x] Serenity report generated in CI **and** content-verified automatically
+      (`scripts/check-report.mjs`: every scenario name in the artefacts + non-trivial HTML
+      in CI); one stdout formatter only (magento empty-shell + one-formatter lessons)
+- [x] Full suite (boot gate + API lane + UI lane) green in CI on `main`:
+      [run 29947533664](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/29947533664)
 
 ---
 
-### PB-P4 — Documentation, implementation log, and handover — Status: BLOCKED (needs PB-P3)
+### PB-P4 — Documentation, implementation log, and handover — Status: READY TO START
 
 **Goal:** make the project resumable-cold and its public claims true.
 
@@ -248,8 +263,8 @@ Toolchain notes for the log: TypeScript 7 (NodeNext; `node10` resolution removed
 | PB-P0 | SUT infrastructure + CI boot gate | ✅ Complete 2026-07-22 | CI run 29918600202; commit `fcd96a7` |
 | PB-P1 | Design document + governance docs | ✅ Complete 2026-07-22 | PR #2; merge `906a00d` |
 | PB-P2 | API lane (B1–B4) | ✅ Complete 2026-07-22 | PR #4; merge `6d4525a`; main run 29936338065 |
-| PB-P3 | UI lane (A1–A5) + Serenity report | READY TO START | — |
-| PB-P4 | Logs, README truth, handover v1 | Blocked on P3 | — |
+| PB-P3 | UI lane (A1–A5) + Serenity report | ✅ Complete 2026-07-22 | PR #6; merge `2c1b41f`; main run 29947533664 |
+| PB-P4 | Logs, README truth, handover v1 | READY TO START | — |
 | PB-P5 | Portfolio registration + publication decision | Blocked on P4 | — |
 
 ---
@@ -260,6 +275,22 @@ Defects/risks discovered during any phase are added here using the template's ri
 and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
 
 ### LOW Priority (Score: 0–9)
+
+#### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
+
+**Priority Score:** Security Impact (0) + Breakage Probability (2) + Maintenance Burden (1) = **3 points**
+**Impact:** The PB-P3 `main` CI run (29947533664) is green but annotates that
+`actions/setup-java@v4` and `actions/upload-artifact@v4` still run on Node 20, which
+GitHub's runners are deprecating (being force-run on Node 24 for now).
+**Status:** RECORDED — warning only, not a failure
+**Affected:** `.github/workflows/ci.yml`
+
+**Problem:** These are already the latest major versions of both actions, so there is no
+bump to make today; when the actions publish Node-24-native majors, adopt them. Until then
+the forced Node 24 keeps CI green.
+
+**Success Criteria:**
+- [ ] Bump `setup-java` / `upload-artifact` when a Node-24-native major is available.
 
 #### Risk PBR-01: Live OpenAPI spec mis-declares `Transaction.date` — Score: 5
 
