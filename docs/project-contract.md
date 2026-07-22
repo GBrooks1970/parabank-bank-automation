@@ -11,10 +11,13 @@ pwsh ./scripts/gate.ps1
 npm run verify
 docker compose down
 
-<!-- `npm run verify` = typecheck + tag lint + lane suites (single test entry point per
-     design doc §5.10; the PB-P3 report content check joins it in that phase). It assumes
-     `npm ci` has run and the SUT is up — the boot steps above are the precondition, not
-     part of verify. -->
+<!-- `npm run verify` (single test entry point, design doc §5.10) =
+       typecheck → tag lint → smoke-safety proof → API lane → UI lane →
+       Serenity report generation → report content check.
+     Preconditions: `npm ci` has run, the SUT is up (boot steps above), and — for the
+     full UI lane and report — Playwright's Chromium (`npx playwright install chromium`)
+     and, for the HTML report only, a JDK are present. The report step degrades to a
+     no-op where Java is absent (local dev); CI installs both and enforces the HTML. -->
 
 ## Working norms
 
@@ -22,6 +25,10 @@ docker compose down
 - SUT pin (DR-PB-02): upstream commit changes are their own reviewed PRs, never drive-by.
 - Assert-as-observed (design doc §5.7): SUT quirks are the spec; do not "fix" assertions
   to match conventional API behaviour.
-- Scenarios run serially; `@mutates` = reset-bracketed; `@smoke` never mutates.
+- Scenarios run serially; `@mutates` = reset-bracketed; `@smoke` never mutates; `@loan`
+  scenarios pin admin loan params and re-seed afterwards (design doc §5.6).
+- UI outcomes are cross-checked via the shared REST client, not the UI alone.
+- The Serenity report is content-verified, never trusted to have merely been generated
+  (magento empty-shell lesson).
 - Owner merges PRs; a phase gate ticks only with evidence links (docs/backlog.md).
 - en-GB in prose docs; see docs/naming-conventions.md.

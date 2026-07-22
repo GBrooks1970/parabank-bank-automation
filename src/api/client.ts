@@ -80,6 +80,11 @@ export class ParaBankRestClient {
     );
   }
 
+  /** Admin parameter tuning — used only by the FR-A5 loan-pinning hook (design doc §5.6). */
+  setParameter(name: string, value: string): Promise<ApiResponse> {
+    return this.exec('POST', `${this.services}/setParameter/${encodeURIComponent(name)}/${encodeURIComponent(value)}`);
+  }
+
   initializeDB(): Promise<ApiResponse> {
     return this.exec('POST', `${this.services}/initializeDB`);
   }
