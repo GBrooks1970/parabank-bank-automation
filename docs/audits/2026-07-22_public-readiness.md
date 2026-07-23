@@ -38,11 +38,11 @@ here (`target-app/` is gitignored and fetched at build time), so it is out of sc
 
 ---
 
-## Post-publication verification (2026-07-22)
+## Post-publication verification (2026-07-22) — all confirmed
 
-- [ ] GitHub reports the repository as **public**.
-- [ ] GitHub detects the licence as **MIT** (`gh repo view … --json licenseInfo`).
-- [ ] An **anonymous clone** succeeds (no credentials).
-- [ ] Default-branch **CI is green** after publication.
-
-*(Boxes are ticked in the publication PR / a follow-up once each is confirmed.)*
+- [x] GitHub reports the repository as **public** (`visibility: PUBLIC`, `isPrivate: false`).
+- [x] GitHub detects the licence as **MIT** (`GET repos/…/license` → `spdx_id: MIT`; the
+      GraphQL `licenseInfo` field briefly lagged null after the visibility change).
+- [x] An **anonymous clone** succeeds with credentials disabled
+      (`git -c credential.helper= clone …`).
+- [x] Default-branch **CI is green** after publication (run 29961935439, success).

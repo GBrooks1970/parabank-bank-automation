@@ -1,7 +1,17 @@
 # Project Contract — parabank-bank-automation
 
 <!-- First-checked gate source per portfolio-prompts/project-layout.md §"Project contract".
-     One command per line under Gates; ALL must pass before a commit is gated green. -->
+     One command per line under `## Gates`; ALL must pass before a commit is gated green.
+     Keep the `## Gates` section to bare commands only — the workspace preflight parses
+     every line under it as a gate command, so no prose or comments belong there. -->
+
+<!-- What `npm run verify` covers (single test entry point, design doc §5.10):
+       typecheck -> tag lint -> smoke-safety proof -> API lane -> UI lane ->
+       Serenity report generation -> report content check.
+     Preconditions: `npm ci` has run, the SUT is up (the boot steps below), and — for the
+     full UI lane and report — Playwright's Chromium (`npx playwright install chromium`)
+     and, for the HTML report only, a JDK are present. The report step degrades to a
+     no-op where Java is absent (local dev); CI installs both and enforces the HTML. -->
 
 ## Gates
 
@@ -11,17 +21,9 @@ pwsh ./scripts/gate.ps1
 npm run verify
 docker compose down
 
-<!-- `npm run verify` (single test entry point, design doc §5.10) =
-       typecheck → tag lint → smoke-safety proof → API lane → UI lane →
-       Serenity report generation → report content check.
-     Preconditions: `npm ci` has run, the SUT is up (boot steps above), and — for the
-     full UI lane and report — Playwright's Chromium (`npx playwright install chromium`)
-     and, for the HTML report only, a JDK are present. The report step degrades to a
-     no-op where Java is absent (local dev); CI installs both and enforces the HTML. -->
-
 ## Working norms
 
-- Boot→seed→use (DR-PB-06): never assume a fresh container is seeded; `gate.ps1` seeds.
+- Boot->seed->use (DR-PB-06): never assume a fresh container is seeded; `gate.ps1` seeds.
 - SUT pin (DR-PB-02): upstream commit changes are their own reviewed PRs, never drive-by.
 - Assert-as-observed (design doc §5.7): SUT quirks are the spec; do not "fix" assertions
   to match conventional API behaviour.
