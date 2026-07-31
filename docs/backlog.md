@@ -13,19 +13,24 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 6 — **PB-P0…P5 all complete; project RESTING.** Published + registered 2026-07-22.
-**Last Updated:** 2026-07-22
+**Version:** 7 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+Reconciled 2026-07-31.
+**Last Updated:** 2026-07-31
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
-(findings F-01…F-07, cited throughout as "probe F-0x").
+(findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
+`.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/` (baseline `dc3a209`, PR #12 merged as
+`b14e302`).
 
-This backlog tracks the delivery of the ParaBank test-automation project as **six sequential
-phases (PB-P0…PB-P5), each gated by acceptance criteria**. Ordering principle: strict phase
-order — no work from phase N+1 before phase N's gate is fully ticked. Within a phase, items
-may be reordered freely. Defects and risks discovered during delivery are recorded under
-Outstanding Risks using the portfolio's standard scoring.
+This backlog tracks the delivered ParaBank test-automation project as **six sequential
+phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the current
+post-closure review-remediation cycle (PB-CODEX-01…10). The completed phases remain
+historical evidence and are not reopened. Current work follows the dependencies and owner
+decision gates in the remediation section. Defects and risks discovered during delivery are
+recorded under Outstanding Risks using the portfolio's standard scoring.
 
-**Priority Scoring System** (used for risks only; phases are sequenced, not scored):
+**Priority Scoring System** (used for risks and review-remediation ordering; delivered
+phases were sequenced, not scored):
 - **Score = Security Impact (0–10) + Breakage Probability (0–10) + Maintenance Burden (0–10)**
 - **HIGH (20–30)** critical · **MEDIUM (10–19)** important · **LOW (0–9)** desirable
 
@@ -251,8 +256,9 @@ anonymous clone, main CI green 29961935439). `workspace_preflight.py` reports th
 handover **v2** (portfolio-root repo). Project-contract gate-parsing defect (an HTML comment
 under `## Gates` was read as gate commands) fixed in this PR.
 
-**With all six phases (PB-P0…P5) complete, the project is now RESTING** — zero outstanding
-backlog phases. Registry `status` flips `active → resting` in a paired `portfolio-prompts` PR.
+**At the 2026-07-22 closure, all six phases (PB-P0…P5) were complete and the project entered
+RESTING** with zero outstanding delivery phases. The 2026-07-31 review reconciliation below
+starts a separate maintenance cycle and returns the registry status to `active`.
 
 **Work items:**
 
@@ -287,6 +293,158 @@ backlog phases. Registry `status` flips `active → resting` in a paired `portfo
 | PB-P3 | UI lane (A1–A5) + Serenity report | ✅ Complete 2026-07-22 | PR #6; merge `2c1b41f`; main run 29947533664 |
 | PB-P4 | Logs, README truth, handover v1 | ✅ Complete 2026-07-22 | PR #8 (`24fa8c6`); portfolio PR #36 (handover) |
 | PB-P5 | Portfolio registration + publication decision | ✅ Complete 2026-07-22 | portfolio-prompts PR #45; public + verified (run 29961935439) |
+
+---
+
+## CODEX Review-v1 Remediation Cycle
+
+**Cycle status:** ACTIVE — 10 open implementation items: 2 HIGH, 5 MEDIUM, 3 LOW.
+
+**Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
+`b14e302`. This section is the authoritative project-repo counterpart of the portfolio-root
+`WORKLIST_parabank-bank-automation.md`. Items are ordered by priority; dependency gates
+override list order. Optional product-surface expansion remains outside this cycle.
+
+### Owner decision gates
+
+The reconciliation records recommendations but does not silently exercise owner authority.
+Each decision must be recorded in a versioned design/backlog amendment before its dependent
+implementation starts.
+
+#### OD-PB-01 — FR-B1 contract breadth — PENDING OWNER DECISION
+
+- **Option A — full in-scope client surface:** bind every in-scope
+  `ParaBankRestClient` operation to its live OpenAPI path/method and record any intentional
+  exclusions. Stronger evidence and consistent with the current design promise; larger
+  matrix and maintenance surface.
+- **Option B — representative read-contract sample:** keep the existing read-focused lane,
+  publish the exact sample and exclusions, and narrow the design/QA claims. Less work, but
+  weaker contract evidence for client operations used by stateful journeys.
+- **Recommendation: Option A.** The client and stateful journeys already exercise the wider
+  surface, so an operation-aware matrix converts existing behaviour into honest, durable
+  evidence without adding product scope.
+- **Blocks:** PB-CODEX-01 completion and PB-CODEX-02 implementation.
+
+#### OD-PB-02 — Amount-boundary evidence — PENDING OWNER DECISION
+
+- **Option A — add executable boundaries:** cover zero, minimum-positive, and
+  exact-available-balance amounts in a compact, reset-bracketed API scenario outline.
+  Stronger ISTQB boundary evidence; deliberately changes scenario/report counts.
+- **Option B — narrow the QA strategy:** remove the unsupported boundary claim and retain
+  the current invalid/exceeding partitions. Smallest change, but leaves a useful financial
+  boundary gap.
+- **Recommendation: Option A.** The deterministic seed/reset contract makes these three
+  examples inexpensive and gives the portfolio materially stronger boundary-value evidence.
+- **Blocks:** PB-CODEX-04 implementation.
+
+#### OD-PB-03 — Meaning of “pinned SUT” — PENDING OWNER DECISION
+
+- **Option A — end-to-end immutable inputs:** retain the source commit pin and add reviewed
+  full-SHA GitHub Action pins plus Maven builder and relevant runtime image digests, with a
+  documented refresh procedure. Strongest reproducibility and supply-chain posture.
+- **Option B — source-only pin:** define “pinned SUT” as the ParaBank source commit only,
+  keep readable mutable action/image tags, and narrow the documentation claim. Lower update
+  overhead, but builds remain time-dependent.
+- **Recommendation: Option A.** The project already markets a reproducible pinned SUT; immutable
+  build and CI inputs make that claim defensible and improve security at the same time.
+- **Blocks:** PB-CODEX-05 and PB-CODEX-06 implementation.
+
+### HIGH Priority
+
+- [ ] **PB-CODEX-01 — Agree and record the intended FR-B1 contract surface**
+  - Acceptance: an owner-approved, versioned design/backlog amendment records OD-PB-01,
+    defines the exact path/method matrix, required evidence per operation, and intentional
+    exclusions without weakening assert-as-observed or the PBR-01 deviation rule.
+  - Type: docs-only. Dependency: owner decision OD-PB-01.
+
+- [ ] **PB-CODEX-02 — Make FR-B1 operation-aware against the approved endpoint matrix**
+  - Acceptance: every operation selected by PB-CODEX-01 is bound to its live OpenAPI path
+    and method and verifies observed status, response media type, and operation response
+    schema; format validation is enabled or each exception cites a current backlog risk; an
+    exercised/excluded coverage summary is produced; targeted tests, `npm run verify`, the
+    five-command project contract, and PR CI pass.
+  - Type: code + docs. Dependency: PB-CODEX-01.
+
+### MEDIUM Priority
+
+- [ ] **PB-CODEX-03 — Add a fast unit-test lane for non-trivial framework helpers**
+  - Acceptance: a lightweight TypeScript test command covers normal SOAP
+    envelope/parsing behaviour, OpenAPI operation/deviation selection, Cucumber tag
+    inheritance, and Serenity report-integrity parsing without a live SUT; production
+    helpers are extracted only as needed; the unit command runs before E2E in
+    `npm run verify`; the full project contract and PR CI pass.
+  - Type: code.
+
+- [ ] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy**
+  - Acceptance under recommended OD-PB-02 Option A: compact API scenarios cover zero,
+    minimum-positive, and exact-available-balance amounts using deterministic seed state
+    and assert-as-observed outcomes; existing exceeding-balance and non-numeric partitions
+    remain covered; `docs/qa-strategy.md` links each claim to executable evidence; scenario
+    counts/report guards are updated; `npm run verify`, the full project contract, and PR
+    CI pass.
+  - If the owner selects Option B, replace this acceptance text in the decision amendment
+    before implementation; do not silently narrow the claim.
+  - Type: code + docs. Dependency: owner decision OD-PB-02.
+
+- [ ] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins**
+  - Acceptance under recommended OD-PB-03 Option A: `.github/workflows/ci.yml` declares
+    `permissions: contents: read` (additional permissions narrowly justified), pins every
+    executed action to a reviewed full commit SHA with a readable release comment, and
+    documents a review/update mechanism; workflow syntax and the full PR gate pass. PBR-02
+    stays open until its separate Node-runtime annotation clears.
+  - Type: CI workflow + docs. Dependency: owner decision OD-PB-03.
+
+- [ ] **PB-CODEX-06 — Pin the Maven builder and relevant ParaBank runtime bases by digest**
+  - Acceptance under recommended OD-PB-03 Option A: Maven builder and relevant runtime
+    base references resolve through explicit immutable `sha256` digests while retaining
+    readable version tags/comments; the build fails clearly when a required digest is
+    absent or stale; a deliberate refresh procedure records source, digest, review, and
+    full-gate evidence; `pwsh ./scripts/build-sut.ps1`, the complete project contract, and
+    PR CI pass.
+  - Type: build/container configuration + docs. Dependency: owner decision OD-PB-03.
+
+- [ ] **PB-CODEX-07 — Bound REST, SOAP, and live-spec requests with contextual deadlines**
+  - Acceptance: a central timeout policy supplies abort signals to the general REST
+    client, SOAP client, and live OpenAPI fetch while preserving the reset poller's bounded
+    behaviour; errors identify method/operation, safe URL path, and elapsed limit without
+    exposing credentials; unit tests prove timeout/abort behaviour; `npm run verify`, the
+    full project contract, and PR CI pass.
+  - Type: code. Dependency: PB-CODEX-03.
+
+### LOW Priority
+
+- [ ] **PB-CODEX-08 — Reconcile README closure status and REST cross-check claims**
+  - Acceptance: `README.md` distinguishes completed PB-P0…PB-P5 delivery from the active
+    remediation cycle, replaces the claim that every UI journey is REST cross-checked with
+    wording matching implemented checks, and contains no other status/scope claim that
+    contradicts backlog v7 or the live 18-scenario baseline; relative links remain valid.
+  - Type: docs-only.
+
+- [ ] **PB-CODEX-09 — Align the bill-pay UI step wording with its actual oracle**
+  - Acceptance: the feature and step definition describe only the UI
+    completion-and-amount evidence they assert, no longer claim the UI confirms the
+    generated payee, and do not recall an unused payee value; the later REST assertion
+    still proves the transaction names that payee; targeted A4, `npm run verify`, the full
+    project contract, and PR CI pass.
+  - Type: test wording/steps.
+
+- [ ] **PB-CODEX-10 — Make SOAP envelope construction safe for reserved XML characters**
+  - Acceptance: SOAP operation/parameter names are constrained to known-safe XML names and
+    parameter values are escaped or emitted by a small XML builder; focused tests cover
+    `&`, `<`, `>`, quotes, valid current calls, invalid names, and response tag/fault
+    parsing; REST↔SOAP parity remains green under `npm run verify`, the full project
+    contract, and PR CI.
+  - Type: code. Dependency: PB-CODEX-03.
+
+### Reconciliation boundaries
+
+- PBR-01 and PBR-02 remain open monitoring risks below; none of PB-CODEX-01…10 may claim
+  them resolved without satisfying their own success criteria.
+- Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
+  broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
+- Baseline before implementation: project `main` at `b14e302`, clean and aligned with
+  `origin/main`; PR #12 merged; no open ParaBank PRs/issues; latest observed `main` CI run
+  30164467196 passed.
 
 ---
 
