@@ -6,7 +6,7 @@
      every line under it as a gate command, so no prose or comments belong there. -->
 
 <!-- What `npm run verify` covers (single test entry point, design doc §5.10):
-       typecheck -> tag lint -> smoke-safety proof -> API lane -> UI lane ->
+       typecheck -> SUT-independent framework unit tests -> tag lint -> smoke-safety proof -> API lane -> UI lane ->
        Serenity report generation -> report content check.
      Preconditions: `npm ci` has run, the SUT is up (the boot steps below), and — for the
      full UI lane and report — Playwright's Chromium (`npx playwright install chromium`)

@@ -41,12 +41,12 @@ docker compose up -d                # boot (~18 s)
 pwsh ./scripts/gate.ps1             # verify UI/REST + OpenAPI + SOAP + reset
 npm ci                              # test toolchain (Node >= 20)
 npx playwright install chromium     # browser for the UI lane
-npm run verify                      # both lanes + smoke-safety + Serenity report check
+npm run verify                      # fast unit lane + both E2E lanes + report checks
 ```
 
-`npm run verify` = typecheck → tag lint → `@smoke` store-safety proof → API lane
-(10 scenarios) → UI lane (8 scenarios) → Serenity report generation → report content
-check. The Serenity **HTML** report needs a JDK; without one the report step is a no-op
+`npm run verify` = typecheck → SUT-independent framework unit tests → tag lint → `@smoke`
+store-safety proof → API lane (11 scenarios) → UI lane (8 scenarios) → Serenity report
+generation → report content check. The Serenity **HTML** report needs a JDK; without one the report step is a no-op
 locally and the JSON artefacts are still content-verified (CI installs the JDK and
 enforces the HTML).
 
@@ -69,7 +69,7 @@ Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
 `.github/workflows/ci.yml` runs the same steps as local on every push/PR: build the image
 from the pinned commit, boot it, pass the four-point boot gate (`initializeDB` seed → 204,
 REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then `npm ci` +
-Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for both lanes. The
+Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for the unit and E2E lanes. The
 generated Serenity report is uploaded as the `serenity-report` build artifact.
 
 ## Documentation

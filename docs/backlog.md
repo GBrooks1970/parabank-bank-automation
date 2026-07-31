@@ -13,9 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 9 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-The A/A/A amendment is merged and PB-CODEX-01 is complete; PB-CODEX-02 implementation is
-in progress.
+**Version:** 10 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01/02 are complete; PB-CODEX-03 implementation is in progress.
 **Last Updated:** 2026-07-31
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -299,7 +298,7 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 9 open implementation items: 1 HIGH, 5 MEDIUM, 3 LOW.
+**Cycle status:** ACTIVE — 8 open implementation items: 0 HIGH, 5 MEDIUM, 3 LOW.
 OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
@@ -370,17 +369,18 @@ implementation starts.
     exclusions; DR-PB-08 records the rationale. Amendment PR #14 merged as `08b0ad7`; its
     PR CI run 30614303571 and post-merge `main` run 30626013726 passed.
 
-- [ ] **PB-CODEX-02 — Make FR-B1 operation-aware against the approved endpoint matrix**
+- [x] **PB-CODEX-02 — Make FR-B1 operation-aware against the approved endpoint matrix** — COMPLETE 2026-07-31
   - Acceptance: every operation selected by PB-CODEX-01 is bound to its live OpenAPI path
     and method and verifies observed status, response media type, and operation response
     schema; format validation is enabled or each exception cites a current backlog risk; an
     exercised/excluded coverage summary is produced; targeted tests, `npm run verify`, the
     five-command project contract, and PR CI pass.
   - Type: code + docs. Dependency: PB-CODEX-01.
-  - **Update (2026-07-31):** implementation binds a typed 14-method matrix to live
+  - **Evidence:** implementation binds a typed 14-method matrix to live
     method/path/default-response/media/schema definitions, enables standard/OpenAPI format
     validation, emits exercised/excluded coverage, and uses only named PBR-01/04/05
-    allowances. Keep open until the implementation PR merges with full-gate CI evidence.
+    allowances. Project PR #15 merged as `d894e54`; PR CI run `30627282998` and
+    post-merge `main` run `30627855544` passed the full gate with teardown.
 
 ### MEDIUM Priority
 
@@ -391,6 +391,9 @@ implementation starts.
     helpers are extracted only as needed; the unit command runs before E2E in
     `npm run verify`; the full project contract and PR CI pass.
   - Type: code.
+  - **Update (2026-07-31):** `npm run test:unit` provides SUT-independent TypeScript
+    coverage for all four approved helper areas and runs immediately after typecheck in
+    `npm run verify`. Keep open until its implementation PR and post-merge main CI pass.
 
 - [ ] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy**
   - Acceptance under approved DR-PB-09: compact API scenarios cover zero,
@@ -457,9 +460,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-02 baseline: project `main` at `08b0ad7`, clean and aligned with
-  `origin/main`; owner-decision PR #14 merged; no open ParaBank issues; post-merge
-  `main` CI run 30626013726 passed.
+- PB-CODEX-03 baseline: project `main` at `d894e54`, clean and aligned with
+  `origin/main`; PB-CODEX-02 PR #15 merged; no open ParaBank issues; post-merge
+  `main` CI run 30627855544 passed.
 
 ---
 
