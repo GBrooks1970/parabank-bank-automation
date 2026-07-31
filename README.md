@@ -6,7 +6,7 @@ banking demo application — run as a local, Docker-backed, resettable system un
 > **Status: build complete (Phases 0–4) — both test lanes implemented; registration in progress (PB-P5).**
 > The SUT scaffold and CI boot gate are green (Phase 0); the design is owner-approved
 > (Phase 1, [`docs/design-document.md`](docs/design-document.md)); the **API lane**
-> (Phase 2) is 10 scenarios — FR-B1 live-spec contract conformance, FR-B2 stateful
+> (Phase 2) is 11 scenarios — FR-B1 operation-aware live-spec contract conformance, FR-B2 stateful
 > multi-step flow, FR-B3 REST↔SOAP parity, FR-B4 negative paths asserted as observed;
 > and the **Serenity/JS + Playwright + Cucumber UI lane** (Phase 3) is 8 scenarios —
 > FR-A1 register/login, FR-A2 open account, FR-A3 transfer, FR-A4 bill pay, FR-A5 loan

@@ -27,8 +27,8 @@ Before(async function (this: PBWorld, { pickle }) {
   );
 });
 
-// FR-A5 pins admin loan parameters (design doc §5.6); restore defaults afterwards by
-// re-seeding — initializeDB resets admin parameters along with the data.
-After('@loan', async function () {
+// FR-A5 and the FR-B1 matrix pin/mutate admin or database state; restore defaults
+// afterwards — initializeDB resets admin parameters along with the data.
+After('@loan or @contract-matrix', async function () {
   await seedDatabase(BASE_URL);
 });

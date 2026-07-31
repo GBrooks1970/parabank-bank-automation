@@ -13,9 +13,9 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 8 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-Owner selected review decisions A/A/A on 2026-07-31; the versioned amendment is awaiting
-its owner-merged PR before PB-CODEX-01 can close.
+**Version:** 9 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+The A/A/A amendment is merged and PB-CODEX-01 is complete; PB-CODEX-02 implementation is
+in progress.
 **Last Updated:** 2026-07-31
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -299,9 +299,8 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 10 open implementation items: 2 HIGH, 5 MEDIUM, 3 LOW.
-OD-PB-01/02/03 are resolved as Option A; dependent work begins after the decision amendment
-merges.
+**Cycle status:** ACTIVE — 9 open implementation items: 1 HIGH, 5 MEDIUM, 3 LOW.
+OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
 `b14e302`. This section is the authoritative project-repo counterpart of the portfolio-root
@@ -328,8 +327,7 @@ implementation starts.
   evidence without adding product scope.
 - **Decision:** Option A, explicitly selected by the owner. DR-PB-08 and design document
   v1.1 define the 14-method matrix and intentional exclusions.
-- **Effect:** PB-CODEX-01 closes only when the amendment PR merges; it then unblocks
-  PB-CODEX-02.
+- **Effect:** PB-CODEX-01 closed when amendment PR #14 merged; PB-CODEX-02 is unblocked.
 
 #### OD-PB-02 — Amount-boundary evidence — OWNER SELECTED OPTION A 2026-07-31
 
@@ -361,16 +359,16 @@ implementation starts.
 
 ### HIGH Priority
 
-- [ ] **PB-CODEX-01 — Agree and record the intended FR-B1 contract surface**
+- [x] **PB-CODEX-01 — Agree and record the intended FR-B1 contract surface** — COMPLETE 2026-07-31
   - Acceptance: an owner-approved, versioned design/backlog amendment records OD-PB-01,
     defines the exact path/method matrix, required evidence per operation, and intentional
     exclusions without weakening assert-as-observed or the PBR-01 deviation rule.
   - Type: docs-only. Decision dependency resolved by DR-PB-08; closure depends on owner
     merge of the amendment PR.
-  - **Update (2026-07-31):** owner selected full-surface Option A. Design v1.1 now records
-    the 14-method matrix, required success evidence, `/openapi.json` bootstrap rule, and
-    intentional exclusions; DR-PB-08 records the rationale. Keep this item open until the
-    amendment PR is merged as owner sign-off.
+  - **Evidence:** owner selected full-surface Option A; design v1.1 records the 14-method
+    matrix, required success evidence, `/openapi.json` bootstrap rule, and intentional
+    exclusions; DR-PB-08 records the rationale. Amendment PR #14 merged as `08b0ad7`; its
+    PR CI run 30614303571 and post-merge `main` run 30626013726 passed.
 
 - [ ] **PB-CODEX-02 — Make FR-B1 operation-aware against the approved endpoint matrix**
   - Acceptance: every operation selected by PB-CODEX-01 is bound to its live OpenAPI path
@@ -379,6 +377,10 @@ implementation starts.
     exercised/excluded coverage summary is produced; targeted tests, `npm run verify`, the
     five-command project contract, and PR CI pass.
   - Type: code + docs. Dependency: PB-CODEX-01.
+  - **Update (2026-07-31):** implementation binds a typed 14-method matrix to live
+    method/path/default-response/media/schema definitions, enables standard/OpenAPI format
+    validation, emits exercised/excluded coverage, and uses only named PBR-01/04/05
+    allowances. Keep open until the implementation PR merges with full-gate CI evidence.
 
 ### MEDIUM Priority
 
@@ -451,13 +453,13 @@ implementation starts.
 
 ### Reconciliation boundaries
 
-- PBR-01, PBR-02, and newly observed PBR-03 remain open risks below; none of
+- PBR-01…PBR-05 remain open risks below; none of
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- Reconciliation baseline: project `main` at `1d8e0a3`, clean and aligned with
-  `origin/main`; review PR #12 and backlog-reconciliation PR #13 merged; no open ParaBank
-  issues; latest pre-amendment observed `main` CI run 30164467196 passed.
+- PB-CODEX-02 baseline: project `main` at `08b0ad7`, clean and aligned with
+  `origin/main`; owner-decision PR #14 merged; no open ParaBank issues; post-merge
+  `main` CI run 30626013726 passed.
 
 ---
 
@@ -467,6 +469,41 @@ Defects/risks discovered during any phase are added here using the template's ri
 and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
 
 ### LOW Priority (Score: 0–9)
+
+#### Risk PBR-04: JSON-labelled mutation confirmations are unquoted text — Score: 6
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (3) = **6 points**
+**Impact:** The live operations for `deposit`, `withdraw`, and `transfer` declare an
+`application/json` string response and emit that media type, but the body is an unquoted
+confirmation such as `Successfully deposited ...`, which is not valid JSON.
+**Status:** RECORDED — asserted through a narrow named raw-text-as-string fallback
+**Affected:** FR-B1 operation matrix; `src/api/operation-contracts.ts`
+
+**Problem:** Strict JSON parsing produces no value even though the plain text semantically
+matches the operation's declared string schema. PB-CODEX-02 permits the raw body to be
+validated as a string only for these three named operations and records PBR-04 in the
+coverage summary. Any other invalid JSON still fails.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, remove the fallback if the confirmations become valid
+      JSON strings; otherwise re-justify the exact three-operation allowance.
+
+#### Risk PBR-05: Live OpenAPI spec mis-declares `LoanResponse.responseDate` — Score: 5
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
+**Impact:** The live `POST /requestLoan` schema declares `responseDate` as
+`string`/`date-time`, while the pinned SUT returns epoch milliseconds (observed live
+2026-07-31, e.g. `1785496721130`).
+**Status:** RECORDED — asserted with one operation-bound validation allowance
+**Affected:** FR-B1 `requestLoan`; `src/api/operation-contracts.ts`
+
+**Problem:** This is the same upstream representation class as PBR-01 but a different
+schema property and operation. It receives its own risk so neither allowance can mask the
+other or any future date-format error.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, the `/responseDate must be string` allowance is
+      re-justified or removed.
 
 #### Risk PBR-03: Transitive brace-expansion advisory in the dev toolchain — Score: 4
 

@@ -31,6 +31,8 @@ export interface Transaction {
 export interface ApiResponse {
   status: number;
   text: string;
+  /** Normalised response media type without parameters; absent when the response has no Content-Type. */
+  contentType?: string;
   /** Present only when the body parsed as JSON. */
   json?: unknown;
 }

@@ -27,7 +27,8 @@ export class ParaBankRestClient {
     } catch {
       /* plain-text body — expected for several endpoints */
     }
-    return { status: res.status, text, json };
+    const contentType = res.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase();
+    return { status: res.status, text, contentType: contentType || undefined, json };
   }
 
   login(username: string, password: string): Promise<ApiResponse> {
