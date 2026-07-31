@@ -13,8 +13,9 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 7 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-Reconciled 2026-07-31.
+**Version:** 8 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+Owner selected review decisions A/A/A on 2026-07-31; the versioned amendment is awaiting
+its owner-merged PR before PB-CODEX-01 can close.
 **Last Updated:** 2026-07-31
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -299,6 +300,8 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 ## CODEX Review-v1 Remediation Cycle
 
 **Cycle status:** ACTIVE — 10 open implementation items: 2 HIGH, 5 MEDIUM, 3 LOW.
+OD-PB-01/02/03 are resolved as Option A; dependent work begins after the decision amendment
+merges.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
 `b14e302`. This section is the authoritative project-repo counterpart of the portfolio-root
@@ -311,7 +314,7 @@ The reconciliation records recommendations but does not silently exercise owner 
 Each decision must be recorded in a versioned design/backlog amendment before its dependent
 implementation starts.
 
-#### OD-PB-01 — FR-B1 contract breadth — PENDING OWNER DECISION
+#### OD-PB-01 — FR-B1 contract breadth — OWNER SELECTED OPTION A 2026-07-31
 
 - **Option A — full in-scope client surface:** bind every in-scope
   `ParaBankRestClient` operation to its live OpenAPI path/method and record any intentional
@@ -323,9 +326,12 @@ implementation starts.
 - **Recommendation: Option A.** The client and stateful journeys already exercise the wider
   surface, so an operation-aware matrix converts existing behaviour into honest, durable
   evidence without adding product scope.
-- **Blocks:** PB-CODEX-01 completion and PB-CODEX-02 implementation.
+- **Decision:** Option A, explicitly selected by the owner. DR-PB-08 and design document
+  v1.1 define the 14-method matrix and intentional exclusions.
+- **Effect:** PB-CODEX-01 closes only when the amendment PR merges; it then unblocks
+  PB-CODEX-02.
 
-#### OD-PB-02 — Amount-boundary evidence — PENDING OWNER DECISION
+#### OD-PB-02 — Amount-boundary evidence — OWNER SELECTED OPTION A 2026-07-31
 
 - **Option A — add executable boundaries:** cover zero, minimum-positive, and
   exact-available-balance amounts in a compact, reset-bracketed API scenario outline.
@@ -335,9 +341,11 @@ implementation starts.
   boundary gap.
 - **Recommendation: Option A.** The deterministic seed/reset contract makes these three
   examples inexpensive and gives the portfolio materially stronger boundary-value evidence.
-- **Blocks:** PB-CODEX-04 implementation.
+- **Decision:** Option A, explicitly selected by the owner and recorded as DR-PB-09.
+- **Effect:** PB-CODEX-04 must add the three executable boundaries; narrowing the QA claim
+  is no longer an available implementation path.
 
-#### OD-PB-03 — Meaning of “pinned SUT” — PENDING OWNER DECISION
+#### OD-PB-03 — Meaning of “pinned SUT” — OWNER SELECTED OPTION A 2026-07-31
 
 - **Option A — end-to-end immutable inputs:** retain the source commit pin and add reviewed
   full-SHA GitHub Action pins plus Maven builder and relevant runtime image digests, with a
@@ -347,7 +355,9 @@ implementation starts.
   overhead, but builds remain time-dependent.
 - **Recommendation: Option A.** The project already markets a reproducible pinned SUT; immutable
   build and CI inputs make that claim defensible and improve security at the same time.
-- **Blocks:** PB-CODEX-05 and PB-CODEX-06 implementation.
+- **Decision:** Option A, explicitly selected by the owner and recorded as DR-PB-10.
+- **Effect:** PB-CODEX-05/06 must implement immutable action/image inputs; redefining the
+  promise as source-only is no longer an available implementation path.
 
 ### HIGH Priority
 
@@ -355,7 +365,12 @@ implementation starts.
   - Acceptance: an owner-approved, versioned design/backlog amendment records OD-PB-01,
     defines the exact path/method matrix, required evidence per operation, and intentional
     exclusions without weakening assert-as-observed or the PBR-01 deviation rule.
-  - Type: docs-only. Dependency: owner decision OD-PB-01.
+  - Type: docs-only. Decision dependency resolved by DR-PB-08; closure depends on owner
+    merge of the amendment PR.
+  - **Update (2026-07-31):** owner selected full-surface Option A. Design v1.1 now records
+    the 14-method matrix, required success evidence, `/openapi.json` bootstrap rule, and
+    intentional exclusions; DR-PB-08 records the rationale. Keep this item open until the
+    amendment PR is merged as owner sign-off.
 
 - [ ] **PB-CODEX-02 — Make FR-B1 operation-aware against the approved endpoint matrix**
   - Acceptance: every operation selected by PB-CODEX-01 is bound to its live OpenAPI path
@@ -376,32 +391,30 @@ implementation starts.
   - Type: code.
 
 - [ ] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy**
-  - Acceptance under recommended OD-PB-02 Option A: compact API scenarios cover zero,
+  - Acceptance under approved DR-PB-09: compact API scenarios cover zero,
     minimum-positive, and exact-available-balance amounts using deterministic seed state
     and assert-as-observed outcomes; existing exceeding-balance and non-numeric partitions
     remain covered; `docs/qa-strategy.md` links each claim to executable evidence; scenario
     counts/report guards are updated; `npm run verify`, the full project contract, and PR
     CI pass.
-  - If the owner selects Option B, replace this acceptance text in the decision amendment
-    before implementation; do not silently narrow the claim.
-  - Type: code + docs. Dependency: owner decision OD-PB-02.
+  - Type: code + docs. Decision dependency resolved by DR-PB-09.
 
 - [ ] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins**
-  - Acceptance under recommended OD-PB-03 Option A: `.github/workflows/ci.yml` declares
+  - Acceptance under approved DR-PB-10: `.github/workflows/ci.yml` declares
     `permissions: contents: read` (additional permissions narrowly justified), pins every
     executed action to a reviewed full commit SHA with a readable release comment, and
     documents a review/update mechanism; workflow syntax and the full PR gate pass. PBR-02
     stays open until its separate Node-runtime annotation clears.
-  - Type: CI workflow + docs. Dependency: owner decision OD-PB-03.
+  - Type: CI workflow + docs. Decision dependency resolved by DR-PB-10.
 
 - [ ] **PB-CODEX-06 — Pin the Maven builder and relevant ParaBank runtime bases by digest**
-  - Acceptance under recommended OD-PB-03 Option A: Maven builder and relevant runtime
+  - Acceptance under approved DR-PB-10: Maven builder and relevant runtime
     base references resolve through explicit immutable `sha256` digests while retaining
     readable version tags/comments; the build fails clearly when a required digest is
     absent or stale; a deliberate refresh procedure records source, digest, review, and
     full-gate evidence; `pwsh ./scripts/build-sut.ps1`, the complete project contract, and
     PR CI pass.
-  - Type: build/container configuration + docs. Dependency: owner decision OD-PB-03.
+  - Type: build/container configuration + docs. Decision dependency resolved by DR-PB-10.
 
 - [ ] **PB-CODEX-07 — Bound REST, SOAP, and live-spec requests with contextual deadlines**
   - Acceptance: a central timeout policy supplies abort signals to the general REST
@@ -438,13 +451,13 @@ implementation starts.
 
 ### Reconciliation boundaries
 
-- PBR-01 and PBR-02 remain open monitoring risks below; none of PB-CODEX-01…10 may claim
-  them resolved without satisfying their own success criteria.
+- PBR-01, PBR-02, and newly observed PBR-03 remain open risks below; none of
+  PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- Baseline before implementation: project `main` at `b14e302`, clean and aligned with
-  `origin/main`; PR #12 merged; no open ParaBank PRs/issues; latest observed `main` CI run
-  30164467196 passed.
+- Reconciliation baseline: project `main` at `1d8e0a3`, clean and aligned with
+  `origin/main`; review PR #12 and backlog-reconciliation PR #13 merged; no open ParaBank
+  issues; latest pre-amendment observed `main` CI run 30164467196 passed.
 
 ---
 
@@ -454,6 +467,29 @@ Defects/risks discovered during any phase are added here using the template's ri
 and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
 
 ### LOW Priority (Score: 0–9)
+
+#### Risk PBR-03: Transitive brace-expansion advisory in the dev toolchain — Score: 4
+
+**Priority Score:** Security Impact (2) + Breakage Probability (1) + Maintenance Burden (1) = **4 points**
+**Impact:** `npm audit` on 2026-07-31 reports one HIGH-severity advisory
+([GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg)) for
+`brace-expansion@5.0.7`, which can exhaust memory on an unbounded malicious expansion.
+Project exposure is LOW because the package is a development-only transitive dependency
+used through `@cucumber/cucumber → glob → minimatch`, and repository-controlled test
+patterns—not untrusted production input—reach it.
+**Status:** OPEN — fix available; discovered while validating the v1.1 decision amendment
+**Affected:** `package-lock.json` (transitive dependency); local/CI test toolchain
+
+**Problem:** The current lock resolves `brace-expansion@5.0.7`; the advisory affects
+versions `<=5.0.7`. `npm audit fix --dry-run` selected `5.0.9` without requiring a direct
+dependency or major upgrade. This was not part of the owner-decision task and must remain a
+separate, reviewable dependency change.
+
+**Success Criteria:**
+- [ ] Update the locked transitive dependency to a non-vulnerable release (currently
+      `brace-expansion@5.0.9`) without adding an unnecessary direct dependency.
+- [ ] `npm ci`, `npm audit`, the full five-command project contract, and PR CI pass; record
+      the exact lockfile diff and audit evidence.
 
 #### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
 

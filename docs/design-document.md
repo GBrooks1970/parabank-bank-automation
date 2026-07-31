@@ -10,11 +10,12 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.0
-**Date:** 2026-07-22
-**Author:** Claude (Fable 5) with Gary Brooks (owner decisions §1/§11)
+**Version:** v1.1
+**Date:** 2026-07-31
+**Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
-**Status:** Approved (owner merge of PR #2, `906a00d`, 2026-07-22)
+**Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 decision content
+selected by the owner as A/A/A on 2026-07-31 and effective when its amendment PR merges.
 
 ---
 
@@ -57,7 +58,9 @@ positions/stock-trading module, performance/load testing, upstream-version chasi
 
 Recorded in [`docs/decision-register.md`](decision-register.md): DR-PB-01…05 (adopted from
 the portfolio scoping plan) plus **DR-PB-06 boot→seed→use** and **DR-PB-07 lightweight SOAP
-Ability** (new in this document).
+Ability** (new in v1.0), then the review-remediation decisions **DR-PB-08 comprehensive
+FR-B1 operation coverage**, **DR-PB-09 executable amount boundaries**, and **DR-PB-10
+end-to-end immutable execution inputs** (owner-selected 2026-07-31).
 
 ### Success Criteria
 
@@ -172,6 +175,10 @@ this document, and the feature files stay traceable by a single vocabulary.
 - **NFR-3 Reporting:** Lane A produces a Serenity living-documentation report whose
   **content** is machine-verified (backlog PB-P3 gate; magento lesson).
 - **NFR-4 Store safety:** `@smoke` scenarios are side-effect-free (§5.9).
+- **NFR-5 Immutable execution inputs:** the ParaBank source commit, executed GitHub Actions,
+  Maven builder, and relevant SUT runtime base images are immutable inputs. Human-readable
+  versions remain beside full action SHAs/image digests, and every refresh is a deliberate,
+  reviewed full-gate change (DR-PB-10; implemented by PB-CODEX-05/06).
 
 ---
 
@@ -267,12 +274,46 @@ four scalar fields; if this grows past `getAccount`-class reads, revisit DR-PB-0
 
 ### 5.4 Shared REST client surface (`src/api/`)
 
-In-scope endpoints (all under `/parabank/services/bank`): `login/{u}/{p}` ·
-`customers/{id}` · `customers/{id}/accounts` · `accounts/{id}` ·
-`accounts/{id}/transactions` · `createAccount` · `deposit` · `withdraw` · `transfer` ·
-`billpay` · `requestLoan` · `initializeDB` · `cleanDB`. JSON via `Accept` header;
-mutations use **query parameters** (§5.7). The client normalises nothing — it returns
-status + raw body + parsed JSON when parseable, so tests can assert the quirks.
+**Owner decision DR-PB-08 (2026-07-31): FR-B1 covers the full public
+`ParaBankRestClient` surface.** “Full” means every public client method present at the
+v1.1 amendment baseline (`main` at `1d8e0a3`): 14 methods, comprising 13 live-spec
+operations plus the `openapi()` bootstrap. A new public client method must add a matrix row
+and executable FR-B1 evidence in the same change.
+
+All paths below are relative to `/parabank/services/bank`. The pinned live specification
+declares a `default` response rather than numeric response keys for these operations.
+PB-CODEX-02 must therefore resolve the operation's `default` response for the observed
+success status while still asserting the observed numeric status. `application/json` is
+the selected representation because the client sends `Accept: application/json`.
+
+| Client method | Live operation | Required success evidence | State / reuse | Named allowance or special rule |
+|---|---|---|---|---|
+| `login` | `GET /login/{username}/{password}` | 200 · `application/json` · `Customer` | Read-only seeded identity; existing B1 can be reused | None |
+| `customer` | `GET /customers/{customerId}` | 200 · `application/json` · `Customer` | Read-only seeded customer | None |
+| `accounts` | `GET /customers/{customerId}/accounts` | 200 · `application/json` · `Account[]` | Read-only seeded customer; existing B1 can be reused | None |
+| `account` | `GET /accounts/{accountId}` | 200 · `application/json` · `Account` | Read-only seeded account; existing B1/B3 can be reused | None |
+| `transactions` | `GET /accounts/{accountId}/transactions` | 200 · `application/json` · `Transaction[]` | Read-only seeded account; existing B1/B2 can be reused | PBR-01 only: live spec says `date-time`, SUT returns epoch milliseconds |
+| `createAccount` | `POST /createAccount` | 200 · `application/json` · `Account` | `@mutates`; reuse the B2-created account | None |
+| `deposit` | `POST /deposit` | 200 · `application/json` · string | `@mutates`; reuse B2 state | None |
+| `withdraw` | `POST /withdraw` | 200 · `application/json` · string | `@mutates`; operate on a captured account id | None |
+| `transfer` | `POST /transfer` | 200 · `application/json` · string | `@mutates`; reuse B2 transfer | None |
+| `requestLoan` | `POST /requestLoan` | 200 · `application/json` · `LoanResponse` | `@mutates`; pin the §5.6 loan environment first | None |
+| `setParameter` | `POST /setParameter/{name}/{value}` | 204 · no body or Content-Type; documented response has no schema | `@mutates`; reuse the loan-fixture setup and restore by reset | None |
+| `initializeDB` | `POST /initializeDB` | 204 · no body or Content-Type; documented response has no schema | Reset lifecycle operation; evidence may be captured by the reset bracket | None |
+| `cleanDB` | `POST /cleanDB` | 204 · no body or Content-Type; documented response has no schema | Destructive lifecycle case; immediately follow with `initializeDB` even on failure | None |
+| `openapi` | `GET /openapi.json` | 200 · `application/json` · parseable OpenAPI 3.0.1 document with `paths` | FR-B1 bootstrap and boot gate | The document does not list its own `/openapi.json` route, so presence/version/shape replace operation-response resolution |
+
+**Intentional exclusions.** FR-B1 does not expand to every path in the 27-path live
+specification: operations without a public `ParaBankRestClient` method remain outside this
+requirement. In particular, `/billpay` remains an A4 UI journey whose resulting transaction
+is read via the covered `transactions` method; it is not a hidden REST-client obligation.
+FR-B4 retains targeted negative/error evidence—FR-B1 requires one deterministic success
+contract per matrix row, not every error permutation.
+
+The client normalises nothing: it returns status + raw body + parsed JSON when parseable,
+so the operation-aware proof can assert the SUT's observed quirks. PB-CODEX-02 must produce
+an exercised/excluded coverage summary from this matrix and must not weaken PBR-01 or the
+assert-as-observed policy.
 
 ### 5.5 Reset bracket (DR-PB-06)
 
@@ -414,6 +455,14 @@ None blocking.
 - **Q1 Scope variant** — full A1–A5 + B1–B4. Resolved by owner, 2026-07-22 (recorded §1).
 - **Q2 Licence** — MIT for this repository's own content. Resolved by owner, 2026-07-22
   (`LICENSE`, README §Licence).
+- **Q3 FR-B1 breadth** — full 14-method `ParaBankRestClient` surface with the explicit
+  `openapi()` bootstrap rule and exclusions in §5.4. Option A selected by owner, 2026-07-31
+  (DR-PB-08).
+- **Q4 Amount-boundary evidence** — add executable zero, minimum-positive, and
+  exact-available-balance cases; do not narrow the QA claim. Option A selected by owner,
+  2026-07-31 (DR-PB-09).
+- **Q5 Meaning of “pinned SUT”** — include immutable CI actions and build/runtime images
+  alongside the source commit. Option A selected by owner, 2026-07-31 (DR-PB-10).
 
 ---
 
@@ -433,9 +482,11 @@ None blocking.
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | v1.0 | 2026-07-22 | Claude (Fable 5) + owner decisions | Initial design for PB-P1; scope + licence fixed by owner |
+| v1.1 | 2026-07-31 | Codex + owner decisions | Record review-remediation A/A/A: comprehensive FR-B1 matrix, executable amount boundaries, immutable execution inputs |
 
 ## Approval
 
 | Role | Name | Vehicle | Date |
 |---|---|---|---|
 | Owner | Gary Brooks | PR review + merge of [PR #2](https://github.com/GBrooks1970/parabank-bank-automation/pull/2) (`906a00d`) | 2026-07-22 |
+| Owner | Gary Brooks | Explicit A/A/A selection followed by merge of the v1.1 amendment PR | 2026-07-31 |
