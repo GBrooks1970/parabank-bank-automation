@@ -36,10 +36,20 @@ helpers (e.g. the SOAP envelope builder) where cheap.
 ## 3. Test design techniques (ISTQB vocabulary, applied)
 
 - **Equivalence partitioning + boundary value analysis** — transfer/deposit/bill-pay
-  amounts: zero, minimal positive, exact available balance, exceeding balance,
-  non-numeric. Boundaries chosen per *observed* behaviour (assert-as-observed policy,
-  design doc §5.7) — including that overdrafts may be permitted (seed has negative
-  balances).
+  amounts follow the owner-approved DR-PB-09 partition set below. Boundaries are asserted
+  per *observed* behaviour (design doc §5.7), including that overdrafts may be permitted.
+
+  | Partition / boundary | Evidence state at v1.1 |
+  |---|---|
+  | Representative positive | Existing B2/A3/A4 evidence |
+  | Exceeding available balance | Existing B4 evidence |
+  | Non-numeric | Existing B4 evidence |
+  | Zero | Required by PB-CODEX-04; not yet executable |
+  | Minimum positive | Required by PB-CODEX-04; not yet executable |
+  | Exact available balance | Required by PB-CODEX-04; not yet executable |
+
+  PB-CODEX-04 must replace the three “not yet executable” entries with exact feature/scenario
+  references and update deliberate scenario/report counts before it can close.
 - **State transition testing** — FR-B2's account lifecycle (created → funded → debited)
   with assertions at each transition, ids carried forward from responses.
 - **Decision table (lightweight)** — FR-A5 loan outcomes across the pinned parameter set
