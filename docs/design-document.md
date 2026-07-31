@@ -10,12 +10,13 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.1
+**Version:** v1.2
 **Date:** 2026-07-31
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
-**Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 decision content
-selected by the owner as A/A/A on 2026-07-31 and effective when its amendment PR merges.
+**Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
+approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 aligns executable operation evidence
+and named upstream deviations, effective when the PB-CODEX-02 PR merges.
 
 ---
 
@@ -294,10 +295,10 @@ the selected representation because the client sends `Accept: application/json`.
 | `account` | `GET /accounts/{accountId}` | 200 · `application/json` · `Account` | Read-only seeded account; existing B1/B3 can be reused | None |
 | `transactions` | `GET /accounts/{accountId}/transactions` | 200 · `application/json` · `Transaction[]` | Read-only seeded account; existing B1/B2 can be reused | PBR-01 only: live spec says `date-time`, SUT returns epoch milliseconds |
 | `createAccount` | `POST /createAccount` | 200 · `application/json` · `Account` | `@mutates`; reuse the B2-created account | None |
-| `deposit` | `POST /deposit` | 200 · `application/json` · string | `@mutates`; reuse B2 state | None |
-| `withdraw` | `POST /withdraw` | 200 · `application/json` · string | `@mutates`; operate on a captured account id | None |
-| `transfer` | `POST /transfer` | 200 · `application/json` · string | `@mutates`; reuse B2 transfer | None |
-| `requestLoan` | `POST /requestLoan` | 200 · `application/json` · `LoanResponse` | `@mutates`; pin the §5.6 loan environment first | None |
+| `deposit` | `POST /deposit` | 200 · `application/json` · string | `@mutates`; reuse B2 state | PBR-04 only: JSON-labelled body is an unquoted confirmation string |
+| `withdraw` | `POST /withdraw` | 200 · `application/json` · string | `@mutates`; operate on a captured account id | PBR-04 only: JSON-labelled body is an unquoted confirmation string |
+| `transfer` | `POST /transfer` | 200 · `application/json` · string | `@mutates`; reuse B2 transfer | PBR-04 only: JSON-labelled body is an unquoted confirmation string |
+| `requestLoan` | `POST /requestLoan` | 200 · `application/json` · `LoanResponse` | `@mutates`; pin the §5.6 loan environment first | PBR-05 only: live spec says `responseDate` is `date-time`, SUT returns epoch milliseconds |
 | `setParameter` | `POST /setParameter/{name}/{value}` | 204 · no body or Content-Type; documented response has no schema | `@mutates`; reuse the loan-fixture setup and restore by reset | None |
 | `initializeDB` | `POST /initializeDB` | 204 · no body or Content-Type; documented response has no schema | Reset lifecycle operation; evidence may be captured by the reset bracket | None |
 | `cleanDB` | `POST /cleanDB` | 204 · no body or Content-Type; documented response has no schema | Destructive lifecycle case; immediately follow with `initializeDB` even on failure | None |
@@ -348,6 +349,11 @@ each with a comment linking here:
 4. Seed data contains negative balances; no assertion may assume balance ≥ 0.
 5. The framing in all public docs: these are *observed behaviours of a pinned demo app*,
    not endorsed API design.
+6. Deposit, withdraw, and transfer confirmations carry `Content-Type: application/json`
+   but contain unquoted plain text (PBR-04); operation conformance validates the value as
+   the declared string only through that named fallback.
+7. `LoanResponse.responseDate` is epoch milliseconds although the live schema declares a
+   string/date-time (PBR-05), parallel to the narrower Transaction mismatch in PBR-01.
 
 ### 5.8 Test-data policy
 
@@ -483,10 +489,11 @@ None blocking.
 |---|---|---|---|
 | v1.0 | 2026-07-22 | Claude (Fable 5) + owner decisions | Initial design for PB-P1; scope + licence fixed by owner |
 | v1.1 | 2026-07-31 | Codex + owner decisions | Record review-remediation A/A/A: comprehensive FR-B1 matrix, executable amount boundaries, immutable execution inputs |
+| v1.2 | 2026-07-31 | Codex | Align the FR-B1 matrix with operation-aware implementation findings PBR-04/PBR-05 |
 
 ## Approval
 
 | Role | Name | Vehicle | Date |
 |---|---|---|---|
 | Owner | Gary Brooks | PR review + merge of [PR #2](https://github.com/GBrooks1970/parabank-bank-automation/pull/2) (`906a00d`) | 2026-07-22 |
-| Owner | Gary Brooks | Explicit A/A/A selection followed by merge of the v1.1 amendment PR | 2026-07-31 |
+| Owner | Gary Brooks | Explicit A/A/A selection followed by merge of [PR #14](https://github.com/GBrooks1970/parabank-bank-automation/pull/14) (`08b0ad7`) | 2026-07-31 |

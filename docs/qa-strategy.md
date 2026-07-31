@@ -28,7 +28,7 @@ helpers (e.g. the SOAP envelope builder) where cheap.
 | Type | Where |
 |---|---|
 | Functional (behavioural) | All FR scenarios, both lanes |
-| Contract conformance | FR-B1 against the live-fetched OpenAPI 3.0.1 spec |
+| Contract conformance | FR-B1 binds all 14 approved client methods to live method/path/status-or-default/media/schema definitions and emits exercised/excluded coverage |
 | Negative / error handling | FR-B4 (+ the SOAP fault path, design doc §5.3) |
 | Smoke (store-safe) | The fixed 3-scenario `@smoke` set (design doc §5.9) |
 | Non-functional | Out of scope v1 (scoping plan); revisit post-P5 |
@@ -90,6 +90,8 @@ flaky scenario is a defect, not an environment fact.
 
 - Lane A: Serenity living documentation, published as a CI artefact; content-verified in
   the gate (portfolio lesson: magento's empty-shell report).
-- Lane B: cucumber-js formatter output in CI logs + non-zero exit as the gate.
+- Lane B: cucumber-js formatter output in CI logs + non-zero exit as the gate; FR-B1
+  prints the 14/14 exercised matrix, intentionally excluded live operations, and any named
+  PBR allowances actually applied.
 - Every backlog gate tick carries evidence links (CI run, commit) per the backlog's
   maintenance notes.

@@ -3,8 +3,11 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import { PBWorld } from '../../support/world';
 import { CallParaBankRest, CallParaBankSoap } from '../../../src/screenplay/abilities';
 import { Login, CreateAccount, Deposit, Transfer } from '../../../src/screenplay/tasks';
+import { ExerciseApprovedRestContracts } from '../../../src/screenplay/contract-tasks';
 import { TheAccount, TheSoapAccount, TheTransactions, TheLastResponse } from '../../../src/screenplay/questions';
 import { Account, NewAccountType } from '../../../src/api/types';
+import { OPERATION_NAMES, OperationName } from '../../../src/api/operation-contracts';
+import { OperationCoverageSummary } from '../../../src/api/spec-conformance';
 
 // ---------- shared: login ----------
 
@@ -57,34 +60,25 @@ Then('the response body is empty', async function (this: PBWorld) {
 
 // ---------- FR-B1: live-spec conformance ----------
 
-Then('the response body conforms to schema {string}', async function (this: PBWorld, schema: string) {
+Then('the response conforms to approved operation {word}', async function (this: PBWorld, name: string) {
+  assert.ok(isOperationName(name), `unknown approved operation '${name}'`);
   const last = await this.actor.asks(TheLastResponse.received());
-  const error = PBWorld.spec.validate(schema, last.json);
-  assert.equal(error, null, `spec deviation: ${error}`);
+  PBWorld.spec.assertOperation(name, last);
 });
 
-Then('every element of the response body conforms to schema {string}', async function (this: PBWorld, schema: string) {
-  const last = await this.actor.asks(TheLastResponse.received());
-  const error = PBWorld.spec.validateArray(schema, last.json);
-  assert.equal(error, null, `spec deviation: ${error}`);
+When('the approved REST operation matrix is exercised', async function (this: PBWorld) {
+  await this.actor.attemptsTo(ExerciseApprovedRestContracts.against(PBWorld.spec));
 });
 
 Then(
-  'every element of the response body conforms to schema {string} allowing the known deviation {string}',
-  async function (this: PBWorld, schema: string, allowed: string) {
-    const last = await this.actor.asks(TheLastResponse.received());
-    const error = PBWorld.spec.validateArray(schema, last.json, [allowed]);
-    assert.equal(error, null, `spec deviation beyond the recorded allowance: ${error}`);
+  'all {int} approved REST client operations have operation-aware evidence',
+  function (this: PBWorld, expectedCount: number) {
+    const summary = this.actor.recall<OperationCoverageSummary>('restContractCoverage');
+    assert.equal(summary.expected.length, expectedCount, 'approved operation count drifted');
+    assert.deepEqual(summary.missing, [], `missing operation evidence: ${summary.missing.join(', ')}`);
+    console.log(`\n${PBWorld.spec.formatCoverageSummary()}\n`);
   }
 );
-
-Then('the live spec documents status {int} for {string}', function (this: PBWorld, status: number, operation: string) {
-  const [method, path] = operation.split(' ', 2);
-  assert.ok(
-    PBWorld.spec.documentsStatus(path, method, status),
-    `live spec does not document ${status} for ${operation}`
-  );
-});
 
 // ---------- FR-B2: stateful flow ----------
 
@@ -205,4 +199,8 @@ Then('the SOAP fault mentions {string}', function (this: PBWorld, text: string) 
 // Money arithmetic on two-decimal amounts (avoids IEEE noise in expected values).
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+function isOperationName(value: string): value is OperationName {
+  return (OPERATION_NAMES as readonly string[]).includes(value);
 }
