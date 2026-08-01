@@ -53,6 +53,11 @@ export class SpecConformance {
     }
 
     const spec = (await res.json()) as Record<string, unknown>;
+    return SpecConformance.fromDocument(spec);
+  }
+
+  /** Construct from an already-loaded document for fast offline validation and unit tests. */
+  static fromDocument(spec: Record<string, unknown>): SpecConformance {
     const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: true });
     addFormats(ajv);
     // OpenAPI numeric formats are annotations outside JSON Schema's standard string formats.

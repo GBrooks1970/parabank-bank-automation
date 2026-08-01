@@ -16,21 +16,31 @@ export interface SoapResult {
   fault?: string;
 }
 
+/** Build the current DR-PB-07 document-literal request shape. PB-CODEX-10 owns hardening. */
+export function buildSoapEnvelope(
+  operation: string,
+  params: Record<string, string | number>,
+  options: { qualifyParams?: boolean } = {}
+): string {
+  const { qualifyParams = true } = options;
+  const prefix = qualifyParams ? 'par:' : '';
+  return (
+    `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:par="${NS}">` +
+    `<soapenv:Body><par:${operation}>` +
+    Object.entries(params)
+      .map(([key, value]) => `<${prefix}${key}>${value}</${prefix}${key}>`)
+      .join('') +
+    `</par:${operation}></soapenv:Body></soapenv:Envelope>`
+  );
+}
+
 export async function soapCall(
   baseUrl: string,
   operation: string,
   params: Record<string, string | number>,
   options: { qualifyParams?: boolean } = {}
 ): Promise<SoapResult> {
-  const { qualifyParams = true } = options;
-  const prefix = qualifyParams ? 'par:' : '';
-  const body =
-    `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:par="${NS}">` +
-    `<soapenv:Body><par:${operation}>` +
-    Object.entries(params)
-      .map(([k, v]) => `<${prefix}${k}>${v}</${prefix}${k}>`)
-      .join('') +
-    `</par:${operation}></soapenv:Body></soapenv:Envelope>`;
+  const body = buildSoapEnvelope(operation, params, options);
 
   const res = await fetch(`${baseUrl}/parabank/services/ParaBank`, {
     method: 'POST',
@@ -48,16 +58,12 @@ export function extractTag(xml: string, tag: string): string | undefined {
   return match?.[1];
 }
 
-/** Typed parity read: SOAP getAccount → the four fields FR-B3 compares. */
-export async function getAccountSoap(baseUrl: string, accountId: number): Promise<Account> {
-  const result = await soapCall(baseUrl, 'getAccount', { accountId });
-  if (result.fault) {
-    throw new Error(`SOAP fault from getAccount(${accountId}): ${result.fault}`);
-  }
+/** Parse the normal getAccount response shape without performing network I/O. */
+export function parseAccountSoapResponse(xml: string, accountId: number): Account {
   const field = (tag: string): string => {
-    const value = extractTag(result.xml, tag);
+    const value = extractTag(xml, tag);
     if (value === undefined) {
-      throw new Error(`SOAP getAccount(${accountId}) response missing <${tag}>: ${result.xml}`);
+      throw new Error(`SOAP getAccount(${accountId}) response missing <${tag}>: ${xml}`);
     }
     return value;
   };
@@ -67,4 +73,13 @@ export async function getAccountSoap(baseUrl: string, accountId: number): Promis
     type: field('type') as AccountType,
     balance: Number(field('balance'))
   };
+}
+
+/** Typed parity read: SOAP getAccount → the four fields FR-B3 compares. */
+export async function getAccountSoap(baseUrl: string, accountId: number): Promise<Account> {
+  const result = await soapCall(baseUrl, 'getAccount', { accountId });
+  if (result.fault) {
+    throw new Error(`SOAP fault from getAccount(${accountId}): ${result.fault}`);
+  }
+  return parseAccountSoapResponse(result.xml, accountId);
 }

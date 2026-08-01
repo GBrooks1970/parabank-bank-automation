@@ -20,8 +20,8 @@ datastore behind UI + REST + SOAP). We operate at two ISTQB levels:
   the surfaces agree on shared state.
 
 Unit/component testing of the SUT itself is upstream's business (deliberately skipped in
-our build, DR-PB-01); unit-level checks in this repo apply only to our own non-trivial
-helpers (e.g. the SOAP envelope builder) where cheap.
+our build, DR-PB-01). The fast local unit lane targets only this repository's non-trivial
+framework helpers and does not require a running SUT.
 
 ## 2. Test types
 
@@ -29,6 +29,7 @@ helpers (e.g. the SOAP envelope builder) where cheap.
 |---|---|
 | Functional (behavioural) | All FR scenarios, both lanes |
 | Contract conformance | FR-B1 binds all 14 approved client methods to live method/path/status-or-default/media/schema definitions and emits exercised/excluded coverage |
+| Framework unit | SOAP envelope/parsing, OpenAPI operation/deviation selection, inherited Cucumber tags, Serenity JSON integrity |
 | Negative / error handling | FR-B4 (+ the SOAP fault path, design doc §5.3) |
 | Smoke (store-safe) | The fixed 3-scenario `@smoke` set (design doc §5.9) |
 | Non-functional | Out of scope v1 (scoping plan); revisit post-P5 |
@@ -77,6 +78,9 @@ Phase gates in [`docs/backlog.md`](backlog.md) are the authoritative exit criter
 - **Exit PB-P3:** all A-journeys green; `@smoke` proven side-effect-free; Serenity report
   generated **and content-verified automatically** (scenario names + counts present) — a
   generated-but-empty report is a gate failure, not a warning.
+- **Exit PB-CODEX-03:** the TypeScript unit command runs before E2E in `npm run verify`,
+  covers the four approved helper areas without a live SUT, and the full project contract
+  plus PR/default-branch CI pass.
 
 ## 6. Defect management
 
@@ -93,5 +97,7 @@ flaky scenario is a defect, not an environment fact.
 - Lane B: cucumber-js formatter output in CI logs + non-zero exit as the gate; FR-B1
   prints the 14/14 exercised matrix, intentionally excluded live operations, and any named
   PBR allowances actually applied.
+- Framework unit lane: Node TAP output in local/CI logs, with no Docker or ParaBank
+  precondition when run directly as `npm run test:unit`.
 - Every backlog gate tick carries evidence links (CI run, commit) per the backlog's
   maintenance notes.

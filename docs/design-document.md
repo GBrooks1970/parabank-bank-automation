@@ -10,13 +10,13 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.2
+**Version:** v1.3
 **Date:** 2026-07-31
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
-approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 aligns executable operation evidence
-and named upstream deviations, effective when the PB-CODEX-02 PR merges.
+approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR #15
+(`d894e54`, 2026-07-31); v1.3 records the PB-CODEX-03 framework unit lane.
 
 ---
 
@@ -386,7 +386,9 @@ From PB-P2 the project gate becomes:
 
 ```
 npm run verify   =  typecheck (tsc --noEmit)
-                  + lane B suite (and from PB-P3, lane A suite + report content check)
+                  + SUT-independent framework unit tests
+                  + tag/smoke-safety policy gates
+                  + lane B suite + lane A suite + report content check
 ```
 
 `docs/project-contract.md` names this; CI runs boot gate → `npm run verify`. The compose
@@ -421,8 +423,11 @@ for the lanes and changes only via its own PRs.)
 
 ## 8. Testing Strategy (for the test code itself)
 
-- **Static:** `tsc --noEmit` in `verify`; cucumber dry-run/step-binding check per lane
+- **Static:** `tsc --noEmit` in `verify`; cucumber step binding is enforced by each lane
   (undefined steps fail the gate).
+- **Framework unit lane:** Node's test runner through `tsx`, before any E2E work, covers
+  normal SOAP envelope/parsing, OpenAPI operation and named-deviation selection, inherited
+  Cucumber tag policy, and exact Serenity JSON scenario evidence without a live SUT.
 - **Determinism:** the PB-P2 twice-in-a-row rule; CI re-runs on every PR.
 - **Report integrity:** PB-P3's automated Serenity report content check (scenario names +
   counts present in the generated report artefact).
@@ -490,6 +495,7 @@ None blocking.
 | v1.0 | 2026-07-22 | Claude (Fable 5) + owner decisions | Initial design for PB-P1; scope + licence fixed by owner |
 | v1.1 | 2026-07-31 | Codex + owner decisions | Record review-remediation A/A/A: comprehensive FR-B1 matrix, executable amount boundaries, immutable execution inputs |
 | v1.2 | 2026-07-31 | Codex | Align the FR-B1 matrix with operation-aware implementation findings PBR-04/PBR-05 |
+| v1.3 | 2026-07-31 | Codex | Add the PB-CODEX-03 SUT-independent framework unit lane to the verify contract |
 
 ## Approval
 
