@@ -10,14 +10,15 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.4
+**Version:** v1.5
 **Date:** 2026-08-01
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
 approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR #15
 (`d894e54`, 2026-07-31); v1.3 unit lane merged by PR #16 (`6a98237`, 2026-08-01);
-v1.4 records executable DR-PB-09 boundary evidence, effective when PB-CODEX-04 merges.
+v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 records the
+least-privilege workflow and reviewed action pins, effective when PB-CODEX-05 merges.
 
 ---
 
@@ -183,7 +184,9 @@ this document, and the feature files stay traceable by a single vocabulary.
 - **NFR-5 Immutable execution inputs:** the ParaBank source commit, executed GitHub Actions,
   Maven builder, and relevant SUT runtime base images are immutable inputs. Human-readable
   versions remain beside full action SHAs/image digests, and every refresh is a deliberate,
-  reviewed full-gate change (DR-PB-10; implemented by PB-CODEX-05/06).
+  reviewed full-gate change (DR-PB-10; implemented by PB-CODEX-05/06). Action selection,
+  SHA resolution, permission review, and refresh evidence follow
+  [`github-actions-pin-policy.md`](github-actions-pin-policy.md).
 
 ---
 
@@ -501,6 +504,7 @@ None blocking.
 | v1.2 | 2026-07-31 | Codex | Align the FR-B1 matrix with operation-aware implementation findings PBR-04/PBR-05 |
 | v1.3 | 2026-07-31 | Codex | Add the PB-CODEX-03 SUT-independent framework unit lane to the verify contract |
 | v1.4 | 2026-08-01 | Codex | Add executable DR-PB-09 zero, minimum-positive, and exact-available transfer evidence |
+| v1.5 | 2026-08-01 | Codex | Record PB-CODEX-05 least privilege, full-SHA action pins, and the reviewed refresh procedure |
 
 ## Approval
 

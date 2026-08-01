@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 11 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…03 are complete; PB-CODEX-04 implementation is in progress.
+**Version:** 12 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…04 are complete; PB-CODEX-05 implementation is in progress.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -298,7 +298,7 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 7 open implementation items: 0 HIGH, 4 MEDIUM, 3 LOW.
+**Cycle status:** ACTIVE — 6 open implementation items: 0 HIGH, 3 MEDIUM, 3 LOW.
 OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
@@ -396,7 +396,7 @@ implementation starts.
     `npm run verify`. Project PR #16 merged as `6a98237`; PR CI run `30628973642` and
     post-merge `main` run `30676740079` passed the full gate with teardown.
 
-- [ ] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy**
+- [x] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy** — COMPLETE 2026-08-01
   - Acceptance under approved DR-PB-09: compact API scenarios cover zero,
     minimum-positive, and exact-available-balance amounts using deterministic seed state
     and assert-as-observed outcomes; existing exceeding-balance and non-numeric partitions
@@ -404,10 +404,11 @@ implementation starts.
     counts/report guards are updated; `npm run verify`, the full project contract, and PR
     CI pass.
   - Type: code + docs. Decision dependency resolved by DR-PB-09.
-  - **Update (2026-08-01):** a three-example reset-bracketed API outline covers zero,
+  - **Evidence:** a three-example reset-bracketed API outline covers zero,
     `$0.01`, and the dynamically captured exact available source balance. All three assert
-    the observed HTTP/body/media contract and both balance deltas; keep open until its
-    implementation PR and post-merge `main` CI pass.
+    the observed HTTP/body/media contract and both balance deltas. Project PR #17 merged
+    as `0ad6089`; PR CI run `30677684571` and post-merge `main` run `30685906271` passed
+    the full gate with teardown.
 
 - [ ] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins**
   - Acceptance under approved DR-PB-10: `.github/workflows/ci.yml` declares
@@ -416,6 +417,11 @@ implementation starts.
     documents a review/update mechanism; workflow syntax and the full PR gate pass. PBR-02
     stays open until its separate Node-runtime annotation clears.
   - Type: CI workflow + docs. Decision dependency resolved by DR-PB-10.
+  - **Update (2026-08-01):** the workflow grants only `contents: read`; all four external
+    actions use reviewed 40-character release commits with readable version comments; the
+    in-repo pin policy defines release review, SHA resolution, permission review, and
+    full-gate refresh evidence. Keep open until its implementation PR and post-merge
+    `main` CI pass. PBR-02 remains open for the two Node-20-backed actions.
 
 - [ ] **PB-CODEX-06 — Pin the Maven builder and relevant ParaBank runtime bases by digest**
   - Acceptance under approved DR-PB-10: Maven builder and relevant runtime
@@ -465,9 +471,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-04 baseline: project `main` at `6a98237`, clean and aligned with
-  `origin/main`; PB-CODEX-03 PR #16 merged; no open ParaBank issues; post-merge
-  `main` CI run 30676740079 passed.
+- PB-CODEX-05 baseline: project `main` at `0ad6089`, clean and aligned with
+  `origin/main`; PB-CODEX-04 PR #17 merged; no open ParaBank issues; post-merge
+  `main` CI run 30685906271 passed.
 
 ---
 
@@ -539,15 +545,16 @@ separate, reviewable dependency change.
 #### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
 
 **Priority Score:** Security Impact (0) + Breakage Probability (2) + Maintenance Burden (1) = **3 points**
-**Impact:** The PB-P3 `main` CI run (29947533664) is green but annotates that
+**Impact:** The PB-CODEX-04 post-merge `main` CI run (30685906271) is green but annotates that
 `actions/setup-java@v4` and `actions/upload-artifact@v4` still run on Node 20, which
 GitHub's runners are deprecating (being force-run on Node 24 for now).
 **Status:** RECORDED — warning only, not a failure
 **Affected:** `.github/workflows/ci.yml`
 
-**Problem:** These are already the latest major versions of both actions, so there is no
-bump to make today; when the actions publish Node-24-native majors, adopt them. Until then
-the forced Node 24 keeps CI green.
+**Problem:** Reviewed releases `setup-java@v4.9.0` and `upload-artifact@v4.6.2` still
+declare Node 20 action runtimes. PB-CODEX-05 pins those exact release commits but does not
+clear this separate risk; when Node-24-native majors are available, adopt them deliberately.
+Until then the forced Node 24 keeps CI green.
 
 **Success Criteria:**
 - [ ] Bump `setup-java` / `upload-artifact` when a Node-24-native major is available.

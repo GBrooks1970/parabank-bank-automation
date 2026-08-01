@@ -8,12 +8,15 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   sut-boot-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Build SUT image (pinned upstream, containerised Maven)
         shell: pwsh
@@ -26,13 +29,13 @@ jobs:
         shell: pwsh
         run: ./scripts/gate.ps1
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: npm
 
       - name: Set up Java (Serenity BDD report generator)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@d7793b545071e98d581d3bf084a51c3213318a07 # v4.9.0
         with:
           distribution: temurin
           java-version: 21
@@ -48,7 +51,7 @@ jobs:
 
       - name: Serenity report artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: serenity-report
           path: target/site/serenity
