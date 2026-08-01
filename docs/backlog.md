@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 14 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…06 are complete; PB-CODEX-07 implementation is in progress.
+**Version:** 15 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…07 are complete; PB-CODEX-08 implementation is in progress.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -440,21 +440,21 @@ implementation starts.
     `cf00434`; PR CI run `30689645482` and post-merge `main` run `30690697929` passed the
     full gate with teardown.
 
-- [ ] **PB-CODEX-07 — Bound REST, SOAP, and live-spec requests with contextual deadlines**
+- [x] **PB-CODEX-07 — Bound REST, SOAP, and live-spec requests with contextual deadlines** — COMPLETE 2026-08-01
   - Acceptance: a central timeout policy supplies abort signals to the general REST
     client, SOAP client, and live OpenAPI fetch while preserving the reset poller's bounded
     behaviour; errors identify method/operation, safe URL path, and elapsed limit without
     exposing credentials; unit tests prove timeout/abort behaviour; `npm run verify`, the
     full project contract, and PR CI pass.
   - Type: code. Dependency: PB-CODEX-03.
-  - **Update (2026-08-01):** a shared 10-second request policy now bounds response
+  - **Evidence:** a shared 10-second request policy now bounds response
     consumption as well as connection setup for the REST client, SOAP client, and live
     OpenAPI bootstrap. Deadline errors carry the method, operation, route template, and
     limit; login credentials, origins, queries, and fragments are excluded. Three focused
     unit tests prove timeout abort, caller-abort preservation, and diagnostic redaction.
     The reset poller's independent 120-second overall/5-second per-attempt bounds are
-    unchanged. Local five-command contract passed; keep open for implementation PR and
-    post-merge `main` CI evidence.
+    unchanged. Project PR #20 merged as `8a77333`; PR CI run `30691310624` and
+    post-merge `main` run `30698641668` passed the full gate with teardown.
 
 ### LOW Priority
 
@@ -462,8 +462,14 @@ implementation starts.
   - Acceptance: `README.md` distinguishes completed PB-P0…PB-P5 delivery from the active
     remediation cycle, replaces the claim that every UI journey is REST cross-checked with
     wording matching implemented checks, and contains no other status/scope claim that
-    contradicts backlog v7 or the live 18-scenario baseline; relative links remain valid.
+    contradicts backlog v15 or the live 22-scenario baseline; relative links remain valid.
   - Type: docs-only.
+  - **Update (2026-08-01):** the status now separates completed PB-P0…P5 delivery from
+    active PB-CODEX remediation, states the current 14 API + 8 UI scenario baseline, and
+    limits REST cross-check claims to A2–A4 monetary outcomes while identifying A1/A5 as
+    UI-oracle journeys. The documentation inventory now reflects DR-PB-01…10. Keep open
+    until relative-link validation, the project contract, implementation PR, and
+    post-merge `main` CI pass.
 
 - [ ] **PB-CODEX-09 — Align the bill-pay UI step wording with its actual oracle**
   - Acceptance: the feature and step definition describe only the UI
@@ -487,9 +493,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-07 baseline: project `main` at `cf00434`, clean and aligned with
-  `origin/main`; PB-CODEX-06 PR #19 merged; no open ParaBank issues; post-merge
-  `main` CI run `30690697929` passed.
+- PB-CODEX-08 baseline: project `main` at `8a77333`, clean and aligned with
+  `origin/main`; PB-CODEX-07 PR #20 merged; no open ParaBank issues; post-merge
+  `main` CI run `30698641668` passed.
 
 ---
 

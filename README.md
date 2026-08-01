@@ -3,18 +3,17 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: build complete (Phases 0–4) — both test lanes implemented; registration in progress (PB-P5).**
-> The SUT scaffold and CI boot gate are green (Phase 0); the design is owner-approved
-> (Phase 1, [`docs/design-document.md`](docs/design-document.md)); the **API lane**
-> (Phase 2) is 14 scenarios — FR-B1 operation-aware live-spec contract conformance, FR-B2 stateful
-> multi-step flow, FR-B3 REST↔SOAP parity, FR-B4 negative paths asserted as observed;
-> and the **Serenity/JS + Playwright + Cucumber UI lane** (Phase 3) is 8 scenarios —
-> FR-A1 register/login, FR-A2 open account, FR-A3 transfer, FR-A4 bill pay, FR-A5 loan
-> (approved & denied, pinned deterministic), each cross-checked through the REST client,
-> with a store-safe `@smoke` subset and a content-verified Serenity report. All green
-> behind `npm run verify`. **The delivery plan, current phase, and the acceptance
-> criteria gating each phase live in [`docs/backlog.md`](docs/backlog.md)** — any agent
-> picking this project up starts there.
+> **Status: delivery complete (PB-P0…PB-P5); active CODEX review-v1 remediation
+> (PB-CODEX-01…10).** The delivered **API lane** contains 14 scenarios covering FR-B1
+> operation-aware live-spec conformance, FR-B2 stateful flow, FR-B3 REST↔SOAP parity,
+> and FR-B4 negative paths asserted as observed. The delivered **Serenity/JS + Playwright
+> + Cucumber UI lane** contains 8 scenarios covering FR-A1 register/login, FR-A2 open
+> account, FR-A3 transfer, FR-A4 bill pay, and deterministic approved/denied FR-A5 loans.
+> The A2–A4 monetary state outcomes are cross-checked through the REST client; A1 and A5
+> use their specified UI oracles. All 22 scenarios run behind `npm run verify`, alongside
+> the store-safe `@smoke` proof and content-verified Serenity report. **The completed
+> delivery gates, active remediation items, and current evidence live in
+> [`docs/backlog.md`](docs/backlog.md)** — any agent picking this project up starts there.
 
 ## The system under test
 
@@ -83,7 +82,7 @@ refresh procedure.
 
 - [`docs/design-document.md`](docs/design-document.md) — the approved design (scope,
   requirements FR-A1…A5 / FR-B1…B4, screenplay inventory, policies).
-- [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…07 with rationale.
+- [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…10 with rationale.
 - [`docs/qa-strategy.md`](docs/qa-strategy.md) — ISTQB levels, types, techniques, exit criteria.
 - [`docs/naming-conventions.md`](docs/naming-conventions.md) — files, Gherkin, screenplay, git.
 - [`docs/github-actions-pin-policy.md`](docs/github-actions-pin-policy.md) — immutable action
