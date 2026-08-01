@@ -1,4 +1,5 @@
 import { Account, AccountType } from './types';
+import { withRequestDeadline } from './request-deadline';
 
 /**
  * DR-PB-07: lightweight SOAP support — hand-built document-literal envelopes over fetch,
@@ -42,14 +43,25 @@ export async function soapCall(
 ): Promise<SoapResult> {
   const body = buildSoapEnvelope(operation, params, options);
 
-  const res = await fetch(`${baseUrl}/parabank/services/ParaBank`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/xml' },
-    body
-  });
-  const xml = await res.text();
-  const fault = extractTag(xml, 'faultstring');
-  return { status: res.status, xml, fault };
+  return withRequestDeadline(
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/xml' },
+      body
+    },
+    { operation: `SOAP ${operation}`, safePath: '/parabank/services/ParaBank' },
+    async (signal) => {
+      const res = await fetch(`${baseUrl}/parabank/services/ParaBank`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/xml' },
+        body,
+        signal
+      });
+      const xml = await res.text();
+      const fault = extractTag(xml, 'faultstring');
+      return { status: res.status, xml, fault };
+    }
+  );
 }
 
 /** First `<tag>` text content, tolerating any namespace prefix. No DOM library (DR-PB-07). */

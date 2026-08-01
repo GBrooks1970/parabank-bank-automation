@@ -29,7 +29,7 @@ framework helpers and does not require a running SUT.
 |---|---|
 | Functional (behavioural) | All FR scenarios, both lanes |
 | Contract conformance | FR-B1 binds all 14 approved client methods to live method/path/status-or-default/media/schema definitions and emits exercised/excluded coverage |
-| Framework unit | SOAP envelope/parsing, OpenAPI operation/deviation selection, inherited Cucumber tags, Serenity JSON integrity |
+| Framework unit | SOAP envelope/parsing, OpenAPI operation/deviation selection, inherited Cucumber tags, Serenity JSON integrity, request deadline/abort diagnostics |
 | Negative / error handling | FR-B4 (+ the SOAP fault path, design doc §5.3) |
 | Smoke (store-safe) | The fixed 3-scenario `@smoke` set (design doc §5.9) |
 | Non-functional | Out of scope v1 (scoping plan); revisit post-P5 |
@@ -81,6 +81,9 @@ Phase gates in [`docs/backlog.md`](backlog.md) are the authoritative exit criter
 - **Exit PB-CODEX-03:** the TypeScript unit command runs before E2E in `npm run verify`,
   covers the four approved helper areas without a live SUT, and the full project contract
   plus PR/default-branch CI pass.
+- **Exit PB-CODEX-07:** a shared 10-second abort-backed deadline covers REST, SOAP, and
+  live-spec response consumption; focused unit tests prove deadline abort, caller-abort
+  preservation, and credential-safe diagnostics; the reset retry contract is unchanged.
 
 ## 6. Defect management
 

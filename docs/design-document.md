@@ -10,7 +10,7 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.6
+**Version:** v1.7
 **Date:** 2026-08-01
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
@@ -18,8 +18,9 @@
 approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR #15
 (`d894e54`, 2026-07-31); v1.3 unit lane merged by PR #16 (`6a98237`, 2026-08-01);
 v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 Actions hardening
-merged by PR #18 (`545a13f`, 2026-08-01); v1.6 records digest-pinned builder/runtime
-images and enforced refresh checks, effective when PB-CODEX-06 merges.
+merged by PR #18 (`545a13f`, 2026-08-01); v1.6 digest-pinned builder/runtime images
+merged by PR #19 (`cf00434`, 2026-08-01); v1.7 records the PB-CODEX-07 request-deadline
+policy, effective when its implementation merges.
 
 ---
 
@@ -190,6 +191,11 @@ this document, and the feature files stay traceable by a single vocabulary.
   [`github-actions-pin-policy.md`](github-actions-pin-policy.md). Builder/runtime image
   selection, multi-platform digest resolution, drift enforcement, and refresh evidence
   follow [`container-image-pin-policy.md`](container-image-pin-policy.md).
+- **NFR-6 Bounded API tooling:** general REST calls, SOAP calls, and the live OpenAPI
+  bootstrap share a 10-second abort-backed deadline that covers response consumption.
+  Timeout diagnostics name the method, logical operation, safe route template, and limit,
+  never credentials or query values. The reset poller retains its separate 120-second
+  overall and 5-second per-attempt bounds because readiness deliberately retries.
 
 ---
 
@@ -326,6 +332,15 @@ so the operation-aware proof can assert the SUT's observed quirks. PB-CODEX-02 m
 an exercised/excluded coverage summary from this matrix and must not weaken PBR-01 or the
 assert-as-observed policy.
 
+All REST operations, SOAP operations, and the separate live OpenAPI bootstrap execute
+inside `src/api/request-deadline.ts`. Its single 10-second policy supplies the fetch abort
+signal and remains active until the response body is consumed, not merely until headers
+arrive. Diagnostics use the operation matrix route template for REST—especially
+`/login/{username}/{password}`—and fixed safe paths for SOAP/OpenAPI, stripping origins,
+queries, fragments, and known login credential segments defensively. Caller cancellation
+is forwarded unchanged rather than mislabelled as a deadline. The reset helper in
+`src/api/reset.ts` remains outside this policy so its bounded retry lifecycle is preserved.
+
 ### 5.5 Reset bracket (DR-PB-06)
 
 ```
@@ -437,7 +452,8 @@ for the lanes and changes only via its own PRs.)
   (undefined steps fail the gate).
 - **Framework unit lane:** Node's test runner through `tsx`, before any E2E work, covers
   normal SOAP envelope/parsing, OpenAPI operation and named-deviation selection, inherited
-  Cucumber tag policy, and exact Serenity JSON scenario evidence without a live SUT.
+  Cucumber tag policy, exact Serenity JSON scenario evidence, and request deadline/abort
+  diagnostics without a live SUT.
 - **Determinism:** the PB-P2 twice-in-a-row rule; CI re-runs on every PR.
 - **Report integrity:** PB-P3's automated Serenity report content check (scenario names +
   counts present in the generated report artefact).
@@ -509,6 +525,7 @@ None blocking.
 | v1.4 | 2026-08-01 | Codex | Add executable DR-PB-09 zero, minimum-positive, and exact-available transfer evidence |
 | v1.5 | 2026-08-01 | Codex | Record PB-CODEX-05 least privilege, full-SHA action pins, and the reviewed refresh procedure |
 | v1.6 | 2026-08-01 | Codex | Record PB-CODEX-06 builder/runtime digest pins, drift enforcement, and refresh procedure |
+| v1.7 | 2026-08-01 | Codex | Record PB-CODEX-07 central request deadline, safe diagnostics, and reset-poller boundary |
 
 ## Approval
 
