@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 17 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…09 are complete; PB-CODEX-10 implementation is in progress.
+**Version:** 18 — **PB-P0…P5 and PB-CODEX-01…10 complete; project ACTIVE for outstanding risks.**
+PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -485,18 +485,20 @@ implementation starts.
     Project PR #22 merged as `a130f5e`; PR CI run `30700064446` and post-merge `main`
     run `30701165985` passed the full gate with teardown.
 
-- [ ] **PB-CODEX-10 — Make SOAP envelope construction safe for reserved XML characters**
+- [x] **PB-CODEX-10 — Make SOAP envelope construction safe for reserved XML characters** — COMPLETE 2026-08-01
   - Acceptance: SOAP operation/parameter names are constrained to known-safe XML names and
     parameter values are escaped or emitted by a small XML builder; focused tests cover
     `&`, `<`, `>`, quotes, valid current calls, invalid names, and response tag/fault
     parsing; REST↔SOAP parity remains green under `npm run verify`, the full project
     contract, and PR CI.
   - Type: code. Dependency: PB-CODEX-03.
-  - **Update (2026-08-01):** SOAP operation, parameter, and response-tag names are now
+  - **Evidence:** SOAP operation, parameter, and response-tag names are now
     constrained to a conservative prefix-free XML-name subset. Parameter text escapes
     ampersands, angle brackets, and both quote styles while preserving qualified and
-    deliberately unqualified current request shapes. Keep open until focused unit tests,
-    REST↔SOAP parity, the project contract, implementation PR, and post-merge `main` CI pass.
+    deliberately unqualified current request shapes. Focused unit tests passed 17/17 and
+    the targeted SOAP selection passed 3/3 scenarios and 11/11 steps. Project PR #23
+    merged as `28f6221`; PR CI run `30701717146` and post-merge `main` run
+    `30701970664` passed the full gate with teardown.
 
 ### Reconciliation boundaries
 
@@ -504,9 +506,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-10 baseline: project `main` at `a130f5e`, clean and aligned with
-  `origin/main`; PB-CODEX-09 PR #22 merged; no open ParaBank issues; post-merge
-  `main` CI run `30701165985` passed.
+- PB-CODEX closure baseline: project `main` at `28f6221`, clean and aligned with
+  `origin/main`; PB-CODEX-10 PR #23 merged; no open ParaBank issues; post-merge
+  `main` CI run `30701970664` passed.
 
 ---
 
