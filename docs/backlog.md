@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 12 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…04 are complete; PB-CODEX-05 implementation is in progress.
+**Version:** 13 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…05 are complete; PB-CODEX-06 implementation is in progress.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -298,7 +298,7 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 6 open implementation items: 0 HIGH, 3 MEDIUM, 3 LOW.
+**Cycle status:** ACTIVE — 5 open implementation items: 0 HIGH, 2 MEDIUM, 3 LOW.
 OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
@@ -410,18 +410,19 @@ implementation starts.
     as `0ad6089`; PR CI run `30677684571` and post-merge `main` run `30685906271` passed
     the full gate with teardown.
 
-- [ ] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins**
+- [x] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins** — COMPLETE 2026-08-01
   - Acceptance under approved DR-PB-10: `.github/workflows/ci.yml` declares
     `permissions: contents: read` (additional permissions narrowly justified), pins every
     executed action to a reviewed full commit SHA with a readable release comment, and
     documents a review/update mechanism; workflow syntax and the full PR gate pass. PBR-02
     stays open until its separate Node-runtime annotation clears.
   - Type: CI workflow + docs. Decision dependency resolved by DR-PB-10.
-  - **Update (2026-08-01):** the workflow grants only `contents: read`; all four external
+  - **Evidence:** the workflow grants only `contents: read`; all four external
     actions use reviewed 40-character release commits with readable version comments; the
     in-repo pin policy defines release review, SHA resolution, permission review, and
-    full-gate refresh evidence. Keep open until its implementation PR and post-merge
-    `main` CI pass. PBR-02 remains open for the two Node-20-backed actions.
+    full-gate refresh evidence. Project PR #18 merged as `545a13f`; PR CI run
+    `30686511346` and post-merge `main` run `30688956444` passed with teardown. PBR-02
+    remains open for the two Node-20-backed actions.
 
 - [ ] **PB-CODEX-06 — Pin the Maven builder and relevant ParaBank runtime bases by digest**
   - Acceptance under approved DR-PB-10: Maven builder and relevant runtime
@@ -431,6 +432,12 @@ implementation starts.
     full-gate evidence; `pwsh ./scripts/build-sut.ps1`, the complete project contract, and
     PR CI pass.
   - Type: build/container configuration + docs. Decision dependency resolved by DR-PB-10.
+  - **Update (2026-08-01):** the exact Maven 3.9.16 builder and Tomcat 10.1.57 runtime
+    tags resolve through reviewed multi-platform index digests. The build validates required
+    fields and current registry resolution, rejects stale/missing pins, checks the pinned
+    upstream Dockerfile tag, and generates a digest-pinned derivative for Compose. The
+    refresh policy and targeted negative guards are documented; keep open until the full
+    contract, implementation PR, and post-merge `main` CI pass.
 
 - [ ] **PB-CODEX-07 — Bound REST, SOAP, and live-spec requests with contextual deadlines**
   - Acceptance: a central timeout policy supplies abort signals to the general REST
@@ -471,9 +478,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-05 baseline: project `main` at `0ad6089`, clean and aligned with
-  `origin/main`; PB-CODEX-04 PR #17 merged; no open ParaBank issues; post-merge
-  `main` CI run 30685906271 passed.
+- PB-CODEX-06 baseline: project `main` at `545a13f`, clean and aligned with
+  `origin/main`; PB-CODEX-05 PR #18 merged; no open ParaBank issues; post-merge
+  `main` CI run 30688956444 passed.
 
 ---
 

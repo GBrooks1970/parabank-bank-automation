@@ -25,6 +25,8 @@ docker compose down
 
 - Boot->seed->use (DR-PB-06): never assume a fresh container is seeded; `gate.ps1` seeds.
 - SUT pin (DR-PB-02): upstream commit changes are their own reviewed PRs, never drive-by.
+- Container pins (DR-PB-10): `config/container-image-pins.psd1` is the single source;
+  refresh only through `docs/container-image-pin-policy.md` and `build-sut.ps1` validation.
 - Assert-as-observed (design doc §5.7): SUT quirks are the spec; do not "fix" assertions
   to match conventional API behaviour.
 - Scenarios run serially; `@mutates` = reset-bracketed; `@smoke` never mutates; `@loan`

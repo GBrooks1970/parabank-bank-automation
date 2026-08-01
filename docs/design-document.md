@@ -10,15 +10,16 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.5
+**Version:** v1.6
 **Date:** 2026-08-01
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
 approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR #15
 (`d894e54`, 2026-07-31); v1.3 unit lane merged by PR #16 (`6a98237`, 2026-08-01);
-v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 records the
-least-privilege workflow and reviewed action pins, effective when PB-CODEX-05 merges.
+v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 Actions hardening
+merged by PR #18 (`545a13f`, 2026-08-01); v1.6 records digest-pinned builder/runtime
+images and enforced refresh checks, effective when PB-CODEX-06 merges.
 
 ---
 
@@ -186,7 +187,9 @@ this document, and the feature files stay traceable by a single vocabulary.
   versions remain beside full action SHAs/image digests, and every refresh is a deliberate,
   reviewed full-gate change (DR-PB-10; implemented by PB-CODEX-05/06). Action selection,
   SHA resolution, permission review, and refresh evidence follow
-  [`github-actions-pin-policy.md`](github-actions-pin-policy.md).
+  [`github-actions-pin-policy.md`](github-actions-pin-policy.md). Builder/runtime image
+  selection, multi-platform digest resolution, drift enforcement, and refresh evidence
+  follow [`container-image-pin-policy.md`](container-image-pin-policy.md).
 
 ---
 
@@ -505,6 +508,7 @@ None blocking.
 | v1.3 | 2026-07-31 | Codex | Add the PB-CODEX-03 SUT-independent framework unit lane to the verify contract |
 | v1.4 | 2026-08-01 | Codex | Add executable DR-PB-09 zero, minimum-positive, and exact-available transfer evidence |
 | v1.5 | 2026-08-01 | Codex | Record PB-CODEX-05 least privilege, full-SHA action pins, and the reviewed refresh procedure |
+| v1.6 | 2026-08-01 | Codex | Record PB-CODEX-06 builder/runtime digest pins, drift enforcement, and refresh procedure |
 
 ## Approval
 
