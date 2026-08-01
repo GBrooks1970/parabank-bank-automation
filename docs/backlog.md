@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 16 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…08 are complete; PB-CODEX-09 implementation is in progress.
+**Version:** 17 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…09 are complete; PB-CODEX-10 implementation is in progress.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -471,18 +471,19 @@ implementation starts.
     relative links pass. Project PR #21 merged as `fd06bf5`; PR CI run `30699021010` and
     post-merge `main` run `30699666655` passed the full gate with teardown.
 
-- [ ] **PB-CODEX-09 — Align the bill-pay UI step wording with its actual oracle**
+- [x] **PB-CODEX-09 — Align the bill-pay UI step wording with its actual oracle** — COMPLETE 2026-08-01
   - Acceptance: the feature and step definition describe only the UI
     completion-and-amount evidence they assert, no longer claim the UI confirms the
     generated payee, and do not recall an unused payee value; the later REST assertion
     still proves the transaction names that payee; targeted A4, `npm run verify`, the full
     project contract, and PR CI pass.
   - Type: test wording/steps.
-  - **Update (2026-08-01):** the UI step now claims only that bill payment completed for
+  - **Evidence:** the UI step now claims only that bill payment completed for
     the asserted amount, matching its completion-text and amount checks; it no longer
     recalls the payee name. The later REST step remains responsible for proving the
-    transaction names the generated payee. Keep open until targeted A4, the project
-    contract, implementation PR, and post-merge `main` CI pass.
+    transaction names the generated payee. Targeted A4 passed 1/1 scenario and 7/7 steps.
+    Project PR #22 merged as `a130f5e`; PR CI run `30700064446` and post-merge `main`
+    run `30701165985` passed the full gate with teardown.
 
 - [ ] **PB-CODEX-10 — Make SOAP envelope construction safe for reserved XML characters**
   - Acceptance: SOAP operation/parameter names are constrained to known-safe XML names and
@@ -491,6 +492,11 @@ implementation starts.
     parsing; REST↔SOAP parity remains green under `npm run verify`, the full project
     contract, and PR CI.
   - Type: code. Dependency: PB-CODEX-03.
+  - **Update (2026-08-01):** SOAP operation, parameter, and response-tag names are now
+    constrained to a conservative prefix-free XML-name subset. Parameter text escapes
+    ampersands, angle brackets, and both quote styles while preserving qualified and
+    deliberately unqualified current request shapes. Keep open until focused unit tests,
+    REST↔SOAP parity, the project contract, implementation PR, and post-merge `main` CI pass.
 
 ### Reconciliation boundaries
 
@@ -498,9 +504,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-09 baseline: project `main` at `fd06bf5`, clean and aligned with
-  `origin/main`; PB-CODEX-08 PR #21 merged; no open ParaBank issues; post-merge
-  `main` CI run `30699666655` passed.
+- PB-CODEX-10 baseline: project `main` at `a130f5e`, clean and aligned with
+  `origin/main`; PB-CODEX-09 PR #22 merged; no open ParaBank issues; post-merge
+  `main` CI run `30701165985` passed.
 
 ---
 

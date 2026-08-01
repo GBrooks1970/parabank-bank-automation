@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildSoapEnvelope, extractTag, parseAccountSoapResponse } from '../../src/api/soap';
+import { buildSoapEnvelope, escapeXmlText, extractTag, parseAccountSoapResponse } from '../../src/api/soap';
 
 test('buildSoapEnvelope emits the normal qualified document-literal request', () => {
   const xml = buildSoapEnvelope('getAccount', { accountId: 12345 });
@@ -21,6 +21,33 @@ test('buildSoapEnvelope preserves the observed unqualified fault-path request op
   assert.doesNotMatch(xml, /<par:accountId>/);
 });
 
+test('buildSoapEnvelope escapes XML-reserved parameter text', () => {
+  const value = `Tom & <Jerry> "double" 'single'`;
+  const xml = buildSoapEnvelope('findCustomer', { name: value });
+
+  assert.match(
+    xml,
+    /<par:name>Tom &amp; &lt;Jerry&gt; &quot;double&quot; &apos;single&apos;<\/par:name>/
+  );
+  assert.equal(escapeXmlText(value), 'Tom &amp; &lt;Jerry&gt; &quot;double&quot; &apos;single&apos;');
+});
+
+test('buildSoapEnvelope rejects unsafe operation and parameter names', () => {
+  for (const operation of ['', '1getAccount', 'get:Account', 'get<Account']) {
+    assert.throws(
+      () => buildSoapEnvelope(operation, { accountId: 12345 }),
+      /SOAP operation must be a safe XML name/
+    );
+  }
+
+  for (const parameter of ['', '1accountId', 'account:id', 'account id']) {
+    assert.throws(
+      () => buildSoapEnvelope('getAccount', { [parameter]: 12345 }),
+      /SOAP parameter must be a safe XML name/
+    );
+  }
+});
+
 test('SOAP response helpers parse namespace-tolerant account fields and faults', () => {
   const xml =
     '<soap:Envelope><soap:Body><ns:getAccountResponse><ns:getAccountReturn>' +
@@ -34,4 +61,8 @@ test('SOAP response helpers parse namespace-tolerant account fields and faults',
     balance: -42.5
   });
   assert.equal(extractTag('<soap:faultstring>normal fault</soap:faultstring>', 'faultstring'), 'normal fault');
+  assert.throws(
+    () => extractTag('<soap:faultstring>normal fault</soap:faultstring>', 'fault|string'),
+    /SOAP response tag must be a safe XML name/
+  );
 });

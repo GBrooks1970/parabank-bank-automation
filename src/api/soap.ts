@@ -9,6 +9,7 @@ import { withRequestDeadline } from './request-deadline';
  */
 
 const NS = 'http://service.parabank.parasoft.com/';
+const SAFE_XML_NAME = /^[A-Za-z_][A-Za-z0-9._-]*$/;
 
 export interface SoapResult {
   status: number;
@@ -17,7 +18,28 @@ export interface SoapResult {
   fault?: string;
 }
 
-/** Build the current DR-PB-07 document-literal request shape. PB-CODEX-10 owns hardening. */
+/**
+ * Accept a deliberately small, prefix-free subset of XML names. Namespace prefixes are
+ * supplied by this module, so callers cannot inject markup or replace the `par` prefix.
+ */
+function safeXmlName(kind: 'operation' | 'parameter' | 'response tag', name: string): string {
+  if (!SAFE_XML_NAME.test(name)) {
+    throw new Error(`SOAP ${kind} must be a safe XML name: ${JSON.stringify(name)}`);
+  }
+  return name;
+}
+
+/** Escape text content before placing a parameter value inside an XML element. */
+export function escapeXmlText(value: string | number): string {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+}
+
+/** Build the current DR-PB-07 document-literal request shape. */
 export function buildSoapEnvelope(
   operation: string,
   params: Record<string, string | number>,
@@ -25,13 +47,17 @@ export function buildSoapEnvelope(
 ): string {
   const { qualifyParams = true } = options;
   const prefix = qualifyParams ? 'par:' : '';
+  const operationName = safeXmlName('operation', operation);
   return (
     `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:par="${NS}">` +
-    `<soapenv:Body><par:${operation}>` +
+    `<soapenv:Body><par:${operationName}>` +
     Object.entries(params)
-      .map(([key, value]) => `<${prefix}${key}>${value}</${prefix}${key}>`)
+      .map(([key, value]) => {
+        const parameterName = safeXmlName('parameter', key);
+        return `<${prefix}${parameterName}>${escapeXmlText(value)}</${prefix}${parameterName}>`;
+      })
       .join('') +
-    `</par:${operation}></soapenv:Body></soapenv:Envelope>`
+    `</par:${operationName}></soapenv:Body></soapenv:Envelope>`
   );
 }
 
@@ -66,7 +92,8 @@ export async function soapCall(
 
 /** First `<tag>` text content, tolerating any namespace prefix. No DOM library (DR-PB-07). */
 export function extractTag(xml: string, tag: string): string | undefined {
-  const match = new RegExp(`<(?:[\\w-]+:)?${tag}>([^<]*)</(?:[\\w-]+:)?${tag}>`).exec(xml);
+  const tagName = safeXmlName('response tag', tag);
+  const match = new RegExp(`<(?:[\\w-]+:)?${tagName}>([^<]*)</(?:[\\w-]+:)?${tagName}>`).exec(xml);
   return match?.[1];
 }
 
