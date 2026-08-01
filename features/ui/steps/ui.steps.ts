@@ -165,8 +165,7 @@ When('she pays a bill of ${float} to a generated payee from account {int} throug
   await paula().attemptsTo(PayBill(payeeName, amount, from));
 });
 
-Then('the UI confirms the bill payment of ${float} to that payee', async function (this: PBWorld, amount: number) {
-  const payeeName = this.actor.recall<string>('payeeName');
+Then('the UI confirms the bill payment completed for ${float}', async function (this: PBWorld, amount: number) {
   await paula().attemptsTo(
     Ensure.that(TheBillPayResultText(), includes('Bill Payment Complete')),
     Ensure.that(TheBillPayResultText(), includes(String(Math.trunc(amount))))

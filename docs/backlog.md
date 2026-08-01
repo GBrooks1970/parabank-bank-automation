@@ -13,8 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 15 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01…07 are complete; PB-CODEX-08 implementation is in progress.
+**Version:** 16 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…08 are complete; PB-CODEX-09 implementation is in progress.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -458,18 +458,18 @@ implementation starts.
 
 ### LOW Priority
 
-- [ ] **PB-CODEX-08 — Reconcile README closure status and REST cross-check claims**
+- [x] **PB-CODEX-08 — Reconcile README closure status and REST cross-check claims** — COMPLETE 2026-08-01
   - Acceptance: `README.md` distinguishes completed PB-P0…PB-P5 delivery from the active
     remediation cycle, replaces the claim that every UI journey is REST cross-checked with
     wording matching implemented checks, and contains no other status/scope claim that
     contradicts backlog v15 or the live 22-scenario baseline; relative links remain valid.
   - Type: docs-only.
-  - **Update (2026-08-01):** the status now separates completed PB-P0…P5 delivery from
+  - **Evidence:** the status now separates completed PB-P0…P5 delivery from
     active PB-CODEX remediation, states the current 14 API + 8 UI scenario baseline, and
     limits REST cross-check claims to A2–A4 monetary outcomes while identifying A1/A5 as
-    UI-oracle journeys. The documentation inventory now reflects DR-PB-01…10. Keep open
-    until relative-link validation, the project contract, implementation PR, and
-    post-merge `main` CI pass.
+    UI-oracle journeys. The documentation inventory now reflects DR-PB-01…10 and all 13
+    relative links pass. Project PR #21 merged as `fd06bf5`; PR CI run `30699021010` and
+    post-merge `main` run `30699666655` passed the full gate with teardown.
 
 - [ ] **PB-CODEX-09 — Align the bill-pay UI step wording with its actual oracle**
   - Acceptance: the feature and step definition describe only the UI
@@ -478,6 +478,11 @@ implementation starts.
     still proves the transaction names that payee; targeted A4, `npm run verify`, the full
     project contract, and PR CI pass.
   - Type: test wording/steps.
+  - **Update (2026-08-01):** the UI step now claims only that bill payment completed for
+    the asserted amount, matching its completion-text and amount checks; it no longer
+    recalls the payee name. The later REST step remains responsible for proving the
+    transaction names the generated payee. Keep open until targeted A4, the project
+    contract, implementation PR, and post-merge `main` CI pass.
 
 - [ ] **PB-CODEX-10 — Make SOAP envelope construction safe for reserved XML characters**
   - Acceptance: SOAP operation/parameter names are constrained to known-safe XML names and
@@ -493,9 +498,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-08 baseline: project `main` at `8a77333`, clean and aligned with
-  `origin/main`; PB-CODEX-07 PR #20 merged; no open ParaBank issues; post-merge
-  `main` CI run `30698641668` passed.
+- PB-CODEX-09 baseline: project `main` at `fd06bf5`, clean and aligned with
+  `origin/main`; PB-CODEX-08 PR #21 merged; no open ParaBank issues; post-merge
+  `main` CI run `30699666655` passed.
 
 ---
 
