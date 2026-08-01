@@ -2,6 +2,7 @@ import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { OPERATION_CONTRACTS, OPERATION_NAMES, OperationContract, OperationName } from './operation-contracts';
 import { ApiResponse } from './types';
+import { withRequestDeadline } from './request-deadline';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 'options' | 'trace';
 
@@ -43,16 +44,22 @@ export class SpecConformance {
   ) {}
 
   static async fromLiveSpec(baseUrl: string): Promise<SpecConformance> {
-    const res = await fetch(`${baseUrl}/parabank/services/bank/openapi.json`);
-    if (res.status !== 200) {
-      throw new Error(`openapi.json not served: HTTP ${res.status}`);
-    }
-    const contentType = res.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase();
-    if (contentType !== 'application/json') {
-      throw new Error(`openapi.json media type is ${contentType ?? '(missing)'}, expected application/json`);
-    }
+    const spec = await withRequestDeadline(
+      { method: 'GET' },
+      { operation: 'OpenAPI live specification', safePath: '/parabank/services/bank/openapi.json' },
+      async (signal) => {
+        const res = await fetch(`${baseUrl}/parabank/services/bank/openapi.json`, { signal });
+        if (res.status !== 200) {
+          throw new Error(`openapi.json not served: HTTP ${res.status}`);
+        }
+        const contentType = res.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase();
+        if (contentType !== 'application/json') {
+          throw new Error(`openapi.json media type is ${contentType ?? '(missing)'}, expected application/json`);
+        }
 
-    const spec = (await res.json()) as Record<string, unknown>;
+        return (await res.json()) as Record<string, unknown>;
+      }
+    );
     return SpecConformance.fromDocument(spec);
   }
 
