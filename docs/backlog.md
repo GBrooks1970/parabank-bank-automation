@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 18 — **PB-P0…P5 and PB-CODEX-01…10 complete; project ACTIVE for outstanding risks.**
+**Version:** 19 — **PB-P0…P5 and PB-CODEX-01…10 complete; project ACTIVE for outstanding risks.**
 PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
 **Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
@@ -23,11 +23,12 @@ phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026
 `b14e302`).
 
 This backlog tracks the delivered ParaBank test-automation project as **six sequential
-phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the current
-post-closure review-remediation cycle (PB-CODEX-01…10). The completed phases remain
-historical evidence and are not reopened. Current work follows the dependencies and owner
-decision gates in the remediation section. Defects and risks discovered during delivery are
-recorded under Outstanding Risks using the portfolio's standard scoring.
+phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the completed
+post-closure review-remediation cycle (PB-CODEX-01…10). The completed phases and
+remediation remain historical evidence and are not reopened. Current maintenance is
+governed by the Outstanding Risks section: PBR-03 is actionable, while PBR-01, PBR-02,
+PBR-04, and PBR-05 require their recorded triggers. Risks use the portfolio's standard
+scoring.
 
 **Priority Scoring System** (used for risks and review-remediation ordering; delivered
 phases were sequenced, not scored):
@@ -298,7 +299,7 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 5 open implementation items: 0 HIGH, 2 MEDIUM, 3 LOW.
+**Cycle status:** COMPLETE — 0 open implementation items: 0 HIGH, 0 MEDIUM, 0 LOW.
 OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
@@ -506,9 +507,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX closure baseline: project `main` at `28f6221`, clean and aligned with
-  `origin/main`; PB-CODEX-10 PR #23 merged; no open ParaBank issues; post-merge
-  `main` CI run `30701970664` passed.
+- PB-CODEX closure baseline: project `main` at `31d7240`, clean and aligned with
+  `origin/main`; closure PR #24 merged; no open ParaBank issues; post-merge
+  `main` CI run `30703247082` passed.
 
 ---
 
