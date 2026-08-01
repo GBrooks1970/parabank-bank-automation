@@ -22,13 +22,17 @@ banking demo application — run as a local, Docker-backed, resettable system un
 |---|---|
 | Upstream | [`parasoft/parabank`](https://github.com/parasoft/parabank) (Apache-2.0) |
 | Pinned commit | `d1bf0068a961e10f0d2d65c84b9a10dc7bd2c8b1` (see `scripts/build-sut.ps1`) |
+| Pinned builder | Maven 3.9.16 / Temurin 17 by reviewed multi-platform digest |
+| Pinned runtime | Tomcat 10.1.57 / Temurin JRE 21 by reviewed multi-platform digest |
 | Runtime | Single container: Tomcat 10.1 / JRE 21, embedded HSQLDB (seeded explicitly via `initializeDB` — DR-PB-06) |
 | App URL | http://localhost:8090/parabank/ |
 | Surfaces | Web UI · REST (`/parabank/services/bank/*`, serves its own OpenAPI 3.0.1 spec) · SOAP (`/parabank/services/ParaBank`, `/parabank/services/LoanProcessor`) |
 | Seeded identity | `john` / `demo` (customer 12212) |
 
 Upstream is a demo app pinned at `5.0.0-SNAPSHOT`; upstream bumps are deliberate,
-reviewed changes, never implicit (portfolio decision DR-PB-02).
+reviewed changes, never implicit (portfolio decision DR-PB-02). Builder/runtime tags and
+digests live in [`config/container-image-pins.psd1`](config/container-image-pins.psd1) and
+follow the [container image pin policy](docs/container-image-pin-policy.md).
 
 ## Quickstart
 
@@ -84,6 +88,8 @@ refresh procedure.
 - [`docs/naming-conventions.md`](docs/naming-conventions.md) — files, Gherkin, screenplay, git.
 - [`docs/github-actions-pin-policy.md`](docs/github-actions-pin-policy.md) — immutable action
   pins, least-privilege policy, and the reviewed refresh procedure.
+- [`docs/container-image-pin-policy.md`](docs/container-image-pin-policy.md) — immutable
+  builder/runtime digests, drift enforcement, and the reviewed refresh procedure.
 - [`docs/backlog.md`](docs/backlog.md) — phased delivery plan, gate status, and open risks
   (**start here to resume the project**).
 - [`docs/implementation-logs/`](docs/implementation-logs/) — append-only build history

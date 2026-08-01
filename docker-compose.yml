@@ -1,7 +1,8 @@
 # ParaBank SUT — single container (probe finding F-03: embedded HSQLDB, no DB service).
 #
 # Prepare the image first with scripts/build-sut.ps1 (fetches the pinned upstream source,
-# builds the WAR in a containerised Maven, renames it for the upstream Dockerfile below).
+# builds the WAR in a pinned Maven image, and generates Dockerfile.pinned from the pinned
+# upstream Dockerfile plus config/container-image-pins.psd1).
 #
 # Lifecycle (probe finding F-06):
 #   docker compose up -d                      # start; first boot self-seeds (~18 s)
@@ -14,7 +15,8 @@
 services:
   parabank:
     build:
-      context: ./target-app/parabank   # upstream Dockerfile at the pinned commit (DR-PB-02)
+      context: ./target-app/parabank
+      dockerfile: Dockerfile.pinned   # generated + digest-pinned by build-sut.ps1 (DR-PB-10)
     image: parabank:d1bf006
     container_name: parabank
     ports:
