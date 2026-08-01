@@ -40,17 +40,17 @@ framework helpers and does not require a running SUT.
   amounts follow the owner-approved DR-PB-09 partition set below. Boundaries are asserted
   per *observed* behaviour (design doc §5.7), including that overdrafts may be permitted.
 
-  | Partition / boundary | Evidence state at v1.1 |
+  | Partition / boundary | Executable evidence at v1.4 |
   |---|---|
-  | Representative positive | Existing B2/A3/A4 evidence |
-  | Exceeding available balance | Existing B4 evidence |
-  | Non-numeric | Existing B4 evidence |
-  | Zero | Required by PB-CODEX-04; not yet executable |
-  | Minimum positive | Required by PB-CODEX-04; not yet executable |
-  | Exact available balance | Required by PB-CODEX-04; not yet executable |
+  | Representative positive | `b2-stateful-flow.feature` — end-to-end `$500` deposit / `$200` transfer; A3/A4 UI journeys |
+  | Exceeding available balance | `b4-negative-paths.feature` — `Transferring more than the available balance succeeds and overdraws the account` |
+  | Non-numeric | `b4-negative-paths.feature` — `A non-numeric transfer amount is a 404 with an empty body` |
+  | Zero | `b2-stateful-flow.feature` outline example `zero` — HTTP 200, `$0` confirmation, no balance movement |
+  | Minimum positive | Same outline example `minimum-positive` — `$0.01` debited/credited |
+  | Exact available balance | Same outline example `exact-available` — amount captured from reset state, source becomes exactly zero |
 
-  PB-CODEX-04 must replace the three “not yet executable” entries with exact feature/scenario
-  references and update deliberate scenario/report counts before it can close.
+  The outline deliberately expands the API lane from 11 to 14 scenarios. It adds no UI
+  scenario, so the Serenity report-integrity guard correctly remains fixed at 8 UI scenarios.
 - **State transition testing** — FR-B2's account lifecycle (created → funded → debited)
   with assertions at each transition, ids carried forward from responses.
 - **Decision table (lightweight)** — FR-A5 loan outcomes across the pinned parameter set

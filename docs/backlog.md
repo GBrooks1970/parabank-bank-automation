@@ -13,9 +13,9 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 10 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
-PB-CODEX-01/02 are complete; PB-CODEX-03 implementation is in progress.
-**Last Updated:** 2026-07-31
+**Version:** 11 — **PB-P0…P5 complete; project ACTIVE for CODEX review-v1 remediation.**
+PB-CODEX-01…03 are complete; PB-CODEX-04 implementation is in progress.
+**Last Updated:** 2026-08-01
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -298,7 +298,7 @@ starts a separate maintenance cycle and returns the registry status to `active`.
 
 ## CODEX Review-v1 Remediation Cycle
 
-**Cycle status:** ACTIVE — 8 open implementation items: 0 HIGH, 5 MEDIUM, 3 LOW.
+**Cycle status:** ACTIVE — 7 open implementation items: 0 HIGH, 4 MEDIUM, 3 LOW.
 OD-PB-01/02/03 are resolved as Option A; DR-PB-08/09/10 are effective.
 
 **Source:** `.review/CODE_REVIEW_CODEX_v1_20260724T0020Z/`, merged by PR #12 as
@@ -384,16 +384,17 @@ implementation starts.
 
 ### MEDIUM Priority
 
-- [ ] **PB-CODEX-03 — Add a fast unit-test lane for non-trivial framework helpers**
+- [x] **PB-CODEX-03 — Add a fast unit-test lane for non-trivial framework helpers** — COMPLETE 2026-08-01
   - Acceptance: a lightweight TypeScript test command covers normal SOAP
     envelope/parsing behaviour, OpenAPI operation/deviation selection, Cucumber tag
     inheritance, and Serenity report-integrity parsing without a live SUT; production
     helpers are extracted only as needed; the unit command runs before E2E in
     `npm run verify`; the full project contract and PR CI pass.
   - Type: code.
-  - **Update (2026-07-31):** `npm run test:unit` provides SUT-independent TypeScript
+  - **Evidence:** `npm run test:unit` provides 12 SUT-independent TypeScript tests with
     coverage for all four approved helper areas and runs immediately after typecheck in
-    `npm run verify`. Keep open until its implementation PR and post-merge main CI pass.
+    `npm run verify`. Project PR #16 merged as `6a98237`; PR CI run `30628973642` and
+    post-merge `main` run `30676740079` passed the full gate with teardown.
 
 - [ ] **PB-CODEX-04 — Reconcile the amount boundaries claimed by the QA strategy**
   - Acceptance under approved DR-PB-09: compact API scenarios cover zero,
@@ -403,6 +404,10 @@ implementation starts.
     counts/report guards are updated; `npm run verify`, the full project contract, and PR
     CI pass.
   - Type: code + docs. Decision dependency resolved by DR-PB-09.
+  - **Update (2026-08-01):** a three-example reset-bracketed API outline covers zero,
+    `$0.01`, and the dynamically captured exact available source balance. All three assert
+    the observed HTTP/body/media contract and both balance deltas; keep open until its
+    implementation PR and post-merge `main` CI pass.
 
 - [ ] **PB-CODEX-05 — Apply least privilege and immutable GitHub Action pins**
   - Acceptance under approved DR-PB-10: `.github/workflows/ci.yml` declares
@@ -460,9 +465,9 @@ implementation starts.
   PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
 - Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
   broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
-- PB-CODEX-03 baseline: project `main` at `d894e54`, clean and aligned with
-  `origin/main`; PB-CODEX-02 PR #15 merged; no open ParaBank issues; post-merge
-  `main` CI run 30627855544 passed.
+- PB-CODEX-04 baseline: project `main` at `6a98237`, clean and aligned with
+  `origin/main`; PB-CODEX-03 PR #16 merged; no open ParaBank issues; post-merge
+  `main` CI run 30676740079 passed.
 
 ---
 

@@ -140,6 +140,59 @@ Then("the new account's transactions include a {string} and a {string}", async f
 
 // ---------- transfers (literal accounts) ----------
 
+type AmountBoundary = 'zero' | 'minimum-positive' | 'exact-available';
+
+interface BoundaryTransferObservation {
+  boundary: AmountBoundary;
+  amount: number;
+  from: number;
+  to: number;
+  sourceBefore: number;
+  targetBefore: number;
+}
+
+When(
+  'he transfers the {string} amount boundary from account {int} to account {int}',
+  async function (this: PBWorld, boundaryName: string, from: number, to: number) {
+    assert.ok(isAmountBoundary(boundaryName), `unknown amount boundary '${boundaryName}'`);
+    const source = await this.actor.asks(TheAccount.withId(from));
+    const target = await this.actor.asks(TheAccount.withId(to));
+    const amount = boundaryAmount(boundaryName, source.balance);
+    if (boundaryName === 'exact-available') {
+      assert.ok(source.balance > 0, `exact-available source account ${from} is not positive: ${source.balance}`);
+    }
+    this.actor.remember('boundaryTransfer', {
+      boundary: boundaryName,
+      amount,
+      from,
+      to,
+      sourceBefore: source.balance,
+      targetBefore: target.balance
+    });
+    await this.actor.attemptsTo(Transfer.of(amount).from(from).to(to));
+  }
+);
+
+Then(
+  'the boundary transfer succeeds and both balances change by the resolved amount',
+  async function (this: PBWorld) {
+    const observed = this.actor.recall<BoundaryTransferObservation>('boundaryTransfer');
+    const response = await this.actor.asks(TheLastResponse.received());
+    assert.equal(response.status, 200, `${observed.boundary} transfer → HTTP ${response.status}: ${response.text}`);
+    assert.equal(response.contentType, 'application/json');
+    assert.equal(
+      response.text,
+      `Successfully transferred $${observed.amount} from account #${observed.from} to account #${observed.to}`
+    );
+
+    const source = await this.actor.asks(TheAccount.withId(observed.from));
+    const target = await this.actor.asks(TheAccount.withId(observed.to));
+    assert.equal(source.balance, round2(observed.sourceBefore - observed.amount));
+    assert.equal(target.balance, round2(observed.targetBefore + observed.amount));
+    if (observed.boundary === 'exact-available') assert.equal(source.balance, 0);
+  }
+);
+
 When('he transfers ${float} from account {int} to account {int}', async function (this: PBWorld, amount: number, from: number, to: number) {
   await this.actor.attemptsTo(Transfer.of(amount).from(from).to(to));
 });
@@ -203,4 +256,14 @@ function round2(n: number): number {
 
 function isOperationName(value: string): value is OperationName {
   return (OPERATION_NAMES as readonly string[]).includes(value);
+}
+
+function isAmountBoundary(value: string): value is AmountBoundary {
+  return value === 'zero' || value === 'minimum-positive' || value === 'exact-available';
+}
+
+function boundaryAmount(boundary: AmountBoundary, availableBalance: number): number {
+  if (boundary === 'zero') return 0;
+  if (boundary === 'minimum-positive') return 0.01;
+  return availableBalance;
 }

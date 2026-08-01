@@ -10,13 +10,14 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.3
-**Date:** 2026-07-31
+**Version:** v1.4
+**Date:** 2026-08-01
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
 approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR #15
-(`d894e54`, 2026-07-31); v1.3 records the PB-CODEX-03 framework unit lane.
+(`d894e54`, 2026-07-31); v1.3 unit lane merged by PR #16 (`6a98237`, 2026-08-01);
+v1.4 records executable DR-PB-09 boundary evidence, effective when PB-CODEX-04 merges.
 
 ---
 
@@ -154,6 +155,9 @@ this document, and the feature files stay traceable by a single vocabulary.
 - Given a seeded SUT, When one scenario runs login → createAccount → deposit → transfer →
   read balances + transactions, Then every intermediate state assertion holds using only
   ids captured from earlier responses (no hardcoded created-entity ids).
+- A reset-bracketed transfer outline covers zero, the currency minimum-positive `$0.01`,
+  and the exact live available source balance. It asserts the observed response plus both
+  balance deltas; the exact-available value is captured from reset state, never hardcoded.
 
 **FR-B3: REST↔SOAP parity**
 - Given a mutation performed via REST (e.g. a transfer), When the affected account is read
@@ -496,6 +500,7 @@ None blocking.
 | v1.1 | 2026-07-31 | Codex + owner decisions | Record review-remediation A/A/A: comprehensive FR-B1 matrix, executable amount boundaries, immutable execution inputs |
 | v1.2 | 2026-07-31 | Codex | Align the FR-B1 matrix with operation-aware implementation findings PBR-04/PBR-05 |
 | v1.3 | 2026-07-31 | Codex | Add the PB-CODEX-03 SUT-independent framework unit lane to the verify contract |
+| v1.4 | 2026-08-01 | Codex | Add executable DR-PB-09 zero, minimum-positive, and exact-available transfer evidence |
 
 ## Approval
 
