@@ -70,7 +70,10 @@ Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
 from the pinned commit, boot it, pass the four-point boot gate (`initializeDB` seed → 204,
 REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then `npm ci` +
 Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for the unit and E2E lanes. The
-generated Serenity report is uploaded as the `serenity-report` build artifact.
+generated Serenity report is uploaded as the `serenity-report` build artifact. External
+actions are full-SHA pinned and the workflow token is limited to `contents: read`; see the
+[GitHub Actions pin policy](docs/github-actions-pin-policy.md) for the reviewed versions and
+refresh procedure.
 
 ## Documentation
 
@@ -79,6 +82,8 @@ generated Serenity report is uploaded as the `serenity-report` build artifact.
 - [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…07 with rationale.
 - [`docs/qa-strategy.md`](docs/qa-strategy.md) — ISTQB levels, types, techniques, exit criteria.
 - [`docs/naming-conventions.md`](docs/naming-conventions.md) — files, Gherkin, screenplay, git.
+- [`docs/github-actions-pin-policy.md`](docs/github-actions-pin-policy.md) — immutable action
+  pins, least-privilege policy, and the reviewed refresh procedure.
 - [`docs/backlog.md`](docs/backlog.md) — phased delivery plan, gate status, and open risks
   (**start here to resume the project**).
 - [`docs/implementation-logs/`](docs/implementation-logs/) — append-only build history
