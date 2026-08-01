@@ -3,7 +3,7 @@
 Test automation against **ParaBank** — Parasoft's open-source (Apache-2.0) Java/Spring
 banking demo application — run as a local, Docker-backed, resettable system under test.
 
-> **Status: delivery complete (PB-P0…PB-P5); active CODEX review-v1 remediation
+> **Status: delivery complete (PB-P0…PB-P5) and CODEX review-v1 remediation complete
 > (PB-CODEX-01…10).** The delivered **API lane** contains 14 scenarios covering FR-B1
 > operation-aware live-spec conformance, FR-B2 stateful flow, FR-B3 REST↔SOAP parity,
 > and FR-B4 negative paths asserted as observed. The delivered **Serenity/JS + Playwright
@@ -12,7 +12,7 @@ banking demo application — run as a local, Docker-backed, resettable system un
 > The A2–A4 monetary state outcomes are cross-checked through the REST client; A1 and A5
 > use their specified UI oracles. All 22 scenarios run behind `npm run verify`, alongside
 > the store-safe `@smoke` proof and content-verified Serenity report. **The completed
-> delivery gates, active remediation items, and current evidence live in
+> delivery gates, completed remediation evidence, and current outstanding risks live in
 > [`docs/backlog.md`](docs/backlog.md)** — any agent picking this project up starts there.
 
 ## The system under test
