@@ -13,9 +13,9 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 19 — **PB-P0…P5 and PB-CODEX-01…10 complete; project ACTIVE for outstanding risks.**
+**Version:** 20 — **PB-P0…P5 and PB-CODEX-01…10 complete; PB-EVID-01 READY.**
 PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
-**Last Updated:** 2026-08-01
+**Last Updated:** 2026-08-02
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -24,8 +24,9 @@ phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026
 
 This backlog tracks the delivered ParaBank test-automation project as **six sequential
 phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the completed
-post-closure review-remediation cycle (PB-CODEX-01…10). The completed phases and
-remediation remain historical evidence and are not reopened. Current maintenance is
+post-closure review-remediation cycle (PB-CODEX-01…10) and the approved public-evidence
+cycle (PB-EVID-01). The completed phases and remediation remain historical evidence and
+are not reopened. PB-EVID-01 is the only READY enhancement. Current maintenance is also
 governed by the Outstanding Risks section: PBR-03 is actionable, while PBR-01, PBR-02,
 PBR-04, and PBR-05 require their recorded triggers. Risks use the portfolio's standard
 scoring.
@@ -501,12 +502,125 @@ implementation starts.
     merged as `28f6221`; PR CI run `30701717146` and post-merge `main` run
     `30701970664` passed the full gate with teardown.
 
+---
+
+## Public Evidence Cycle
+
+### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — READY
+
+**Priority:** Portfolio P2 enhancement; not scored as a project defect/risk
+**Type:** CI workflow, deterministic static packaging, tests and documentation
+**Dependencies:** PB-P3 complete; portfolio landing LAND-09A approved
+
+**Origin and authority:** LAND-C03 was promoted as staged LAND-09 by the portfolio owner on
+2026-08-02. Portfolio landing [PR #20](https://github.com/GBrooks1970/portfolio/pull/20)
+merged as `2865dae0d5894e8166f275e9719e219c549cf43a` and makes ParaBank the first public-
+evidence slice. Exact-merge portfolio
+[quality run 30750629097](https://github.com/GBrooks1970/portfolio/actions/runs/30750629097)
+and [Pages run 30750628659](https://github.com/GBrooks1970/portfolio/actions/runs/30750628659)
+passed. This target planning item must itself merge before implementation begins. Its
+approval does not authorise unrelated risk, dependency or SUT changes.
+
+**Outcome:** publish the existing content-verified Serenity report as a static,
+unauthenticated snapshot of the latest successfully published `main` verification. The
+public site is evidence of a completed test run; it is not a live CI-health indicator and
+does not host ParaBank, its REST/SOAP services or any Docker workload.
+
+#### Owner-approved delivery decisions
+
+1. The existing `sut-boot-gate` job remains the only source of test/report truth. Do not
+   run a second, potentially divergent test suite solely for Pages.
+2. Package the verified report as a small static site with a deterministic root evidence
+   page and the unmodified Serenity output under `serenity/`. The root page states the
+   repository, exact tested `main` commit, snapshot semantics and limitations, then links
+   to the report.
+3. Build and validate the static package for pull requests, but upload/deploy a Pages
+   artefact only after a successful `push` run on `main`. A failed or cancelled run must
+   leave the last good deployment in place.
+4. Keep Pages permissions on the deploy job only. Pull-request execution remains
+   read-only and receives no Pages write or identity-token permission.
+5. Retain the current diagnostic `serenity-report` CI artefact. Pages consumes a separate,
+   content-checked staging directory so incomplete diagnostic output cannot be published
+   accidentally.
+6. The public portfolio receives its ParaBank `report` action only through a separate
+   landing-repository PR after the target Pages URL is live and verified.
+
+#### Implementation acceptance criteria
+
+- [ ] Add a documented deterministic command that stages `target/pages/` from the
+      content-verified `target/site/serenity/` output. For the same report and source ref,
+      repeated runs produce byte-identical output; do not embed wall-clock timestamps.
+- [ ] The staged root `index.html` identifies `GBrooks1970/parabank-bank-automation`, the
+      exact tested default-branch commit and the report as the latest successfully
+      published snapshot, and links to `serenity/index.html` using a Pages-base-safe path.
+- [ ] The complete Serenity directory is copied beneath `target/pages/serenity/` without
+      rewriting generated report files; its entry page remains non-trivial and every UI
+      scenario required by `scripts/check-report.ts` remains present.
+- [ ] Add focused automated checks for missing/empty entry pages, absent scenarios,
+      escaping of generated provenance, traversal outside the staging root, broken local
+      references and non-deterministic output.
+- [ ] Add a public-artefact safety check that rejects credentials, auth headers, cookies,
+      tokens, secret-like values and absolute runner/workspace paths. Any deliberate
+      public ParaBank demo value must be narrowly allow-listed with an in-repository
+      rationale; do not weaken the general scan.
+- [ ] Exercise the staging and safety checks on pull requests after `npm run verify` so
+      proposed publication changes are reviewable without granting deployment permission.
+- [ ] On `push` to `main`, upload the exact checked `target/pages/` directory as the Pages
+      artefact only after the existing full verification succeeds. The source ref recorded
+      in the evidence page is the same commit that produced the report.
+- [ ] Add a dependent deploy job restricted to `push` on `main`, with the `github-pages`
+      environment, job-scoped `pages: write` and `id-token: write`, a concurrency policy
+      that does not cancel a valid deployment midway, and no repository secrets.
+- [ ] Pin every added GitHub Action to a reviewed full commit SHA and annotate its release.
+      Do not mix the separately tracked PBR-02 Node-runtime upgrades into this item.
+- [ ] Configure repository Pages for GitHub Actions publication and document the canonical
+      public URL and recovery procedure. No visitor-side GitHub API call or runtime service
+      dependency is introduced.
+- [ ] Update README and project-contract documentation with snapshot semantics, local
+      packaging/validation commands, publication ownership and the explicit statement that
+      the Docker SUT and APIs are not hosted.
+- [ ] Add an immutable implementation log under `docs/implementation-logs/` recording the
+      design, action pins, validation, public-data review, limitations, failures and lessons.
+
+#### Validation and closure criteria
+
+- [ ] `npm ci`, the full five-command project contract and all new focused checks pass
+      locally under Node 24; teardown is confirmed. Record `npm audit` output, introduce no
+      new advisory and reconcile the pre-existing `brace-expansion` finding to PBR-03
+      without resolving it inside this item.
+- [ ] Pull-request CI passes at the exact implementation head with no Pages write
+      permissions and no deployment attempt.
+- [ ] After owner merge, the exact `main` CI run passes verification, packaging and safety
+      checks before the exact Pages deployment succeeds.
+- [ ] The canonical Pages URL and Serenity entry page both return HTTP 200 to an
+      unauthenticated visitor; required internal assets resolve and core content works in
+      fresh desktop and 390px browser checks with no console errors or horizontal overflow.
+- [ ] The public evidence identifies the merged source commit, contains the expected eight
+      UI scenarios and exposes no credentials, tokens, cookies or machine-specific paths.
+- [ ] A separate `GBrooks1970/portfolio` pull request adds the verified URL as ParaBank's
+      `report` action, renders report rather than demo/play semantics, regenerates the
+      public-evidence count and passes the complete landing quality gate.
+- [ ] Record the target and landing pull requests, exact merge commits, CI/Pages runs and
+      verified URLs here before marking PB-EVID-01 complete.
+
+#### Out of scope
+
+- Hosting the ParaBank container, REST API, SOAP services or any other server process on
+  GitHub Pages.
+- Publishing pull-request reports, failed-run reports, a report history or a live CI
+  dashboard.
+- Changing scenarios, report content, the pinned SUT, Serenity dependencies or the
+  boot→seed→use contract unless a publication blocker is isolated and separately approved.
+- Resolving PBR-01 through PBR-05, upgrading existing Actions for PBR-02, Maven caching,
+  Compose healthchecks or other potential-next-step work.
+
 ### Reconciliation boundaries
 
-- PBR-01…PBR-05 remain open risks below; none of
-  PB-CODEX-01…10 may claim them resolved without satisfying their own success criteria.
-- Maven caching, a Compose healthcheck, GitHub Pages publication, positions coverage,
-  broader `LoanProcessor` SOAP coverage, and scheduled pin automation remain unscheduled.
+- PBR-01…PBR-05 remain open risks below; none of PB-CODEX-01…10 or PB-EVID-01 may claim
+  them resolved without satisfying their own success criteria.
+- Maven caching, a Compose healthcheck, positions coverage, broader `LoanProcessor` SOAP
+  coverage, and scheduled pin automation remain unscheduled. GitHub Pages report
+  publication is scheduled only as PB-EVID-01.
 - PB-CODEX closure baseline: project `main` at `31d7240`, clean and aligned with
   `origin/main`; closure PR #24 merged; no open ParaBank issues; post-merge
   `main` CI run `30703247082` passed.
