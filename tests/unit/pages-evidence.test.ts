@@ -102,9 +102,15 @@ test('public-artefact safety rejects credentials, headers, tokens and machine pa
     }),
     'utf8'
   );
+  writeFileSync(
+    join(fixture.stagingDir, 'serenity', 'unsafe.csv'),
+    'description,Paula enters &quot;S3curePass!&quot; into customer.password field\n',
+    'utf8'
+  );
 
   assert.throws(() => assertPublicArtifactSafe(fixture.stagingDir), (error: Error) => {
     assert.match(error.message, /generated customer password/);
+    assert.match(error.message, /unsafe\.csv: generated customer password/);
     assert.match(error.message, /authorisation header/);
     assert.match(error.message, /cookie header/);
     assert.match(error.message, /secret-like assignment/);

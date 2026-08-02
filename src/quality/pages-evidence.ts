@@ -17,6 +17,7 @@ export const EXPECTED_UI_SCENARIOS = 8;
 
 const TEXT_EXTENSIONS = new Set([
   '.css',
+  '.csv',
   '.htm',
   '.html',
   '.js',
@@ -30,7 +31,7 @@ const TEXT_EXTENSIONS = new Set([
   '.yml'
 ]);
 
-const REPORT_CONTENT_EXTENSIONS = new Set(['.htm', '.html', '.json', '.properties', '.txt', '.xml']);
+const REPORT_CONTENT_EXTENSIONS = new Set(['.csv', '.htm', '.html', '.json', '.properties', '.txt', '.xml']);
 
 export interface PagesEvidencePaths {
   repositoryRoot?: string;
