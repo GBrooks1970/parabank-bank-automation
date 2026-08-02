@@ -1,4 +1,4 @@
-import { Task, Wait } from '@serenity-js/core';
+import { Masked, Task, Wait } from '@serenity-js/core';
 import { Click, Enter, isVisible, Navigate, Select } from '@serenity-js/web';
 import { isPresent } from '@serenity-js/assertions';
 import {
@@ -32,7 +32,7 @@ export const LogInAs = (username: string, password: string): Task =>
   Task.where(
     `#actor logs in as ${username}`,
     Enter.theValue(username).into(LoginForm.username),
-    Enter.theValue(password).into(LoginForm.password),
+    Enter.theValue(Masked.valueOf(password)).into(LoginForm.password),
     Click.on(LoginForm.logInButton),
     Wait.until(NavPanel.welcome, isVisible())
   );
@@ -55,10 +55,10 @@ export const RegisterCustomer = (details: NewCustomerDetails): Task =>
     Enter.theValue(details.state).into(RegisterPage.field('customer.address.state')),
     Enter.theValue(details.zipCode).into(RegisterPage.field('customer.address.zipCode')),
     Enter.theValue(details.phoneNumber).into(RegisterPage.field('customer.phoneNumber')),
-    Enter.theValue(details.ssn).into(RegisterPage.field('customer.ssn')),
+    Enter.theValue(Masked.valueOf(details.ssn)).into(RegisterPage.field('customer.ssn')),
     Enter.theValue(details.username).into(RegisterPage.field('customer.username')),
-    Enter.theValue(details.password).into(RegisterPage.field('customer.password')),
-    Enter.theValue(details.password).into(RegisterPage.field('repeatedPassword')),
+    Enter.theValue(Masked.valueOf(details.password)).into(RegisterPage.field('customer.password')),
+    Enter.theValue(Masked.valueOf(details.password)).into(RegisterPage.field('repeatedPassword')),
     Click.on(RegisterPage.registerButton),
     Wait.until(NavPanel.welcome, isVisible())
   );

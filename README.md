@@ -72,11 +72,33 @@ Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
 `.github/workflows/ci.yml` runs the same steps as local on every push/PR: build the image
 from the pinned commit, boot it, pass the four-point boot gate (`initializeDB` seed → 204,
 REST login as seeded customer 12212, OpenAPI spec served, WSDL served), then `npm ci` +
-Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for the unit and E2E lanes. The
-generated Serenity report is uploaded as the `serenity-report` build artifact. External
-actions are full-SHA pinned and the workflow token is limited to `contents: read`; see the
-[GitHub Actions pin policy](docs/github-actions-pin-policy.md) for the reviewed versions and
-refresh procedure.
+Playwright Chromium + a Temurin JDK and `npm run verify` on Node 24 for the unit and E2E lanes.
+The generated Serenity report is uploaded as the diagnostic `serenity-report` build artifact.
+The same successful job builds and validates a deterministic public-evidence package on pull
+requests. Only a successful `main` push uploads it for deployment; the dependent deploy job
+alone receives `pages: write` and `id-token: write`. External actions are full-SHA pinned; see
+the [GitHub Actions pin policy](docs/github-actions-pin-policy.md) for the reviewed versions,
+permissions and refresh procedure.
+
+## Public test evidence
+
+The canonical Pages target is
+[`https://gbrooks1970.github.io/parabank-bank-automation/`](https://gbrooks1970.github.io/parabank-bank-automation/).
+It identifies the exact tested `main` commit and links to the content-verified Serenity report.
+This is the latest successfully published static snapshot, not live CI health. The ParaBank
+Docker SUT and its REST/SOAP APIs are **not hosted** on GitHub Pages.
+
+With a Java-backed report already present, package and re-check it locally using the same full
+commit ref:
+
+```powershell
+$sourceRef = git rev-parse HEAD
+npm run prepare:pages -- --source-ref $sourceRef
+npm run check:pages -- --source-ref $sourceRef
+```
+
+See [`docs/public-evidence.md`](docs/public-evidence.md) for the safety boundary, publication
+ownership and recovery procedure.
 
 ## Documentation
 
@@ -89,6 +111,8 @@ refresh procedure.
   pins, least-privilege policy, and the reviewed refresh procedure.
 - [`docs/container-image-pin-policy.md`](docs/container-image-pin-policy.md) — immutable
   builder/runtime digests, drift enforcement, and the reviewed refresh procedure.
+- [`docs/public-evidence.md`](docs/public-evidence.md) — Pages snapshot semantics, local
+  packaging, public-data safety, ownership and recovery.
 - [`docs/backlog.md`](docs/backlog.md) — phased delivery plan, gate status, and open risks
   (**start here to resume the project**).
 - [`docs/implementation-logs/`](docs/implementation-logs/) — append-only build history

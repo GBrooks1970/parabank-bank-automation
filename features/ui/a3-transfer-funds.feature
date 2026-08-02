@@ -6,7 +6,7 @@ Feature: FR-A3 transfer funds
   @mutates
   Scenario: Transfer between two seeded accounts, verified via REST
     Given Paula is on the ParaBank home page
-    And she logs in through the UI as "john" with password "demo"
+    And she logs in through the UI as "john" using the seeded password
     And the REST balances of accounts 12345 and 12456 are recorded
     When she transfers $100.00 from account 12345 to account 12456 through the UI
     Then the UI confirms the transfer of $100.00

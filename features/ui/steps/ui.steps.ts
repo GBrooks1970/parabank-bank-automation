@@ -32,6 +32,7 @@ import {
 
 const paula = () => actorCalled('Paula');
 const round2 = (n: number): number => Math.round(n * 100) / 100;
+const SEEDED_PASSWORD = 'demo';
 
 // ---------- navigation and login ----------
 
@@ -39,8 +40,8 @@ Given('Paula is on the ParaBank home page', async function (this: PBWorld) {
   await paula().attemptsTo(StartOnHomePage());
 });
 
-When('she logs in through the UI as {string} with password {string}', async function (this: PBWorld, u: string, p: string) {
-  await paula().attemptsTo(LogInAs(u, p));
+When('she logs in through the UI as {string} using the seeded password', async function (this: PBWorld, username: string) {
+  await paula().attemptsTo(LogInAs(username, SEEDED_PASSWORD));
 });
 
 Then('the overview greets {string}', async function (this: PBWorld, name: string) {

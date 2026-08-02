@@ -34,5 +34,10 @@ docker compose down
 - UI outcomes are cross-checked via the shared REST client, not the UI alone.
 - The Serenity report is content-verified, never trusted to have merely been generated
   (magento empty-shell lesson).
+- Public evidence is staged only from that verified report. With Java and the HTML report
+  present, use `npm run prepare:pages -- --source-ref <full-commit-sha>` followed by
+  `npm run check:pages -- --source-ref <same-full-commit-sha>`; see `docs/public-evidence.md`.
+- Pages publishes the latest successful `main` snapshot only. It does not host the Docker SUT,
+  REST API or SOAP services, and failed/cancelled runs preserve the last good deployment.
 - Owner merges PRs; a phase gate ticks only with evidence links (docs/backlog.md).
 - en-GB in prose docs; see docs/naming-conventions.md.
