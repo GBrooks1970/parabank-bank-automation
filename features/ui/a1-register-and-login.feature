@@ -7,7 +7,7 @@ Feature: FR-A1 register and first login
   @smoke
   Scenario: Seeded login shows the accounts overview
     Given Paula is on the ParaBank home page
-    When she logs in through the UI as "john" with password "demo"
+    When she logs in through the UI as "john" using the seeded password
     Then the overview greets "John Smith"
     And the accounts overview lists account 12345
 

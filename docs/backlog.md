@@ -13,7 +13,7 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 20 — **PB-P0…P5 and PB-CODEX-01…10 complete; PB-EVID-01 READY.**
+**Version:** 21 — **PB-P0…P5 and PB-CODEX-01…10 complete; PB-EVID-01 IMPLEMENTED, AWAITING PR CI/OWNER MERGE.**
 PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
 **Last Updated:** 2026-08-02
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
@@ -26,7 +26,7 @@ This backlog tracks the delivered ParaBank test-automation project as **six sequ
 phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the completed
 post-closure review-remediation cycle (PB-CODEX-01…10) and the approved public-evidence
 cycle (PB-EVID-01). The completed phases and remediation remain historical evidence and
-are not reopened. PB-EVID-01 is the only READY enhancement. Current maintenance is also
+are not reopened. PB-EVID-01 is the only active enhancement. Current maintenance is also
 governed by the Outstanding Risks section: PBR-03 is actionable, while PBR-01, PBR-02,
 PBR-04, and PBR-05 require their recorded triggers. Risks use the portfolio's standard
 scoring.
@@ -506,7 +506,7 @@ implementation starts.
 
 ## Public Evidence Cycle
 
-### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — READY
+### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — IMPLEMENTED, AWAITING PR CI/OWNER MERGE
 
 **Priority:** Portfolio P2 enhancement; not scored as a project defect/risk
 **Type:** CI workflow, deterministic static packaging, tests and documentation
@@ -518,8 +518,12 @@ merged as `2865dae0d5894e8166f275e9719e219c549cf43a` and makes ParaBank the firs
 evidence slice. Exact-merge portfolio
 [quality run 30750629097](https://github.com/GBrooks1970/portfolio/actions/runs/30750629097)
 and [Pages run 30750628659](https://github.com/GBrooks1970/portfolio/actions/runs/30750628659)
-passed. This target planning item must itself merge before implementation begins. Its
-approval does not authorise unrelated risk, dependency or SUT changes.
+passed. The target planning [PR #26](https://github.com/GBrooks1970/parabank-bank-automation/pull/26)
+merged as `6e79db02fa26335630105cf262ff2928e6893679`; exact-head CI
+[run 30751090916](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/30751090916)
+and exact-merge `main` CI
+[run 30751335451](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/30751335451)
+passed. Its approval does not authorise unrelated risk, dependency or SUT changes.
 
 **Outcome:** publish the existing content-verified Serenity report as a static,
 unauthenticated snapshot of the latest successfully published `main` verification. The
@@ -547,39 +551,39 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
 
 #### Implementation acceptance criteria
 
-- [ ] Add a documented deterministic command that stages `target/pages/` from the
+- [x] Add a documented deterministic command that stages `target/pages/` from the
       content-verified `target/site/serenity/` output. For the same report and source ref,
       repeated runs produce byte-identical output; do not embed wall-clock timestamps.
-- [ ] The staged root `index.html` identifies `GBrooks1970/parabank-bank-automation`, the
+- [x] The staged root `index.html` identifies `GBrooks1970/parabank-bank-automation`, the
       exact tested default-branch commit and the report as the latest successfully
       published snapshot, and links to `serenity/index.html` using a Pages-base-safe path.
-- [ ] The complete Serenity directory is copied beneath `target/pages/serenity/` without
+- [x] The complete Serenity directory is copied beneath `target/pages/serenity/` without
       rewriting generated report files; its entry page remains non-trivial and every UI
       scenario required by `scripts/check-report.ts` remains present.
-- [ ] Add focused automated checks for missing/empty entry pages, absent scenarios,
+- [x] Add focused automated checks for missing/empty entry pages, absent scenarios,
       escaping of generated provenance, traversal outside the staging root, broken local
       references and non-deterministic output.
-- [ ] Add a public-artefact safety check that rejects credentials, auth headers, cookies,
+- [x] Add a public-artefact safety check that rejects credentials, auth headers, cookies,
       tokens, secret-like values and absolute runner/workspace paths. Any deliberate
       public ParaBank demo value must be narrowly allow-listed with an in-repository
       rationale; do not weaken the general scan.
-- [ ] Exercise the staging and safety checks on pull requests after `npm run verify` so
+- [x] Exercise the staging and safety checks on pull requests after `npm run verify` so
       proposed publication changes are reviewable without granting deployment permission.
-- [ ] On `push` to `main`, upload the exact checked `target/pages/` directory as the Pages
+- [x] On `push` to `main`, upload the exact checked `target/pages/` directory as the Pages
       artefact only after the existing full verification succeeds. The source ref recorded
       in the evidence page is the same commit that produced the report.
-- [ ] Add a dependent deploy job restricted to `push` on `main`, with the `github-pages`
+- [x] Add a dependent deploy job restricted to `push` on `main`, with the `github-pages`
       environment, job-scoped `pages: write` and `id-token: write`, a concurrency policy
       that does not cancel a valid deployment midway, and no repository secrets.
-- [ ] Pin every added GitHub Action to a reviewed full commit SHA and annotate its release.
+- [x] Pin every added GitHub Action to a reviewed full commit SHA and annotate its release.
       Do not mix the separately tracked PBR-02 Node-runtime upgrades into this item.
-- [ ] Configure repository Pages for GitHub Actions publication and document the canonical
+- [x] Configure repository Pages for GitHub Actions publication and document the canonical
       public URL and recovery procedure. No visitor-side GitHub API call or runtime service
       dependency is introduced.
-- [ ] Update README and project-contract documentation with snapshot semantics, local
+- [x] Update README and project-contract documentation with snapshot semantics, local
       packaging/validation commands, publication ownership and the explicit statement that
       the Docker SUT and APIs are not hosted.
-- [ ] Add an immutable implementation log under `docs/implementation-logs/` recording the
+- [x] Add an immutable implementation log under `docs/implementation-logs/` recording the
       design, action pins, validation, public-data review, limitations, failures and lessons.
 
 #### Validation and closure criteria

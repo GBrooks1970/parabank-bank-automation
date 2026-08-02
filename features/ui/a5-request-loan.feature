@@ -14,7 +14,7 @@ Feature: FR-A5 request a loan
   Scenario: A loan with a sufficient down payment is approved
     Given the loan decision environment is pinned to the local down-payment processor at 20 percent
     And Paula is on the ParaBank home page
-    And she logs in through the UI as "john" with password "demo"
+    And she logs in through the UI as "john" using the seeded password
     When she requests a loan of $5000.00 with a down payment of $1200.00 from account 12345 through the UI
     Then the UI shows the loan decision "Approved"
     And the UI shows a new loan account id
@@ -23,6 +23,6 @@ Feature: FR-A5 request a loan
   Scenario: A loan with an insufficient down payment is denied
     Given the loan decision environment is pinned to the local down-payment processor at 20 percent
     And Paula is on the ParaBank home page
-    And she logs in through the UI as "john" with password "demo"
+    And she logs in through the UI as "john" using the seeded password
     When she requests a loan of $5000.00 with a down payment of $100.00 from account 12345 through the UI
     Then the UI shows the loan decision "Denied"
