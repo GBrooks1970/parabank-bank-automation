@@ -13,12 +13,12 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 22 — **PB-P0…P5 and PB-CODEX-01…10 complete. PB-EVID-01 PUBLISHED** (impl PR #27 merged
-as `d9aba95`; report live at <https://gbrooks1970.github.io/parabank-bank-automation/>); its final
-closure is gated on the landing-side LAND-09A integration, [portfolio PR #21](https://github.com/GBrooks1970/portfolio/pull/21),
-now open and awaiting owner merge. **PBR-03 IMPLEMENTED on branch `pbr-03-brace-expansion` —
-PR #28 CI green, AWAITING OWNER MERGE;** PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded
-maintenance triggers.
+**Version:** 23 — **PB-P0…P5, PB-CODEX-01…10 and PB-EVID-01 all COMPLETE.** PB-EVID-01 report is live
+(<https://gbrooks1970.github.io/parabank-bank-automation/>) and linked from the public portfolio
+(landing [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) merged `9b4be69`), closing the
+LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
+PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
+upstream/Node-runtime bump). No immediately-actionable items remain.
 **Last Updated:** 2026-08-03
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
@@ -510,7 +510,7 @@ implementation starts.
 
 ## Public Evidence Cycle
 
-### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — PUBLISHED; landing integration open (portfolio PR #21), awaiting owner merge to close
+### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — ✅ COMPLETE 2026-08-03
 
 **Priority:** Portfolio P2 enhancement; not scored as a project defect/risk
 **Type:** CI workflow, deterministic static packaging, tests and documentation
@@ -616,17 +616,20 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
       UI scenarios and exposes no credentials, tokens, cookies or machine-specific paths.
       **`evidence.json` `sourceRef` = `d9aba951…` (the merged commit); the eight UI scenarios
       and the public-data safety scan are enforced by `check:pages` in the merged `main` run.**
-- [ ] A separate `GBrooks1970/portfolio` pull request adds the verified URL as ParaBank's
+- [x] A separate `GBrooks1970/portfolio` pull request adds the verified URL as ParaBank's
       `report` action, renders report rather than demo/play semantics, regenerates the
       public-evidence count and passes the complete landing quality gate. **Landing
-      [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) opened 2026-08-03: adds the
-      `report` action (report semantics), regenerates the public-evidence count 4 → 5, local
-      `verify_portfolio` gate PASS. Awaiting owner merge + Pages deploy.**
-- [ ] Record the target and landing pull requests, exact merge commits, CI/Pages runs and
-      verified URLs here before marking PB-EVID-01 complete. **Target: PR #26 (planning) and
-      PR #27 (impl, merged `d9aba95`, run 30755372150). Landing: PR #21 (open). The landing
-      merge commit + its Pages run remain to be recorded once the owner merges PR #21; that
-      final record closes PB-EVID-01.**
+      [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) merged as `9b4be69`: adds the
+      `report` action ("Serenity report", report semantics, no demo/play cue), regenerates the
+      public-evidence count 4 → 5; landing `verify_portfolio` gate green ([Portfolio quality run
+      30840610612](https://github.com/GBrooks1970/portfolio/actions/runs/30840610612)).**
+- [x] Record the target and landing pull requests, exact merge commits, CI/Pages runs and
+      verified URLs here before marking PB-EVID-01 complete. **Target: planning PR #26 (`6e79db0`)
+      and impl PR #27 (merged `d9aba95`, post-merge CI run 30755372150). Landing: PR #21 (merged
+      `9b4be69`, Portfolio quality run 30840610612, Pages deployment 30840601153). Verified live
+      2026-08-03: portfolio page HTTP 200 with `data-public-evidence-count="5"` and the ParaBank
+      "Serenity report" action; target report/`serenity`/`evidence.json` all HTTP 200. PB-EVID-01
+      COMPLETE.**
 
 #### Out of scope
 
@@ -703,7 +706,7 @@ other or any future date-format error.
 Project exposure is LOW because the package is a development-only transitive dependency
 used through `@cucumber/cucumber → glob → minimatch`, and repository-controlled test
 patterns—not untrusted production input—reach it.
-**Status:** IMPLEMENTED on branch `pbr-03-brace-expansion` — AWAITING PR CI/OWNER MERGE
+**Status:** ✅ RESOLVED 2026-08-03 — PR #28 merged as `5bd3674`; post-merge `main` CI green
 **Affected:** `package-lock.json` (transitive dependency); local/CI test toolchain
 
 **Problem:** The current lock resolved `brace-expansion@5.0.7`; the advisory affects
@@ -720,9 +723,11 @@ separate, reviewable dependency change.
 - [x] `npm ci` and `npm audit` pass locally: clean `npm ci` from the updated lock audits 217
       packages with **0 vulnerabilities** (was 1 HIGH, GHSA-mh99-v99m-4gvg); `tsc --noEmit` static
       gate clean.
-- [ ] The full five-command project contract and PR CI pass. **Deferred to PR CI** (the contract's
-      Docker SUT bring-up + Serenity report needs Node ≥22 and a JDK, provided in CI; local Node is
-      20). Record the CI run before the owner merges.
+- [x] The full five-command project contract and PR CI pass. **Done 2026-08-03:** PR #28 CI green
+      (`sut-boot-gate` pass; Pages deploy skipped on the PR). Merged as `5bd3674`; post-merge `main`
+      CI [run 30840597757](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/30840597757)
+      ran the full five-command contract to success with teardown; `npm audit` = 0. The only
+      annotation is the pre-existing PBR-02 Node-20 action-runtime warning (unrelated).
 
 #### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
 
