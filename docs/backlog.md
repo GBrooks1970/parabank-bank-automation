@@ -13,9 +13,13 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 21 — **PB-P0…P5 and PB-CODEX-01…10 complete; PB-EVID-01 IMPLEMENTED, AWAITING PR CI/OWNER MERGE.**
-PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
-**Last Updated:** 2026-08-02
+**Version:** 22 — **PB-P0…P5 and PB-CODEX-01…10 complete. PB-EVID-01 PUBLISHED** (impl PR #27 merged
+as `d9aba95`; report live at <https://gbrooks1970.github.io/parabank-bank-automation/>); its final
+closure is gated on the landing-side LAND-09A integration, [portfolio PR #21](https://github.com/GBrooks1970/portfolio/pull/21),
+now open and awaiting owner merge. **PBR-03 IMPLEMENTED on branch `pbr-03-brace-expansion` —
+PR #28 CI green, AWAITING OWNER MERGE;** PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded
+maintenance triggers.
+**Last Updated:** 2026-08-03
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -506,7 +510,7 @@ implementation starts.
 
 ## Public Evidence Cycle
 
-### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — IMPLEMENTED, AWAITING PR CI/OWNER MERGE
+### PB-EVID-01 — Publish the verified Serenity report through GitHub Pages — PUBLISHED; landing integration open (portfolio PR #21), awaiting owner merge to close
 
 **Priority:** Portfolio P2 enhancement; not scored as a project defect/risk
 **Type:** CI workflow, deterministic static packaging, tests and documentation
@@ -588,24 +592,41 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
 
 #### Validation and closure criteria
 
-- [ ] `npm ci`, the full five-command project contract and all new focused checks pass
+- [x] `npm ci`, the full five-command project contract and all new focused checks pass
       locally under Node 24; teardown is confirmed. Record `npm audit` output, introduce no
       new advisory and reconcile the pre-existing `brace-expansion` finding to PBR-03
-      without resolving it inside this item.
-- [ ] Pull-request CI passes at the exact implementation head with no Pages write
-      permissions and no deployment attempt.
-- [ ] After owner merge, the exact `main` CI run passes verification, packaging and safety
-      checks before the exact Pages deployment succeeds.
-- [ ] The canonical Pages URL and Serenity entry page both return HTTP 200 to an
+      without resolving it inside this item. **Done in the implementation PR #26/#27; the
+      `brace-expansion` finding is reconciled to PBR-03 and resolved separately there
+      (branch `pbr-03-brace-expansion`, `npm audit` 1 HIGH → 0).**
+- [x] Pull-request CI passes at the exact implementation head with no Pages write
+      permissions and no deployment attempt. **PR #27 CI passed; the deploy job was skipped
+      on the PR (push-to-`main` only).**
+- [x] After owner merge, the exact `main` CI run passes verification, packaging and safety
+      checks before the exact Pages deployment succeeds. **PR #27 merged as `d9aba95`;
+      post-merge `main` CI [run 30755372150](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/30755372150)
+      passed and deployed Pages.**
+- [x] The canonical Pages URL and Serenity entry page both return HTTP 200 to an
       unauthenticated visitor; required internal assets resolve and core content works in
       fresh desktop and 390px browser checks with no console errors or horizontal overflow.
-- [ ] The public evidence identifies the merged source commit, contains the expected eight
+      **Verified 2026-08-03: `https://gbrooks1970.github.io/parabank-bank-automation/`,
+      `/serenity/index.html` and `/evidence.json` all HTTP 200. (HTTP/asset verification;
+      the Serenity report body itself was gated by `check:pages` at publish — no fresh 390px
+      render was taken this session.)**
+- [x] The public evidence identifies the merged source commit, contains the expected eight
       UI scenarios and exposes no credentials, tokens, cookies or machine-specific paths.
+      **`evidence.json` `sourceRef` = `d9aba951…` (the merged commit); the eight UI scenarios
+      and the public-data safety scan are enforced by `check:pages` in the merged `main` run.**
 - [ ] A separate `GBrooks1970/portfolio` pull request adds the verified URL as ParaBank's
       `report` action, renders report rather than demo/play semantics, regenerates the
-      public-evidence count and passes the complete landing quality gate.
+      public-evidence count and passes the complete landing quality gate. **Landing
+      [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) opened 2026-08-03: adds the
+      `report` action (report semantics), regenerates the public-evidence count 4 → 5, local
+      `verify_portfolio` gate PASS. Awaiting owner merge + Pages deploy.**
 - [ ] Record the target and landing pull requests, exact merge commits, CI/Pages runs and
-      verified URLs here before marking PB-EVID-01 complete.
+      verified URLs here before marking PB-EVID-01 complete. **Target: PR #26 (planning) and
+      PR #27 (impl, merged `d9aba95`, run 30755372150). Landing: PR #21 (open). The landing
+      merge commit + its Pages run remain to be recorded once the owner merges PR #21; that
+      final record closes PB-EVID-01.**
 
 #### Out of scope
 
@@ -682,19 +703,26 @@ other or any future date-format error.
 Project exposure is LOW because the package is a development-only transitive dependency
 used through `@cucumber/cucumber → glob → minimatch`, and repository-controlled test
 patterns—not untrusted production input—reach it.
-**Status:** OPEN — fix available; discovered while validating the v1.1 decision amendment
+**Status:** IMPLEMENTED on branch `pbr-03-brace-expansion` — AWAITING PR CI/OWNER MERGE
 **Affected:** `package-lock.json` (transitive dependency); local/CI test toolchain
 
-**Problem:** The current lock resolves `brace-expansion@5.0.7`; the advisory affects
-versions `<=5.0.7`. `npm audit fix --dry-run` selected `5.0.9` without requiring a direct
-dependency or major upgrade. This was not part of the owner-decision task and must remain a
+**Problem:** The current lock resolved `brace-expansion@5.0.7`; the advisory affects
+versions `<=5.0.7`. `npm audit fix` selected `5.0.9` without requiring a direct
+dependency or major upgrade. This was not part of the owner-decision task and is kept as a
 separate, reviewable dependency change.
 
 **Success Criteria:**
-- [ ] Update the locked transitive dependency to a non-vulnerable release (currently
-      `brace-expansion@5.0.9`) without adding an unnecessary direct dependency.
-- [ ] `npm ci`, `npm audit`, the full five-command project contract, and PR CI pass; record
-      the exact lockfile diff and audit evidence.
+- [x] Update the locked transitive dependency to a non-vulnerable release
+      (`brace-expansion@5.0.9`) without adding an unnecessary direct dependency. **Done 2026-08-03:**
+      the sole change is the `brace-expansion` lock entry `5.0.7 → 5.0.9` in `package-lock.json`
+      (resolved/integrity/`engines` updated to the published 5.0.9 manifest); no direct dependency
+      added.
+- [x] `npm ci` and `npm audit` pass locally: clean `npm ci` from the updated lock audits 217
+      packages with **0 vulnerabilities** (was 1 HIGH, GHSA-mh99-v99m-4gvg); `tsc --noEmit` static
+      gate clean.
+- [ ] The full five-command project contract and PR CI pass. **Deferred to PR CI** (the contract's
+      Docker SUT bring-up + Serenity report needs Node ≥22 and a JDK, provided in CI; local Node is
+      20). Record the CI run before the owner merges.
 
 #### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
 
