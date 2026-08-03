@@ -13,9 +13,11 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 21 — **PB-P0…P5 and PB-CODEX-01…10 complete; PB-EVID-01 IMPLEMENTED, AWAITING PR CI/OWNER MERGE.**
-PBR-03 remains actionable; PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
-**Last Updated:** 2026-08-02
+**Version:** 22 — **PB-P0…P5, PB-CODEX-01…10 and PB-EVID-01 complete** (PB-EVID-01 merged via PR #27
+as `d9aba95`; landing-side integration LAND-09A is tracked in the portfolio-landing backlog).
+**PBR-03 IMPLEMENTED on branch `pbr-03-brace-expansion`, AWAITING PR CI/OWNER MERGE;** PBR-01,
+PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers.
+**Last Updated:** 2026-08-03
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -682,19 +684,26 @@ other or any future date-format error.
 Project exposure is LOW because the package is a development-only transitive dependency
 used through `@cucumber/cucumber → glob → minimatch`, and repository-controlled test
 patterns—not untrusted production input—reach it.
-**Status:** OPEN — fix available; discovered while validating the v1.1 decision amendment
+**Status:** IMPLEMENTED on branch `pbr-03-brace-expansion` — AWAITING PR CI/OWNER MERGE
 **Affected:** `package-lock.json` (transitive dependency); local/CI test toolchain
 
-**Problem:** The current lock resolves `brace-expansion@5.0.7`; the advisory affects
-versions `<=5.0.7`. `npm audit fix --dry-run` selected `5.0.9` without requiring a direct
-dependency or major upgrade. This was not part of the owner-decision task and must remain a
+**Problem:** The current lock resolved `brace-expansion@5.0.7`; the advisory affects
+versions `<=5.0.7`. `npm audit fix` selected `5.0.9` without requiring a direct
+dependency or major upgrade. This was not part of the owner-decision task and is kept as a
 separate, reviewable dependency change.
 
 **Success Criteria:**
-- [ ] Update the locked transitive dependency to a non-vulnerable release (currently
-      `brace-expansion@5.0.9`) without adding an unnecessary direct dependency.
-- [ ] `npm ci`, `npm audit`, the full five-command project contract, and PR CI pass; record
-      the exact lockfile diff and audit evidence.
+- [x] Update the locked transitive dependency to a non-vulnerable release
+      (`brace-expansion@5.0.9`) without adding an unnecessary direct dependency. **Done 2026-08-03:**
+      the sole change is the `brace-expansion` lock entry `5.0.7 → 5.0.9` in `package-lock.json`
+      (resolved/integrity/`engines` updated to the published 5.0.9 manifest); no direct dependency
+      added.
+- [x] `npm ci` and `npm audit` pass locally: clean `npm ci` from the updated lock audits 217
+      packages with **0 vulnerabilities** (was 1 HIGH, GHSA-mh99-v99m-4gvg); `tsc --noEmit` static
+      gate clean.
+- [ ] The full five-command project contract and PR CI pass. **Deferred to PR CI** (the contract's
+      Docker SUT bring-up + Serenity report needs Node ≥22 and a JDK, provided in CI; local Node is
+      20). Record the CI run before the owner merges.
 
 #### Risk PBR-02: CI actions warn about Node 20 deprecation — Score: 3
 
