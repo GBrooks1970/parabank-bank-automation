@@ -9,6 +9,6 @@
     # Multi-platform index resolved and reviewed 2026-08-01.
     ParaBankRuntime = @{
         Tag    = 'tomcat:10.1.57-jre21-temurin-noble'
-        Digest = 'sha256:f6e69a64d90e3b71b22e77fdfa87b3df9fa86be393cd01912e9bf34d0076b335'
+        Digest = 'sha256:b419e1574000f3337644c29b57d868e90ad26ffcfcfbb437f30c8696e8935a70'
     }
 }
