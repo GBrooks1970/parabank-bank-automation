@@ -2,7 +2,7 @@
     # Docker Official Image. Multi-platform index resolved and reviewed 2026-08-01.
     MavenBuilder = @{
         Tag    = 'maven:3.9.16-eclipse-temurin-17-noble'
-        Digest = 'sha256:1ed5d1f54416b706707b4f3238f63a20bb06aab27c6d240090a2bb9ad895ed45'
+        Digest = 'sha256:4015718012bbf1113ec6cfae2b950be328d90265ceb60f92b26c3ea7c4d14ee8'
     }
 
     # Docker Official Image. Matches the FROM tag in parasoft/parabank@d1bf006.
