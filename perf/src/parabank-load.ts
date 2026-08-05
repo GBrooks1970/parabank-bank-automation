@@ -12,6 +12,11 @@ const USERNAME = __ENV.PARABANK_USER || 'john';
 const PASSWORD = __ENV.PARABANK_PASS || 'demo';
 const K6_IMAGE = __ENV.K6_IMAGE || 'grafana/k6';
 
+// ParaBank's REST services default to XML; without this header res.json() throws
+// and account discovery silently yields nothing. Mirror the functional suite
+// (src/api/client.ts), which sends Accept: application/json on every call.
+const JSON_PARAMS = { headers: { Accept: 'application/json' } };
+
 export const options: Options = {
   scenarios: {
     // Read-mostly, ramping (D1.4b): ramp-up -> steady -> ramp-down.
@@ -65,30 +70,40 @@ export function setup(): SetupData {
   const reset = http.post(`${BASE}/initializeDB`);
   check(reset, { 'initializeDB reset ok': (r) => r.status === 204 || r.status === 200 });
 
-  const login = http.get(`${BASE}/login/${USERNAME}/${PASSWORD}`);
+  const login = http.get(`${BASE}/login/${USERNAME}/${PASSWORD}`, JSON_PARAMS);
   check(login, { 'login 200': (r) => r.status === 200 });
 
   let customerId = 12212;
   const customer = safeJson(login);
   if (customer && typeof customer.id === 'number') customerId = customer.id;
 
-  const accountsRes = http.get(`${BASE}/customers/${customerId}/accounts`);
+  const accountsRes = http.get(`${BASE}/customers/${customerId}/accounts`, JSON_PARAMS);
   const accounts = safeJson(accountsRes);
   const accountIds = Array.isArray(accounts)
     ? accounts.map((a: { id?: number }) => a.id).filter((id): id is number => typeof id === 'number')
     : [];
+
+  // Fail loudly rather than silently no-op the write path: without ≥2 accounts,
+  // writeTransfer would return instantly and spin empty iterations while the lane
+  // still reported green (see the XML/Accept regression that motivated this guard).
+  if (accountIds.length < 2) {
+    throw new Error(
+      `perf setup: discovered ${accountIds.length} account(s) for customer ${customerId}; ` +
+        'need ≥2 to exercise the read + write scenarios. Check Accept: application/json and the seed.',
+    );
+  }
 
   return { customerId, accountIds };
 }
 
 /** Read-mostly iteration: list accounts, then read one account's transactions. */
 export function readMostly(data: SetupData): void {
-  const accounts = http.get(`${BASE}/customers/${data.customerId}/accounts`);
+  const accounts = http.get(`${BASE}/customers/${data.customerId}/accounts`, JSON_PARAMS);
   check(accounts, { 'accounts 200': (r) => r.status === 200 });
 
   const accountId = data.accountIds[0];
   if (accountId !== undefined) {
-    const transactions = http.get(`${BASE}/accounts/${accountId}/transactions`);
+    const transactions = http.get(`${BASE}/accounts/${accountId}/transactions`, JSON_PARAMS);
     check(transactions, { 'transactions 200': (r) => r.status === 200 });
   }
   sleep(0.5);
@@ -98,9 +113,14 @@ export function readMostly(data: SetupData): void {
 export function writeTransfer(data: SetupData): void {
   const from = data.accountIds[0];
   const to = data.accountIds[1];
-  if (from === undefined || to === undefined) return;
+  // setup() guarantees ≥2 accounts; the sleep keeps a defensive early-return from
+  // spinning empty iterations at max CPU if that ever regresses.
+  if (from === undefined || to === undefined) {
+    sleep(1);
+    return;
+  }
 
-  const res = http.post(`${BASE}/transfer?fromAccountId=${from}&toAccountId=${to}&amount=1`);
+  const res = http.post(`${BASE}/transfer?fromAccountId=${from}&toAccountId=${to}&amount=1`, null, JSON_PARAMS);
   check(res, { 'transfer 200': (r) => r.status === 200 });
   sleep(1);
 }
