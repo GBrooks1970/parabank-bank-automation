@@ -78,6 +78,30 @@ runner — not a capacity/benchmark; numbers are runner-dependent", with the k6 
 `grafana/k6`, `--network host`, `PARABANK_BASE_URL=http://localhost:8090/parabank/services/bank`),
 uploads the artifact, and commits `perf/report/` so `/perf/` refreshes. Never blocks a PR.
 
+## Verification (first live runs — 2026-08-05)
+
+The lane was proven end-to-end by dispatching `perf.yml` against the CI-booted SUT. Two defects that a
+green run *hid* were caught by inspecting the summary **content**, not the check status, and fixed:
+
+1. **Container write permissions** — `grafana/k6` runs non-root and could not write `handleSummary`
+   output to the host-mounted `/work`, so `perf/report/` stayed empty and nothing was committed
+   (a silent "no change"). Fixed by running the container as the host user (`--user uid:gid` on POSIX)
+   with a fail-loud check if the summary is missing.
+2. **Missing `Accept: application/json` → empty-iteration spin** — ParaBank's REST services default to
+   XML, so `res.json()` threw in `setup()`, account discovery returned nothing, `readMostly` skipped its
+   transactions read, and `writeTransfer` returned instantly — spinning ~8.5M empty iterations while all
+   thresholds passed *vacuously* (a threshold over zero samples passes). The write scenario never ran yet
+   the lane reported green. Fixed by sending the JSON `Accept` header on every request (mirroring the
+   functional client, `src/api/client.ts`) and **hard-failing `setup()` when fewer than two accounts are
+   discovered**, so a discovery regression fails the run **red** instead of silently no-opping.
+
+Proven run (both scenarios genuinely exercised): checks `accounts 200`, `transactions 200`, and
+`transfer 200` all present; iterations and `http_reqs` reconcile (no empty spin); `http_req_failed` 0,
+checks rate 1.0, read-mostly p95 well within the 1500 ms threshold. **Lesson:** an `exec` function that
+can early-`return` with neither an HTTP call nor a `sleep` will spin empty iterations and turn a broken
+test green — always guard fixtures, avoid sleepless early-returns, and sanity-check iterations vs
+`http_reqs` in the summary.
+
 ## Licence note
 
 k6 is **AGPL-3.0**; that governs distributing k6 itself. **Using** k6 as a tool to load-test our own
