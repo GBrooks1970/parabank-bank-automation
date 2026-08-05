@@ -1,0 +1,85 @@
+# Performance-smoke lane (design: docs/perf-lane-design.md). NON-BLOCKING (D1.1a):
+# runs nightly + on manual dispatch, never on PRs, so it can never block a merge.
+# Boots the pinned ParaBank SUT, runs the Dockerized k6 load smoke (D1.6a), uploads
+# the summary as an artifact, and commits perf/report/ to main so the existing
+# ci.yml Pages build publishes /perf/ on the next main deploy (D1.5b). Uses
+# [skip ci] on the commit so it does not trigger a full functional run.
+name: perf
+
+on:
+  schedule:
+    - cron: '17 3 * * *' # nightly ~03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write # to commit the refreshed perf/report summary
+
+concurrency:
+  group: perf
+  cancel-in-progress: true
+
+env:
+  # Pin k6 by digest (portfolio image-pin discipline); bump deliberately.
+  K6_IMAGE: grafana/k6@sha256:e7eeddf1ce2361df6920d925297f487c0ba549c44be242c6a9c22f28d9b08efa
+
+jobs:
+  perf-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Build SUT image (pinned upstream, containerised Maven)
+        shell: pwsh
+        run: ./scripts/build-sut.ps1
+
+      - name: Start ParaBank
+        run: docker compose up -d
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Boot gate (readiness)
+        shell: pwsh
+        run: ./scripts/gate.ps1
+
+      - name: Install toolchain
+        run: npm ci
+
+      - name: Build the k6 bundle
+        run: npm run perf:build
+
+      - name: Run the k6 performance smoke
+        run: npm run perf:run
+
+      - name: Upload perf summary artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: perf-summary
+          path: perf/report
+          if-no-files-found: warn
+
+      - name: Publish refreshed /perf/ summary (commit to main, skip CI)
+        if: success() && github.ref == 'refs/heads/main'
+        continue-on-error: true # tolerate branch protection; the artifact remains the evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add perf/report/index.html perf/report/perf-summary.json
+          if git diff --staged --quiet; then
+            echo "No change to the performance summary."
+          else
+            git commit -m "chore(perf): refresh nightly performance-smoke summary [skip ci]"
+            git push
+          fi
+
+      - name: SUT logs on failure
+        if: failure()
+        run: docker logs parabank || true
+
+      - name: Teardown
+        if: always()
+        run: docker compose down

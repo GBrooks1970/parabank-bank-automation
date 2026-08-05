@@ -70,7 +70,11 @@ export function assertFullCommitSha(value: string): string {
   return value.toLowerCase();
 }
 
-export function renderEvidenceIndex(sourceRefValue: string, repository = EVIDENCE_REPOSITORY): string {
+export function renderEvidenceIndex(
+  sourceRefValue: string,
+  repository = EVIDENCE_REPOSITORY,
+  hasPerf = false
+): string {
   const sourceRef = assertFullCommitSha(sourceRefValue);
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
     throw new Error(`invalid GitHub repository identifier '${repository}'`);
@@ -119,6 +123,7 @@ export function renderEvidenceIndex(sourceRefValue: string, repository = EVIDENC
       </dl>
       <p class="note">GitHub Pages hosts only this static evidence. The ParaBank Docker application, REST API and SOAP services are not hosted here.</p>
       <a class="button" href="./serenity/index.html">Open the Serenity report</a>
+      ${hasPerf ? '<a class="button" href="./perf/index.html" style="margin-left:.5rem;background:#c9a227">Performance smoke summary</a>' : ''}
     </article>
   </main>
 </body>
@@ -149,13 +154,30 @@ export function preparePagesEvidence(sourceRefValue: string, paths: PagesEvidenc
     preserveTimestamps: true
   });
 
+  // Optional performance-smoke summary (perf lane, D1.5b): publish it at /perf/ when a
+  // committed report exists. The nightly perf workflow produces perf/report/index.html;
+  // before the first nightly run there is nothing to publish, so /perf/ is simply absent.
+  const perfReportDir = join(resolved.repositoryRoot, 'perf', 'report');
+  const hasPerf = existsSync(join(perfReportDir, 'index.html'));
+  if (hasPerf) {
+    assertNoSymbolicLinks(perfReportDir);
+    cpSync(perfReportDir, join(resolved.stagingDir, 'perf'), {
+      recursive: true,
+      preserveTimestamps: true
+    });
+  }
+
   const metadata: EvidenceMetadata = {
     repository: EVIDENCE_REPOSITORY,
     sourceRef,
     snapshot: 'latest-successful-main',
     report: './serenity/index.html'
   };
-  writeFileSync(join(resolved.stagingDir, 'index.html'), renderEvidenceIndex(sourceRef), 'utf8');
+  writeFileSync(
+    join(resolved.stagingDir, 'index.html'),
+    renderEvidenceIndex(sourceRef, EVIDENCE_REPOSITORY, hasPerf),
+    'utf8'
+  );
   writeFileSync(join(resolved.stagingDir, 'evidence.json'), `${JSON.stringify(metadata, null, 2)}\n`, 'utf8');
   writeFileSync(join(resolved.stagingDir, '.nojekyll'), '', 'utf8');
 
