@@ -13,3 +13,6 @@ node_modules/
 Thumbs.db
 *.swp
 *~
+
+# Built k6 bundle (perf lane) — generated
+perf/dist/

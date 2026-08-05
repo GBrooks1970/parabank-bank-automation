@@ -783,6 +783,23 @@ rename moved inside the container invocation.
 
 ---
 
+## Performance-smoke lane (k6) — added 2026-08-05
+
+A **non-blocking, nightly** k6 performance-smoke lane over the REST surface, built from the
+owner-recorded decisions in `portfolio-docs/PORTFOLIO_PERF_AND_DAST_LANES_DESIGN_2026-08-05.md` §1.6
+(D1.1a/D1.2a/D1.3b/D1.4b/D1.5b/D1.6a). Design: [`docs/perf-lane-design.md`](perf-lane-design.md).
+
+- **What:** TypeScript k6 test (esbuild-bundled) — a read-mostly ramping scenario + one
+  `initializeDB`-bracketed write — run in Dockerized `grafana/k6` against the booted SUT, with
+  conservative thresholds. Reuses the existing boot/reset; isolated from the functional B1–B4 seed.
+- **Framing:** a threshold-gated load **smoke**, not a capacity/benchmark test — every artefact says so.
+- **Evidence:** CI artifact (primary) + a published, labelled `/perf/` page on the existing Pages site
+  (via `perf/report/` committed nightly with `[skip ci]`; published on the next functional main deploy).
+- **Files:** `perf/` (script, esbuild, tsconfig), `scripts/run-perf.mjs`, `.github/workflows/perf.yml`
+  (nightly + dispatch), and the `preparePagesEvidence` `/perf/` integration.
+- **Licence:** k6 AGPL-3.0 governs distributing k6; tool-use here imposes no AGPL on our scripts.
+- **Not blocking** any PR; the functional suite remains the correctness gate.
+
 ## Potential Next Steps (not yet scheduled; promote via a phase or risk, never ad hoc)
 
 ### MEDIUM Priority
