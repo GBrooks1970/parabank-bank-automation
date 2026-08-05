@@ -7,6 +7,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, existsSync, renameSync } from 'node:fs';
 import { resolve } from 'node:path';
+import process from 'node:process';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const DIST = resolve(ROOT, 'perf/dist');
@@ -22,10 +23,20 @@ mkdirSync(REPORT, { recursive: true });
 const k6Image = process.env.K6_IMAGE || 'grafana/k6:latest';
 const baseUrl = process.env.PARABANK_BASE_URL || 'http://localhost:8090/parabank/services/bank';
 
+// The grafana/k6 image runs as a non-root user, so it cannot write handleSummary
+// output to the host-mounted /work unless it runs AS the host user. On POSIX
+// (the CI runner) pass --user uid:gid; on Windows (local dev) Docker Desktop
+// handles mount permissions itself, so no --user is needed/available.
+const userArgs =
+  typeof process.getuid === 'function'
+    ? ['--user', `${process.getuid()}:${process.getgid()}`]
+    : [];
+
 // k6 writes handleSummary outputs to its CWD (/work); mount perf/dist as /scripts
 // and perf/report as /work so the summary files land in perf/report.
 const args = [
   'run', '--rm', '--network', 'host',
+  ...userArgs,
   '-e', `PARABANK_BASE_URL=${baseUrl}`,
   '-e', `K6_IMAGE=${k6Image}`,
   '-v', `${DIST}:/scripts:ro`,
@@ -35,11 +46,15 @@ const args = [
 ];
 
 console.log(`perf: docker ${args.join(' ')}`);
-try {
-  execFileSync('docker', args, { stdio: 'inherit' });
-} finally {
-  // Publish the generated summary as the /perf/ index page.
-  const summaryHtml = resolve(REPORT, 'perf-summary.html');
-  if (existsSync(summaryHtml)) renameSync(summaryHtml, resolve(REPORT, 'index.html'));
+execFileSync('docker', args, { stdio: 'inherit' });
+
+// Publish the generated summary as the /perf/ index page. Fail loudly if k6 did
+// not produce it (e.g. a mount-permission regression) rather than silently pass.
+const summaryHtml = resolve(REPORT, 'perf-summary.html');
+const summaryJson = resolve(REPORT, 'perf-summary.json');
+if (!existsSync(summaryHtml) || !existsSync(summaryJson)) {
+  console.error('perf: k6 did not write the summary files to perf/report (check container write permissions).');
+  process.exit(1);
 }
+renameSync(summaryHtml, resolve(REPORT, 'index.html'));
 console.log('perf: wrote perf/report/index.html + perf/report/perf-summary.json');
