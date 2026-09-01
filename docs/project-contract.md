@@ -26,7 +26,12 @@ docker compose down
 - Boot->seed->use (DR-PB-06): never assume a fresh container is seeded; `gate.ps1` seeds.
 - SUT pin (DR-PB-02): upstream commit changes are their own reviewed PRs, never drive-by.
 - Container pins (DR-PB-10): `config/container-image-pins.psd1` is the single source;
-  refresh only through `docs/container-image-pin-policy.md` and `build-sut.ps1` validation.
+  refresh only through `docs/container-image-pin-policy.md` and `build-sut.ps1` validation,
+  updating that policy's "Current reviewed pins" table in the same PR.
+- Pin drift (DR-PB-11): registry drift warns during a build and never blocks it — the build
+  consumes immutable `tag@sha256` references. Drift is fatal only under
+  `-ValidateImagePinsOnly` and in the scheduled `pin-drift` lane, which raises the tracking
+  issue. Never "fix" a red lane by loosening a pin; refresh it deliberately.
 - Assert-as-observed (design doc §5.7): SUT quirks are the spec; do not "fix" assertions
   to match conventional API behaviour.
 - Scenarios run serially; `@mutates` = reset-bracketed; `@smoke` never mutates; `@loan`

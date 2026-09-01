@@ -13,6 +13,17 @@
 
 # parabank-bank-automation — Backlog
 
+**Version:** 24 — **PB-PIN maintenance cycle (2026-09-01).** Both reviewed container image
+pins had gone stale after upstream republished their exact tags, failing the nightly `perf`
+lane 14 nights running with the required `ci` lane latently broken behind it. **PB-PIN-01**
+refreshed both digests (PR [#38](https://github.com/GBrooks1970/parabank-bank-automation/pull/38),
+merged `98aa06a`; post-merge `main` CI [run 33552321262](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33552321262)
+green and dispatched `perf` [run 33552405940](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33552405940)
+green, restoring the lane). **PBR-06** is recorded and resolved by **PB-PIN-02**, which splits
+drift detection from build enforcement under **DR-PB-11**; **PB-PIN-03** reconciles the pin
+policy's derived table. PB-PIN-04 (published `/perf/` provenance) and PBR-02 remain open.
+Previous:
+
 **Version:** 23 — **PB-P0…P5, PB-CODEX-01…10 and PB-EVID-01 all COMPLETE.** PB-EVID-01 report is live
 (<https://gbrooks1970.github.io/parabank-bank-automation/>) and linked from the public portfolio
 (landing [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) merged `9b4be69`), closing the
@@ -30,10 +41,12 @@ This backlog tracks the delivered ParaBank test-automation project as **six sequ
 phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the completed
 post-closure review-remediation cycle (PB-CODEX-01…10) and the approved public-evidence
 cycle (PB-EVID-01). The completed phases and remediation remain historical evidence and
-are not reopened. PB-EVID-01 is the only active enhancement. Current maintenance is also
-governed by the Outstanding Risks section: PBR-03 is actionable, while PBR-01, PBR-02,
-PBR-04, and PBR-05 require their recorded triggers. Risks use the portfolio's standard
-scoring.
+are not reopened, and the public-evidence cycle (PB-EVID-01) is likewise complete. The
+active cycle is **PB-PIN** (2026-09-01 container-pin maintenance). Current maintenance is
+otherwise governed by the Outstanding Risks section: PBR-03 and PBR-06 are resolved, while
+PBR-01, PBR-02, PBR-04, and PBR-05 require their recorded triggers — of which **PBR-02's has
+now effectively fired** (the runner force-runs the pinned Node-20 actions on Node 24), so it
+is actionable. Risks use the portfolio's standard scoring.
 
 **Priority Scoring System** (used for risks and review-remediation ordering; delivered
 phases were sequenced, not scored):
@@ -659,6 +672,36 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
 
 Defects/risks discovered during any phase are added here using the template's risk block
 and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
+
+### MEDIUM Priority (Score: 10–19)
+
+#### Risk PBR-06: Registry pin drift blocked execution instead of signalling maintenance — Score: 11
+
+**Priority Score:** Security Impact (0) + Breakage Probability (7) + Maintenance Burden (4) = **11 points**
+**Impact:** `scripts/build-sut.ps1` hard-failed when an exact image tag no longer resolved to
+its reviewed digest. Docker Official Images republish exact tags whenever their base is
+patched, so this fires as routine maintenance — roughly monthly — and it fired inside the
+build path that **both** lanes run. The nightly `perf` lane failed 14 consecutive nights
+(2026-08-19 to 2026-09-01) and the required `ci` lane was latently broken behind it,
+appearing green only because it had not been triggered since 2026-08-07.
+**Status:** ✅ RESOLVED 2026-09-01 — drift split from build enforcement (DR-PB-11, PB-PIN-02)
+**Affected:** `scripts/build-sut.ps1`; `.github/workflows/ci.yml`; `.github/workflows/perf.yml`
+
+**Problem:** Reproducibility never depended on the assertion. The build consumes
+`tag@sha256` references, which are immutable, so drift could not change what was built — the
+check was a *maintenance detector* wired as an *execution blocker*. A second defect
+compounded it: the check threw on the first mismatch, so a drift report named only one pin
+when both had in fact drifted (found during PB-PIN-01).
+
+**Success Criteria:**
+- [x] Registry drift warns during a build and does not block it, while absent/malformed pins
+      and an upstream `FROM`-tag mismatch stay fatal. **Done 2026-09-01** (PB-PIN-02).
+- [x] Every drifted pin is reported, not only the first. **Done 2026-09-01.**
+- [x] Drift remains fatal in a dedicated detection path that a human actually sees:
+      `-ValidateImagePinsOnly` plus the scheduled `pin-drift` workflow, which raises or
+      updates a tracking issue. **Done 2026-09-01.**
+- [x] The decision is recorded (DR-PB-11) and the policy, contract, and design documents
+      agree. **Done 2026-09-01.**
 
 ### LOW Priority (Score: 0–9)
 

@@ -1,0 +1,77 @@
+# Container image pin drift detection (DR-PB-11, PB-PIN-02).
+#
+# The reviewed digests in config/container-image-pins.psd1 are immutable build inputs, so a
+# republished upstream tag never changes what gets built and never breaks reproducibility.
+# It does mean the reviewed digest is due a deliberate refresh -- and THIS lane is where that
+# is noticed. `build-sut.ps1` only warns, so an ordinary upstream rebuild can no longer red
+# the required `ci` lane or the nightly `perf` lane (the PB-PIN-01 incident: 14 consecutive
+# nightly failures, with `ci` latently broken behind them).
+#
+# Never runs on pull_request: it reports on the state of the world, not on a change.
+name: pin-drift
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # weekly, Monday ~06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pin-drift
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write # sole purpose: raise/update the drift tracking issue
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Validate reviewed container image pins
+        id: validate
+        continue-on-error: true # the job still fails below; this lets the issue step run
+        shell: pwsh
+        run: ./scripts/build-sut.ps1 -ValidateImagePinsOnly -DriftReportPath pin-drift.md
+
+      - name: Raise or update the drift tracking issue
+        if: steps.validate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title='Container image pin drift'
+          {
+            cat pin-drift.md
+            printf '\n\nDetected by [pin-drift run](%s) on %s.\n' "$RUN_URL" "$(date -u +%Y-%m-%dT%H:%MZ)"
+            printf 'Refresh deliberately per `docs/container-image-pin-policy.md`; builds continue from the reviewed digests meanwhile.\n'
+          } > issue-body.md
+          existing="$(gh issue list --state open --json number,title \
+            -q "[.[] | select(.title == \"$title\") | .number] | first // empty")"
+          if [ -n "$existing" ]; then
+            echo "Updating existing issue #$existing"
+            gh issue comment "$existing" --body-file issue-body.md
+          else
+            echo 'Creating the drift tracking issue'
+            gh issue create --title "$title" --body-file issue-body.md
+          fi
+
+      - name: Upload the drift report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pin-drift-report
+          path: pin-drift.md
+          if-no-files-found: warn
+
+      - name: Fail the job when drift was found
+        if: steps.validate.outcome == 'failure'
+        run: |
+          echo 'Container image pin drift detected; see the tracking issue and the uploaded report.' >&2
+          exit 1
