@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -36,6 +37,43 @@ test('preparePagesEvidence copies the complete report and produces deterministic
   assert.deepEqual(readFileSync(join(fixture.stagingDir, 'serenity', 'index.html')), sourceIndex);
   assert.match(readFileSync(join(fixture.stagingDir, 'index.html'), 'utf8'), /latest successfully published snapshot/);
   assert.match(readFileSync(join(fixture.stagingDir, 'evidence.json'), 'utf8'), new RegExp(SOURCE_REF));
+});
+
+test('a fresh, provenanced perf summary is staged at /perf/ and linked', (t) => {
+  const fixture = makeFixture(t);
+  writePerfReport(fixture.repositoryRoot, {
+    generatedAt: new Date().toISOString(),
+    sourceRef: SOURCE_REF
+  });
+
+  preparePagesEvidence(SOURCE_REF, fixture);
+
+  assert.ok(existsSync(join(fixture.stagingDir, 'perf', 'index.html')), '/perf/ should be staged');
+  assert.match(readFileSync(join(fixture.stagingDir, 'index.html'), 'utf8'), /\.\/perf\/index\.html/);
+});
+
+test('a stale perf summary is withheld without failing the deploy', (t) => {
+  const fixture = makeFixture(t);
+  // The PB-PIN-01 shape: real numbers, but measured a fortnight ago.
+  writePerfReport(fixture.repositoryRoot, {
+    generatedAt: new Date(Date.now() - 20 * 86_400_000).toISOString(),
+    sourceRef: SOURCE_REF
+  });
+
+  const result = preparePagesEvidence(SOURCE_REF, fixture);
+
+  assert.equal(result.scenarioCount, 8, 'the functional deploy still succeeds');
+  assert.equal(existsSync(join(fixture.stagingDir, 'perf')), false, 'stale /perf/ must not be published');
+  assert.doesNotMatch(readFileSync(join(fixture.stagingDir, 'index.html'), 'utf8'), /\.\/perf\/index\.html/);
+});
+
+test('an unprovenanced perf summary is withheld', (t) => {
+  const fixture = makeFixture(t);
+  writePerfReport(fixture.repositoryRoot, undefined);
+
+  preparePagesEvidence(SOURCE_REF, fixture);
+
+  assert.equal(existsSync(join(fixture.stagingDir, 'perf')), false);
 });
 
 test('generated provenance escaping encodes every HTML-significant character', () => {
@@ -160,6 +198,18 @@ function makeFixture(t: test.TestContext) {
   );
 
   return { repositoryRoot, reportDir, featureDir, stagingDir };
+}
+
+/** Write a committed perf/report/ pair, optionally with provenance (PB-PIN-04). */
+function writePerfReport(repositoryRoot: string, provenance: Record<string, string> | undefined) {
+  const perfDir = join(repositoryRoot, 'perf', 'report');
+  mkdirSync(perfDir, { recursive: true });
+  writeFileSync(join(perfDir, 'index.html'), '<!doctype html><html><body>perf summary</body></html>', 'utf8');
+  writeFileSync(
+    join(perfDir, 'perf-summary.json'),
+    JSON.stringify(provenance ? { metrics: {}, provenance } : { metrics: {} }),
+    'utf8'
+  );
 }
 
 function snapshot(root: string): Array<[string, string]> {
