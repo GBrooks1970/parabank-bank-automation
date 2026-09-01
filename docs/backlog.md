@@ -13,6 +13,14 @@
 
 # parabank-bank-automation — Backlog
 
+**Version:** 27 — **PB-PIN CYCLE COMPLETE (2026-09-01).** **PBR-02 RESOLVED**: `setup-java`
+v4.9.0 → v6.0.0 and `upload-artifact` v4.6.2 → v7.0.1, both verified `runs.using: node24` at
+their pinned commits, clearing the Node-20 force-run annotation across all three workflows.
+The cycle that began with a single stale container digest is closed: **PB-PIN-01..04 plus
+PBR-02, PBR-06 and PBR-07 are all resolved.** Open risks are back to **0 HIGH / 0 MEDIUM /
+3 LOW** — PBR-01, PBR-04 and PBR-05, all trigger-gated on a future upstream SUT bump that this
+cycle deliberately did not make. Previous:
+
 **Version:** 26 — **PBR-07 RESOLVED (2026-09-01): `main` restored to green.** The `@smoke`
 overview assertion raced ParaBank's client-side row fetch — the page ships an empty `<tbody>`
 and fills it after the welcome message renders — so the required lane went red on a defect that
@@ -57,10 +65,10 @@ post-closure review-remediation cycle (PB-CODEX-01…10) and the approved public
 cycle (PB-EVID-01). The completed phases and remediation remain historical evidence and
 are not reopened, and the public-evidence cycle (PB-EVID-01) is likewise complete. The
 active cycle is **PB-PIN** (2026-09-01 container-pin maintenance). Current maintenance is
-otherwise governed by the Outstanding Risks section: PBR-03 and PBR-06 are resolved, while
-PBR-01, PBR-02, PBR-04, and PBR-05 require their recorded triggers — of which **PBR-02's has
-now effectively fired** (the runner force-runs the pinned Node-20 actions on Node 24), so it
-is actionable. Risks use the portfolio's standard scoring.
+otherwise governed by the Outstanding Risks section: PBR-02, PBR-03 and PBR-06 are resolved,
+while PBR-01, PBR-04, and PBR-05 remain open on their recorded triggers, none of which has
+fired — each needs an upstream SUT pin bump (DR-PB-02), and the PB-PIN cycle deliberately did
+not make one. Risks use the portfolio's standard scoring.
 
 **Priority Scoring System** (used for risks and review-remediation ordering; delivered
 phases were sequenced, not scored):
@@ -826,16 +834,25 @@ separate, reviewable dependency change.
 **Impact:** The PB-CODEX-04 post-merge `main` CI run (30685906271) is green but annotates that
 `actions/setup-java@v4` and `actions/upload-artifact@v4` still run on Node 20, which
 GitHub's runners are deprecating (being force-run on Node 24 for now).
-**Status:** RECORDED — warning only, not a failure
-**Affected:** `.github/workflows/ci.yml`
+**Status:** ✅ RESOLVED 2026-09-01 — both actions now declare `runs.using: node24` (PBR-02 / PB-PIN cycle)
+**Affected:** `.github/workflows/ci.yml`, `.github/workflows/perf.yml`, `.github/workflows/pin-drift.yml`
 
 **Problem:** Reviewed releases `setup-java@v4.9.0` and `upload-artifact@v4.6.2` still
-declare Node 20 action runtimes. PB-CODEX-05 pins those exact release commits but does not
-clear this separate risk; when Node-24-native majors are available, adopt them deliberately.
-Until then the forced Node 24 keeps CI green.
+declared Node 20 action runtimes. PB-CODEX-05 pinned those exact release commits but did not
+clear this separate risk; when Node-24-native majors became available, they were to be adopted
+deliberately. The trigger fired: the runner stopped merely deprecating Node 20 and began
+**force-running** these actions on Node 24, annotating every run.
 
 **Success Criteria:**
-- [ ] Bump `setup-java` / `upload-artifact` when a Node-24-native major is available.
+- [x] Bump `setup-java` / `upload-artifact` when a Node-24-native major is available.
+      **Done 2026-09-01:** `setup-java` v4.9.0 → **v6.0.0** (`dd06d9cb…`) and `upload-artifact`
+      v4.6.2 → **v7.0.1** (`043fb46d…`), both verified at their pinned commit to declare
+      `runs.using: node24`. Multi-major jumps reviewed release by release: `upload-artifact`
+      v5 (Node 24 support), v6 (Node 24 default; runner ≥ 2.327.1), v7 (opt-in unzipped
+      `archive: false`, ESM); `setup-java` v5 (Node 24), v6 (ESM — documented as not
+      user-facing, Azul Metadata API, `jdkFile` → `jdk-file` with a deprecated alias). No call
+      site uses a changed input. `pin-drift.yml`, added earlier the same day, was bumped with
+      the others so it did not ship a fresh Node 20 pin.
 
 #### Risk PBR-01: Live OpenAPI spec mis-declares `Transaction.date` — Score: 5
 
