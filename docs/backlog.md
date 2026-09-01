@@ -13,6 +13,13 @@
 
 # parabank-bank-automation — Backlog
 
+**Version:** 25 — **PB-PIN-04 COMPLETE (2026-09-01).** The published `/perf/` evidence now carries its
+own provenance — measurement instant, originating commit, and workflow run — rendered on the page and
+recorded in `perf-summary.json`; `run-perf.mjs` fails if that provenance does not come back in the
+written summary. `preparePagesEvidence` withholds an unprovenanced, future-dated, or >14-day-old
+summary and warns, **without** failing the functional deploy (DR-PB-11). Unit coverage 25 → 36. Only
+**PBR-02** now remains open in the PB-PIN cycle. Previous:
+
 **Version:** 24 — **PB-PIN maintenance cycle (2026-09-01).** Both reviewed container image
 pins had gone stale after upstream republished their exact tags, failing the nightly `perf`
 lane 14 nights running with the required `ci` lane latently broken behind it. **PB-PIN-01**

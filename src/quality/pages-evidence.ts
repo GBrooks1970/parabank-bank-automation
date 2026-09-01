@@ -11,6 +11,7 @@ import {
 } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { inspectSerenityCoverage } from './report-integrity';
+import { assessPerfEvidence } from './perf-evidence';
 
 export const EVIDENCE_REPOSITORY = 'GBrooks1970/parabank-bank-automation';
 export const EXPECTED_UI_SCENARIOS = 8;
@@ -157,9 +158,28 @@ export function preparePagesEvidence(sourceRefValue: string, paths: PagesEvidenc
   // Optional performance-smoke summary (perf lane, D1.5b): publish it at /perf/ when a
   // committed report exists. The nightly perf workflow produces perf/report/index.html;
   // before the first nightly run there is nothing to publish, so /perf/ is simply absent.
+  //
+  // PB-PIN-04: the summary is committed and published on a LATER deploy, so it can outlive
+  // the run that produced it. Withhold it when it is unprovenanced or stale rather than
+  // presenting old numbers as current — and only withhold it. A broken perf lane must never
+  // fail this functional deploy (DR-PB-11), so /perf/ is simply omitted, as it is before the
+  // first nightly run.
   const perfReportDir = join(resolved.repositoryRoot, 'perf', 'report');
-  const hasPerf = existsSync(join(perfReportDir, 'index.html'));
-  if (hasPerf) {
+  const perfSummaryPath = join(perfReportDir, 'perf-summary.json');
+  const perfAssessment = assessPerfEvidence(
+    existsSync(join(perfReportDir, 'index.html')) && existsSync(perfSummaryPath)
+      ? readFileSync(perfSummaryPath, 'utf8')
+      : undefined,
+    new Date()
+  );
+  const hasPerf = perfAssessment.publishable;
+  if (!hasPerf) {
+    const message = `pages: /perf/ withheld — ${perfAssessment.reason}`;
+    console.warn(message);
+    if (process.env.GITHUB_ACTIONS === 'true') {
+      console.log(`::warning title=Performance evidence withheld::${perfAssessment.reason}`);
+    }
+  } else {
     assertNoSymbolicLinks(perfReportDir);
     cpSync(perfReportDir, join(resolved.stagingDir, 'perf'), {
       recursive: true,

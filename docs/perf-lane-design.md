@@ -68,8 +68,24 @@ current, but the *live* `/perf/` page refreshes on the next functional deploy �
 chosen over running the whole functional suite nightly. The commit is best-effort (`continue-on-error`)
 so branch protection never fails the lane; the artifact remains the evidence in that case.
 
+**Provenance + freshness (PB-PIN-04).** Because the published page outlives the run that produced it,
+`handleSummary()` records `provenance` — `generatedAt` (ISO UTC), `sourceRef`, `runUrl` when in CI, and
+the k6 image — into `perf-summary.json`, and the page leads with "Measured &lt;instant&gt; from commit
+&lt;sha&gt;… a snapshot from that run, not a live measurement". `scripts/run-perf.mjs` supplies those
+values and **fails if they do not come back in the written summary**, so the provenance cannot silently
+go missing.
+
+`preparePagesEvidence` then refuses to publish a summary that is unprovenanced, future-dated, or older
+than `PERF_MAX_AGE_DAYS` (14). It **withholds `/perf/` and warns**; it does **not** fail the deploy.
+Making the required `ci` lane depend on the health of a deliberately non-blocking lane is the coupling
+DR-PB-11 removed, so the site simply omits the perf link exactly as it does before the first nightly
+run. This closes the PB-PIN-01 gap, where a fortnight-old summary stayed published as current with
+nothing on the page to date it — and where this document already claimed a "run timestamp" the
+implementation did not in fact emit.
+
 **Labelling (mandatory):** the page states "threshold-gated load **smoke** on a shared GitHub-hosted
-runner — not a capacity/benchmark; numbers are runner-dependent", with the k6 image and run timestamp.
+runner — not a capacity/benchmark; numbers are runner-dependent", with the k6 image, the measurement
+instant, and the originating commit.
 
 ## CI (nightly, non-blocking — D1.1a)
 
