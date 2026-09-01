@@ -10,8 +10,8 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.7
-**Date:** 2026-08-01
+**Version:** v1.8
+**Date:** 2026-09-01
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
@@ -20,7 +20,8 @@ approved by PR #14 (`08b0ad7`, 2026-07-31); v1.2 operation evidence merged by PR
 v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 Actions hardening
 merged by PR #18 (`545a13f`, 2026-08-01); v1.6 digest-pinned builder/runtime images
 merged by PR #19 (`cf00434`, 2026-08-01); v1.7 records the PB-CODEX-07 request-deadline
-policy, effective when its implementation merges.
+policy, effective when its implementation merges; v1.8 records the DR-PB-11 pin-drift
+split (NFR-5), effective when PB-PIN-02 merges.
 
 ---
 
@@ -189,8 +190,11 @@ this document, and the feature files stay traceable by a single vocabulary.
   reviewed full-gate change (DR-PB-10; implemented by PB-CODEX-05/06). Action selection,
   SHA resolution, permission review, and refresh evidence follow
   [`github-actions-pin-policy.md`](github-actions-pin-policy.md). Builder/runtime image
-  selection, multi-platform digest resolution, drift enforcement, and refresh evidence
-  follow [`container-image-pin-policy.md`](container-image-pin-policy.md).
+  selection, multi-platform digest resolution, drift handling, and refresh evidence
+  follow [`container-image-pin-policy.md`](container-image-pin-policy.md). Because the build
+  consumes immutable `tag@sha256` references, registry drift is a maintenance signal rather
+  than a correctness failure: it warns in the build and fails in the dedicated `pin-drift`
+  lane (DR-PB-11; implemented by PB-PIN-02).
 - **NFR-6 Bounded API tooling:** general REST calls, SOAP calls, and the live OpenAPI
   bootstrap share a 10-second abort-backed deadline that covers response consumption.
   Timeout diagnostics name the method, logical operation, safe route template, and limit,

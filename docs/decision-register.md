@@ -3,7 +3,8 @@
   PURPOSE:  In-repo register of structural decisions (DR-PB-xx). DR-PB-01..05 originate in
             the portfolio scoping plan and are restated here so the repo stands alone;
             DR-PB-06/07 were added by the PB-P1 design document; DR-PB-08..10 record the
-            owner-selected CODEX review-remediation choices.
+            owner-selected CODEX review-remediation choices; DR-PB-11 records the
+            owner-selected pin-drift handling from the PB-PIN cycle.
   LOCATION: docs/decision-register.md
 -->
 
@@ -21,6 +22,7 @@
 | DR-PB-08 | **Comprehensive FR-B1 operation coverage**: bind every public `ParaBankRestClient` method to the full operation matrix in design §5.4. Thirteen methods resolve live-spec operations; `openapi()` is the documented bootstrap exception because the served document does not list its own route. Non-client live-spec paths and exhaustive error permutations remain excluded. | CODEX review v1 Risk #1 found that four read checks did not support the existing “in-scope client surface” claim. Owner selected Option A on 2026-07-31. The explicit matrix preserves full-surface credibility without adding product scope. | Adopted (PB-CODEX-02) |
 | DR-PB-09 | **Executable amount boundaries**: zero, minimum-positive, and exact-available-balance cases are required additions; the QA claim will not be narrowed. | CODEX review v1 Risk #3 found these named boundary partitions absent. Owner selected Option A on 2026-07-31; deterministic seed/reset makes the evidence proportionate. | Adopted (PB-CODEX-04) |
 | DR-PB-10 | **End-to-end immutable execution inputs**: “pinned SUT” includes the source commit, full-SHA GitHub Actions, the Maven builder digest, and relevant runtime base-image digests, with readable version annotations and a deliberate refresh procedure. | CODEX review v1 Risk #4 found source reproducibility but mutable CI/build inputs. Owner selected Option A on 2026-07-31 for defensible reproducibility and supply-chain hardening. | Adopted (PB-CODEX-05/06) |
+| DR-PB-11 | **Pin drift is detected, not enforced, in the build**: `build-sut.ps1` consumes the reviewed `tag@sha256` references and only **warns** on registry drift, reporting every drifted pin rather than the first. Drift is fatal in the `-ValidateImagePinsOnly` review path and in the scheduled `pin-drift` workflow, which raises or updates a tracking issue. Absent/malformed pins and an upstream `FROM`-tag mismatch remain fatal in the build. | PB-PIN-01: an ordinary upstream rebuild of two exact tags failed the nightly `perf` lane 14 nights running (2026-08-19…2026-09-01), with the required `ci` lane latently broken behind it. Reproducibility never depended on the assertion — the build already pulls by digest — so a maintenance signal was blocking execution. Refines DR-PB-10 without weakening it: the reviewed digests, the deliberate refresh procedure, and owner merge are unchanged. | Adopted (PB-PIN-02) |
 
 **Amendment rule:** decisions change only via a PR that updates this register and the
 design document together, with the owner's merge as sign-off.
