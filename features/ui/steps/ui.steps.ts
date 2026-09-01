@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { Given, When, Then } from '@cucumber/cucumber';
 import { actorCalled, Wait } from '@serenity-js/core';
-import { Ensure, includes, equals } from '@serenity-js/assertions';
+import { Ensure, includes, equals, isPresent } from '@serenity-js/assertions';
 import { isVisible } from '@serenity-js/web';
 import { PBWorld } from '../../support/world';
 import { CallParaBankRest } from '../../../src/screenplay/abilities';
@@ -18,7 +18,7 @@ import {
   StartOnHomePage,
   TransferFundsUI
 } from '../../../src/screenplay/ui/tasks';
-import { LoanPage } from '../../../src/screenplay/ui/pages';
+import { LoanPage, OverviewPage } from '../../../src/screenplay/ui/pages';
 import {
   TheBillPayResultText,
   TheContentTitle,
@@ -49,7 +49,13 @@ Then('the overview greets {string}', async function (this: PBWorld, name: string
 });
 
 Then('the accounts overview lists account {int}', async function (this: PBWorld, accountId: number) {
-  await paula().attemptsTo(Ensure.that(TheOverviewTableText(), includes(String(accountId))));
+  // The overview's rows are fetched client-side AFTER the welcome message renders, so the
+  // login task's wait does not imply they exist yet. Without this wait the assertion reads the
+  // server-rendered empty <tbody> and fails intermittently (PBR-07).
+  await paula().attemptsTo(
+    Wait.until(OverviewPage.accountRow(accountId), isPresent()),
+    Ensure.that(TheOverviewTableText(), includes(String(accountId)))
+  );
 });
 
 // ---------- FR-A1 registration ----------
