@@ -13,6 +13,19 @@
 
 # parabank-bank-automation — Backlog
 
+**Version:** 28 — **PB-PIN CYCLE VERIFIED CLOSED (2026-09-02).** All six changes are merged and
+their evidence confirmed on `main` at `856a10e`: post-merge CI
+[run 33578750895](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33578750895)
+green including the Pages deploy, with **zero** Node-20 annotations anywhere in the run (PBR-02
+proven on the leg a PR run skips). The published `/perf/` page is live and dated — "Measured
+2026-09-01T21:26:24.071Z from commit `f2a96d2`" — with matching provenance in the published JSON,
+so PB-PIN-04's guard has now been observed doing **both** halves in production: withholding
+undated evidence on one deploy and publishing dated evidence on the next. `pin-drift` was
+dispatched for the first time
+([run 33578797428](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33578797428)):
+`IMAGE PIN VALIDATION PASS`, issue step skipped, no issue raised — its green path is no longer
+merely assumed. No open PRs, no open issues. Previous:
+
 **Version:** 27 — **PB-PIN CYCLE COMPLETE (2026-09-01).** **PBR-02 RESOLVED**: `setup-java`
 v4.9.0 → v6.0.0 and `upload-artifact` v4.6.2 → v7.0.1, both verified `runs.using: node24` at
 their pinned commits, clearing the Node-20 force-run annotation across all three workflows.
@@ -52,7 +65,7 @@ Previous:
 LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
 PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
 upstream/Node-runtime bump). No immediately-actionable items remain.
-**Last Updated:** 2026-08-03
+**Last Updated:** 2026-09-02
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
