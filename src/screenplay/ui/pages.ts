@@ -30,7 +30,14 @@ export const RegisterPage = {
 };
 
 export const OverviewPage = {
-  accountTable: PageElement.located(By.id('accountTable')).describedAs('accounts overview table')
+  accountTable: PageElement.located(By.id('accountTable')).describedAs('accounts overview table'),
+  // The overview table is server-rendered with an EMPTY <tbody>; its rows arrive from a
+  // client-side fetch after the page (and the welcome message) has already rendered. Anything
+  // asserting on row content must wait for the row itself, not just for the table (PBR-07).
+  accountRow: (accountId: number) =>
+    PageElement.located(By.css(`#accountTable a[href="activity.htm?id=${accountId}"]`)).describedAs(
+      `accounts overview row ${accountId}`
+    )
 };
 
 export const OpenAccountPage = {

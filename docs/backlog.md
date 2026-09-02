@@ -13,6 +13,13 @@
 
 # parabank-bank-automation — Backlog
 
+**Version:** 26 — **PBR-07 RESOLVED (2026-09-01): `main` restored to green.** The `@smoke`
+overview assertion raced ParaBank's client-side row fetch — the page ships an empty `<tbody>`
+and fills it after the welcome message renders — so the required lane went red on a defect that
+was not in the SUT. The step now waits for the specific account row before asserting, matching
+the ten existing `Wait.until` call sites; 6/6 consecutive green. Not caused by the PB-PIN work:
+first observed during PB-PIN-02 validation, before PB-PIN-04 existed. Previous:
+
 **Version:** 25 — **PB-PIN-04 COMPLETE (2026-09-01).** The published `/perf/` evidence now carries its
 own provenance — measurement instant, originating commit, and workflow run — rendered on the page and
 recorded in `perf-summary.json`; `run-perf.mjs` fails if that provenance does not come back in the
@@ -681,6 +688,40 @@ Defects/risks discovered during any phase are added here using the template's ri
 and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scope is open.
 
 ### MEDIUM Priority (Score: 10–19)
+
+#### Risk PBR-07: Overview-table assertion raced the client-side row fetch — Score: 10
+
+**Priority Score:** Security Impact (0) + Breakage Probability (7) + Maintenance Burden (3) = **10 points**
+**Impact:** The `@smoke` scenario "Seeded login shows the accounts overview" failed
+intermittently on its final step, `the accounts overview lists account 12345`, turning the
+required `ci` lane red on `main` for a defect that was not in the SUT. Observed twice on
+2026-09-01: locally in `check:smoke-safety`, then on `main`
+([run 33560814168](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33560814168)).
+A false red in the required gate is corrosive precisely because the honest response to it is to
+re-run rather than to look.
+**Status:** ✅ RESOLVED 2026-09-01 — the step now waits for the row before asserting
+**Affected:** `features/ui/steps/ui.steps.ts`; `src/screenplay/ui/pages.ts`
+
+**Problem:** ParaBank serves `overview.htm` with an **empty `<tbody>`** and populates the
+account rows from a client-side fetch afterwards. `LogInAs` waits for `NavPanel.welcome`, which
+renders *before* that fetch resolves, so the following `Ensure.that(TheOverviewTableText(), …)`
+— a point-in-time read with no retry — could observe the header and footnote alone. The failure
+message showed exactly that: `Received string: Account Balance* Available Amount / *Balance
+includes deposits…`. Captured deterministically with a browser: at the instant the welcome
+message appears the table's `innerHTML` still contains `<tbody></tbody>`, and only later does it
+contain `<a href="activity.htm?id=12345">12345</a>`.
+
+This was the suite's **only** content assertion without a synchronisation wait; every other UI
+interaction already uses `Wait.until(...)` (ten call sites in `src/screenplay/ui/tasks.ts`).
+
+**Success Criteria:**
+- [x] The step waits for the specific account row, not merely for the table, before asserting.
+      **Done 2026-09-01:** new `OverviewPage.accountRow(accountId)`
+      (`#accountTable a[href="activity.htm?id=<id>"]`) plus `Wait.until(..., isPresent())`
+      ahead of the unchanged `Ensure`, matching the existing house pattern.
+- [x] The affected scenario passes repeatedly. **Done 2026-09-01:** 6/6 consecutive green.
+- [x] No other assertion shares the race. **Done 2026-09-01:** verified by inspection — line 52
+      was the sole reader of the overview table.
 
 #### Risk PBR-06: Registry pin drift blocked execution instead of signalling maintenance — Score: 11
 
