@@ -13,7 +13,17 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 28 — **PB-PIN CYCLE VERIFIED CLOSED (2026-09-02).** All six changes are merged and
+**Version:** 29 — **Risk bookkeeping reconciled (2026-09-10).** Four risks whose `**Status:**`
+already recorded them as resolved — PBR-07, PBR-06 (MEDIUM) and PBR-03, PBR-02 (LOW) — were still
+filed under **Outstanding Risks**, so this file overstated open work by four items. They now live
+under **Resolved Risks**, verbatim and in their original relative order. A **Risk Summary** section
+is added: with nothing to cross-check the counts, the drift went unnoticed. Nothing requiring action
+remains; the three LOW items that stay outstanding are `RECORDED` — accepted risks asserted against
+rather than accommodated. Found by a P-13 Phase 2 probe of this backlog with the shared Kanban
+generator, which rendered **7 open cards on a project with 0 open risks**; the `RECORDED` half of
+that defect is fixed upstream in `portfolio-kanban-generator` (PP-40, now mapped to **Parked**).
+No delivery content changed.
+v28 — **PB-PIN CYCLE VERIFIED CLOSED (2026-09-02).** All six changes are merged and
 their evidence confirmed on `main` at `856a10e`: post-merge CI
 [run 33578750895](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/33578750895)
 green including the Pages deploy, with **zero** Node-20 annotations anywhere in the run (PBR-02
@@ -65,7 +75,7 @@ Previous:
 LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
 PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
 upstream/Node-runtime bump). No immediately-actionable items remain.
-**Last Updated:** 2026-09-02
+**Last Updated:** 2026-09-10
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -710,6 +720,71 @@ and scoring; phase gates cannot be ticked while a HIGH risk in that phase's scop
 
 ### MEDIUM Priority (Score: 10–19)
 
+None — both MEDIUM risks are resolved and now live under **Resolved Risks** below.
+
+### LOW Priority (Score: 0–9)
+
+#### Risk PBR-04: JSON-labelled mutation confirmations are unquoted text — Score: 6
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (3) = **6 points**
+**Impact:** The live operations for `deposit`, `withdraw`, and `transfer` declare an
+`application/json` string response and emit that media type, but the body is an unquoted
+confirmation such as `Successfully deposited ...`, which is not valid JSON.
+**Status:** RECORDED — asserted through a narrow named raw-text-as-string fallback
+**Affected:** FR-B1 operation matrix; `src/api/operation-contracts.ts`
+
+**Problem:** Strict JSON parsing produces no value even though the plain text semantically
+matches the operation's declared string schema. PB-CODEX-02 permits the raw body to be
+validated as a string only for these three named operations and records PBR-04 in the
+coverage summary. Any other invalid JSON still fails.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, remove the fallback if the confirmations become valid
+      JSON strings; otherwise re-justify the exact three-operation allowance.
+
+#### Risk PBR-05: Live OpenAPI spec mis-declares `LoanResponse.responseDate` — Score: 5
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
+**Impact:** The live `POST /requestLoan` schema declares `responseDate` as
+`string`/`date-time`, while the pinned SUT returns epoch milliseconds (observed live
+2026-07-31, e.g. `1785496721130`).
+**Status:** RECORDED — asserted with one operation-bound validation allowance
+**Affected:** FR-B1 `requestLoan`; `src/api/operation-contracts.ts`
+
+**Problem:** This is the same upstream representation class as PBR-01 but a different
+schema property and operation. It receives its own risk so neither allowance can mask the
+other or any future date-format error.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, the `/responseDate must be string` allowance is
+      re-justified or removed.
+
+#### Risk PBR-01: Live OpenAPI spec mis-declares `Transaction.date` — Score: 5
+
+**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
+**Impact:** The SUT's own spec declares `Transaction.date` as `string`/`date-time`, but the
+JSON responses return epoch milliseconds (observed live 2026-07-22, e.g. `1765411200000`).
+**Status:** RECORDED — asserted, not accommodated
+**Affected:** FR-B1 (`features/api/b1-rest-contract.feature`)
+
+**Problem:** A genuine upstream spec/implementation mismatch in the pinned SUT
+(`d1bf006`). Per FR-B1 and the assert-as-observed policy (design doc §5.7), the
+conformance scenario carries a **narrow, named allowance** (`/date must be string`)
+citing this risk, so any *other* deviation still fails the gate.
+
+**Refactor Strategy:** none in this repo (we do not patch the SUT). If the upstream pin is
+ever bumped (DR-PB-02), re-run FR-B1 without the allowance to check whether upstream fixed
+it; drop the allowance and resolve this risk if so.
+
+**Success Criteria:**
+- [ ] On any future upstream bump, the allowance is re-justified or removed.
+
+### Resolved Risks
+
+Moved here from the priority bands above: an item whose `**Status:**` records it as
+resolved does not belong under open work. Blocks are verbatim as last written and keep
+their original relative order.
+
 #### Risk PBR-07: Overview-table assertion raced the client-side row fetch — Score: 10
 
 **Priority Score:** Security Impact (0) + Breakage Probability (7) + Maintenance Burden (3) = **10 points**
@@ -772,43 +847,6 @@ when both had in fact drifted (found during PB-PIN-01).
 - [x] The decision is recorded (DR-PB-11) and the policy, contract, and design documents
       agree. **Done 2026-09-01.**
 
-### LOW Priority (Score: 0–9)
-
-#### Risk PBR-04: JSON-labelled mutation confirmations are unquoted text — Score: 6
-
-**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (3) = **6 points**
-**Impact:** The live operations for `deposit`, `withdraw`, and `transfer` declare an
-`application/json` string response and emit that media type, but the body is an unquoted
-confirmation such as `Successfully deposited ...`, which is not valid JSON.
-**Status:** RECORDED — asserted through a narrow named raw-text-as-string fallback
-**Affected:** FR-B1 operation matrix; `src/api/operation-contracts.ts`
-
-**Problem:** Strict JSON parsing produces no value even though the plain text semantically
-matches the operation's declared string schema. PB-CODEX-02 permits the raw body to be
-validated as a string only for these three named operations and records PBR-04 in the
-coverage summary. Any other invalid JSON still fails.
-
-**Success Criteria:**
-- [ ] On any future upstream bump, remove the fallback if the confirmations become valid
-      JSON strings; otherwise re-justify the exact three-operation allowance.
-
-#### Risk PBR-05: Live OpenAPI spec mis-declares `LoanResponse.responseDate` — Score: 5
-
-**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
-**Impact:** The live `POST /requestLoan` schema declares `responseDate` as
-`string`/`date-time`, while the pinned SUT returns epoch milliseconds (observed live
-2026-07-31, e.g. `1785496721130`).
-**Status:** RECORDED — asserted with one operation-bound validation allowance
-**Affected:** FR-B1 `requestLoan`; `src/api/operation-contracts.ts`
-
-**Problem:** This is the same upstream representation class as PBR-01 but a different
-schema property and operation. It receives its own risk so neither allowance can mask the
-other or any future date-format error.
-
-**Success Criteria:**
-- [ ] On any future upstream bump, the `/responseDate must be string` allowance is
-      re-justified or removed.
-
 #### Risk PBR-03: Transitive brace-expansion advisory in the dev toolchain — Score: 4
 
 **Priority Score:** Security Impact (2) + Breakage Probability (1) + Maintenance Burden (1) = **4 points**
@@ -867,28 +905,6 @@ deliberately. The trigger fired: the runner stopped merely deprecating Node 20 a
       site uses a changed input. `pin-drift.yml`, added earlier the same day, was bumped with
       the others so it did not ship a fresh Node 20 pin.
 
-#### Risk PBR-01: Live OpenAPI spec mis-declares `Transaction.date` — Score: 5
-
-**Priority Score:** Security Impact (0) + Breakage Probability (3) + Maintenance Burden (2) = **5 points**
-**Impact:** The SUT's own spec declares `Transaction.date` as `string`/`date-time`, but the
-JSON responses return epoch milliseconds (observed live 2026-07-22, e.g. `1765411200000`).
-**Status:** RECORDED — asserted, not accommodated
-**Affected:** FR-B1 (`features/api/b1-rest-contract.feature`)
-
-**Problem:** A genuine upstream spec/implementation mismatch in the pinned SUT
-(`d1bf006`). Per FR-B1 and the assert-as-observed policy (design doc §5.7), the
-conformance scenario carries a **narrow, named allowance** (`/date must be string`)
-citing this risk, so any *other* deviation still fails the gate.
-
-**Refactor Strategy:** none in this repo (we do not patch the SUT). If the upstream pin is
-ever bumped (DR-PB-02), re-run FR-B1 without the allowance to check whether upstream fixed
-it; drop the allowance and resolve this risk if so.
-
-**Success Criteria:**
-- [ ] On any future upstream bump, the allowance is re-justified or removed.
-
-### Resolved Risks
-
 #### Fresh-container seeding assumed automatic ✅ Resolved 2026-07-22
 
 **Resolution:** Phase-0 verification showed a fresh container boots unseeded (probe F-03
@@ -901,6 +917,24 @@ first; becomes DR-PB-06 in PB-P1.
 **Resolution:** containerised Maven writes `target/` as root on Linux runners; the F-02
 rename moved inside the container invocation.
 **See:** commit `fcd96a7`; failed run 29918234946 vs green run 29918600202.
+
+---
+---
+
+## Risk Summary
+
+| Priority | Outstanding | Accepted (RECORDED) | Status |
+|---|---:|---:|---|
+| HIGH (20–30) | 0 | 0 | — |
+| MEDIUM (10–19) | 0 | 0 | PBR-06, PBR-07 resolved 2026-09-01 |
+| LOW (0–9) | 0 | 3 | PBR-01, PBR-04, PBR-05 — asserted, not accommodated |
+| **Total requiring action** | **0** | **3** | — |
+| Resolved | 6 | — | PBR-02, PBR-03, PBR-06, PBR-07 + 2 phase-0 risks |
+
+**Nothing requires action.** The three LOW items are `RECORDED`: each is a live upstream
+defect this project asserts against rather than accommodates, re-checked whenever the pinned
+SUT moves (DR-PB-02). They are accepted risks, not a backlog — the shared Kanban generator
+renders them as **Parked**, outside the Backlog → Done flow.
 
 ---
 
