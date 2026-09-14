@@ -13,7 +13,23 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 29 — **Risk bookkeeping reconciled (2026-09-10).** Four risks whose `**Status:**`
+**Version:** 30 — **PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-09-14).** Scheduled
+[`pin-drift` run 34814232263](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/34814232263)
+correctly raised [issue #45](https://github.com/GBrooks1970/parabank-bank-automation/issues/45)
+after the exact Maven 3.9.16 tag moved from reviewed index `sha256:a8746f15…` to
+`sha256:880934ae…`. Provenance review found the same Maven version, Java 17.0.20+8 and
+`carlossg/docker-maven` revision across all six Linux platform descriptors: five platform
+manifests were rebuilt over newer `eclipse-temurin:17-jdk-noble` bases and `linux/s390x` was
+unchanged. Only the Maven builder digest changed; the ParaBank/Tomcat runtime pin remains current.
+Strict two-pin validation, a real digest-pinned build and the complete five-command project
+contract passed locally with teardown in 321.72 seconds: 4/4 boot probes, 36/36 unit tests,
+3/3 smoke scenarios, 14/14 API scenarios, 8/8 UI scenarios and 8/8 Serenity JSON scenario
+checks. PR #46 is the review vehicle and its final head must pass CI before owner merge;
+post-merge CI, dispatched `pin-drift`/`perf` proof and issue closure remain closure gates.
+`npm ci` also surfaced an unrelated HIGH `fast-uri@3.1.5` advisory in the
+dev-only Ajv schema-validation chain; it is recorded for separate backlog triage and is not
+silently bundled into PB-PIN-05.
+v29 — **Risk bookkeeping reconciled (2026-09-10).** Four risks whose `**Status:**`
 already recorded them as resolved — PBR-07, PBR-06 (MEDIUM) and PBR-03, PBR-02 (LOW) — were still
 filed under **Outstanding Risks**, so this file overstated open work by four items. They now live
 under **Resolved Risks**, verbatim and in their original relative order. A **Risk Summary** section
@@ -75,7 +91,7 @@ Previous:
 LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
 PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
 upstream/Node-runtime bump). No immediately-actionable items remain.
-**Last Updated:** 2026-09-10
+**Last Updated:** 2026-09-14
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -87,8 +103,9 @@ phases (PB-P0…PB-P5), each gated by acceptance criteria**, followed by the com
 post-closure review-remediation cycle (PB-CODEX-01…10) and the approved public-evidence
 cycle (PB-EVID-01). The completed phases and remediation remain historical evidence and
 are not reopened, and the public-evidence cycle (PB-EVID-01) is likewise complete. The
-active cycle is **PB-PIN** (2026-09-01 container-pin maintenance). Current maintenance is
-otherwise governed by the Outstanding Risks section: PBR-02, PBR-03 and PBR-06 are resolved,
+active cycle is **PB-PIN** (container-pin maintenance). PB-PIN-05 has refreshed the Maven builder
+digest locally and awaits PR/merge plus post-merge workflow evidence before closure. Current
+maintenance is otherwise governed by the Outstanding Risks section: PBR-02, PBR-03 and PBR-06 are resolved,
 while PBR-01, PBR-04, and PBR-05 remain open on their recorded triggers, none of which has
 fired — each needs an upstream SUT pin bump (DR-PB-02), and the PB-PIN cycle deliberately did
 not make one. Risks use the portfolio's standard scoring.
