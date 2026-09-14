@@ -24,8 +24,9 @@ unchanged. Only the Maven builder digest changed; the ParaBank/Tomcat runtime pi
 Strict two-pin validation, a real digest-pinned build and the complete five-command project
 contract passed locally with teardown in 321.72 seconds: 4/4 boot probes, 36/36 unit tests,
 3/3 smoke scenarios, 14/14 API scenarios, 8/8 UI scenarios and 8/8 Serenity JSON scenario
-checks. PR CI, owner merge, post-merge CI, dispatched `pin-drift`/`perf` proof and issue closure
-remain pending. `npm ci` also surfaced an unrelated HIGH `fast-uri@3.1.5` advisory in the
+checks. PR #46 is the review vehicle and its final head must pass CI before owner merge;
+post-merge CI, dispatched `pin-drift`/`perf` proof and issue closure remain closure gates.
+`npm ci` also surfaced an unrelated HIGH `fast-uri@3.1.5` advisory in the
 dev-only Ajv schema-validation chain; it is recorded for separate backlog triage and is not
 silently bundled into PB-PIN-05.
 v29 — **Risk bookkeeping reconciled (2026-09-10).** Four risks whose `**Status:**`
