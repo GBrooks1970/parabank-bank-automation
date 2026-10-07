@@ -9,12 +9,12 @@ digest.
 
 `config/container-image-pins.psd1` is the single source of truth; this table is a derived
 record of it and **must be updated in the same PR as any refresh**. The Maven builder digest
-was resolved and reviewed on 2026-09-14 (PB-PIN-05); the unchanged ParaBank runtime digest
+was resolved and reviewed on 2026-10-07 (PB-PIN-06); the unchanged ParaBank runtime digest
 was resolved and reviewed on 2026-09-01 (PB-PIN-01):
 
 | Purpose | Exact tag | Multi-platform index digest | Reviewed provenance |
 |---|---|---|---|
-| Maven builder | `maven:3.9.16-eclipse-temurin-17-noble` | `sha256:880934ae394bf91bc3e57d573e4fc04774f064f3c4df7ccd7cc10b3b126737bf` | Docker Official Maven image; all six Linux platform descriptors retain version `3.9.16-eclipse-temurin-17-noble` and `carlossg/docker-maven` revision `1efa2614402e9645749d6e235c93ada60762b267`, over `eclipse-temurin:17-jdk-noble`. Five platform manifests were rebuilt on 2026-09-09 with new base digests; `linux/s390x` is unchanged. |
+| Maven builder | `maven:3.9.16-eclipse-temurin-17-noble` | `sha256:1a352420f7aba21f5ad08df31bab55f74c013fb491f1ae8ab1dd7ff9ed698584` | Docker Official Maven image; all six Linux platform descriptors retain version `3.9.16-eclipse-temurin-17-noble` and `carlossg/docker-maven` revision `1efa2614402e9645749d6e235c93ada60762b267`, over `eclipse-temurin:17-jdk-noble`. All six platform manifests were rebuilt between 2026-09-25 and 2026-10-01 with new `eclipse-temurin:17-jdk-noble` base digests (previously five on 2026-09-09, with `linux/s390x` unchanged). Temurin base contents and CVEs were not reviewed. |
 | ParaBank runtime | `tomcat:10.1.57-jre21-temurin-noble` | `sha256:0d187897e49c9ef3f642f52d19db7f4eab20657f4ab086e680481e10eb69d3fa` | Docker Official Tomcat image; matches the `FROM` tag in `parasoft/parabank@d1bf006` and reports `docker-library/tomcat` revision `1609469c3fc33e26ee9b86820047588fb687220c`, over `eclipse-temurin:21-jre-noble`. |
 
 **Refresh history.** The pins were first reviewed on 2026-08-01 under PB-CODEX-06
@@ -23,7 +23,10 @@ was resolved and reviewed on 2026-09-01 (PB-PIN-01):
 `eclipse-temurin`/noble bases. The intervening refresh updated the pin file without updating
 this table, which is why the table now states its derived status explicitly. PB-PIN-05 refreshes
 only the Maven builder after its scheduled drift signal on 2026-09-14; the exact Maven tag,
-source revision, image version and Java version remain unchanged.
+source revision, image version and Java version remain unchanged. PB-PIN-06 refreshes only the
+Maven builder again on 2026-10-07 (issue #47) after all six platform manifests were rebuilt over
+newer `eclipse-temurin:17-jdk-noble` bases; the tag, source revision, image version and Java
+version again remain unchanged.
 
 The local output image `parabank:d1bf006` is not an external input; it names the product
 of the reviewed source, builder, and runtime pins for local Compose lifecycle commands.

@@ -1,11 +1,11 @@
 @{
-    # Docker Official Image. Multi-platform index resolved and reviewed 2026-09-14
-    # (previously 2026-09-01 and 2026-08-01). Base-image rebuild only: the index still reports
+    # Docker Official Image. Multi-platform index resolved and reviewed 2026-10-07
+    # (previously 2026-09-14, 2026-09-01 and 2026-08-01). Base-image rebuild only: the index still reports
     # carlossg/docker-maven revision 1efa2614402e9645749d6e235c93ada60762b267 and
     # version 3.9.16-eclipse-temurin-17-noble, over eclipse-temurin:17-jdk-noble.
     MavenBuilder = @{
         Tag    = 'maven:3.9.16-eclipse-temurin-17-noble'
-        Digest = 'sha256:880934ae394bf91bc3e57d573e4fc04774f064f3c4df7ccd7cc10b3b126737bf'
+        Digest = 'sha256:1a352420f7aba21f5ad08df31bab55f74c013fb491f1ae8ab1dd7ff9ed698584'
     }
 
     # Docker Official Image. Matches the FROM tag in parasoft/parabank@d1bf006.
