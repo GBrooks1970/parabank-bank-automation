@@ -10,8 +10,8 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.8
-**Date:** 2026-09-01
+**Version:** v1.9
+**Date:** 2026-10-19
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
@@ -21,7 +21,8 @@ v1.4 boundary evidence merged by PR #17 (`0ad6089`, 2026-08-01); v1.5 Actions ha
 merged by PR #18 (`545a13f`, 2026-08-01); v1.6 digest-pinned builder/runtime images
 merged by PR #19 (`cf00434`, 2026-08-01); v1.7 records the PB-CODEX-07 request-deadline
 policy, effective when its implementation merges; v1.8 records the DR-PB-11 pin-drift
-split (NFR-5), effective when PB-PIN-02 merges.
+split (NFR-5), effective when PB-PIN-02 merges; v1.9 adds §5.11, the second test style
+(DR-PB-12), effective when PB-STYLE-01 merges.
 
 ---
 
@@ -423,6 +424,16 @@ npm run verify   =  typecheck (tsc --noEmit)
 `docs/project-contract.md` names this; CI runs boot gate → `npm run verify`. The compose
 boot + `gate.ps1` remain the SUT-readiness precondition, not part of `verify` itself.
 
+### 5.11 Second test style — plain Playwright Test (DR-PB-12)
+
+`test-style-02/` re-implements a fund-transfer brief (UI transfer, valid/invalid direct
+`/transfer`, source-ledger debit) in `@playwright/test` style: page objects, an
+`APIRequestContext` helper and `test.extend` fixtures. It reuses this document's policies and
+none of its code: §5.5 reset (global `initializeDB` seed), §5.7 assert-as-observed (accepted
+negative, same-account and overdraft transfers are annotated `sut-quirk`), §5.8 test data
+(accounts discovered, never hard-coded) and the §5.1 selector norms. It sits outside the
+§5.10 `verify` contract and runs in CI as its own step after it. See `test-style-02/README.md`.
+
 ---
 
 ## 6. Implementation Plan
@@ -530,6 +541,7 @@ None blocking.
 | v1.5 | 2026-08-01 | Codex | Record PB-CODEX-05 least privilege, full-SHA action pins, and the reviewed refresh procedure |
 | v1.6 | 2026-08-01 | Codex | Record PB-CODEX-06 builder/runtime digest pins, drift enforcement, and refresh procedure |
 | v1.7 | 2026-08-01 | Codex | Record PB-CODEX-07 central request deadline, safe diagnostics, and reset-poller boundary |
+| v1.9 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D5 | Add §5.11: the second, plain-Playwright test style (DR-PB-12, PB-STYLE-01) |
 
 ## Approval
 

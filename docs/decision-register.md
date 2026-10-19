@@ -4,7 +4,8 @@
             the portfolio scoping plan and are restated here so the repo stands alone;
             DR-PB-06/07 were added by the PB-P1 design document; DR-PB-08..10 record the
             owner-selected CODEX review-remediation choices; DR-PB-11 records the
-            owner-selected pin-drift handling from the PB-PIN cycle.
+            owner-selected pin-drift handling from the PB-PIN cycle; DR-PB-12 records the
+            owner-approved second test style (PB-STYLE-01).
   LOCATION: docs/decision-register.md
 -->
 
@@ -23,6 +24,7 @@
 | DR-PB-09 | **Executable amount boundaries**: zero, minimum-positive, and exact-available-balance cases are required additions; the QA claim will not be narrowed. | CODEX review v1 Risk #3 found these named boundary partitions absent. Owner selected Option A on 2026-07-31; deterministic seed/reset makes the evidence proportionate. | Adopted (PB-CODEX-04) |
 | DR-PB-10 | **End-to-end immutable execution inputs**: “pinned SUT” includes the source commit, full-SHA GitHub Actions, the Maven builder digest, and relevant runtime base-image digests, with readable version annotations and a deliberate refresh procedure. | CODEX review v1 Risk #4 found source reproducibility but mutable CI/build inputs. Owner selected Option A on 2026-07-31 for defensible reproducibility and supply-chain hardening. | Adopted (PB-CODEX-05/06) |
 | DR-PB-11 | **Pin drift is detected, not enforced, in the build**: `build-sut.ps1` consumes the reviewed `tag@sha256` references and only **warns** on registry drift, reporting every drifted pin rather than the first. Drift is fatal in the `-ValidateImagePinsOnly` review path and in the scheduled `pin-drift` workflow, which raises or updates a tracking issue. Absent/malformed pins and an upstream `FROM`-tag mismatch remain fatal in the build. | PB-PIN-01: an ordinary upstream rebuild of two exact tags failed the nightly `perf` lane 14 nights running (2026-08-19…2026-09-01), with the required `ci` lane latently broken behind it. Reproducibility never depended on the assertion — the build already pulls by digest — so a maintenance signal was blocking execution. Refines DR-PB-10 without weakening it: the reviewed digests, the deliberate refresh procedure, and owner merge are unchanged. | Adopted (PB-PIN-02) |
+| DR-PB-12 | **A second, plain-Playwright test style lives in `test-style-02/`**: `@playwright/test` (root devDependency pinned to the same `~1.61.1` as `playwright`, so the Chromium build is shared). It has its own config, its own tsconfig and the `typecheck:style-02` / `test:style-02` scripts. It shares the pinned SUT, the image pins and the `initializeDB` reset contract, and asserts SUT quirks as observed (§5.7). It is **outside `npm run verify`** and runs in CI as a separate, failing step. It never replaces the Screenplay lanes, and no code is shared between the two styles. | PB-STYLE-01: a side-by-side comparison of the same fund-transfer coverage in the mainstream style that live technical tasks expect. Owner approved D1(a) root dependency, D2(a) separate CI step, D3(a) assert-as-observed quirks, D4(b) optional public-demo target, D5(a) fixtures on 2026-10-19. Keeping `verify` unchanged preserves every existing scenario-count claim. | Adopted (PB-STYLE-01) |
 
 **Amendment rule:** decisions change only via a PR that updates this register and the
 design document together, with the owner's merge as sign-off.

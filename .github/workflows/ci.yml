@@ -49,6 +49,21 @@ jobs:
       - name: Verify (typecheck, tag lint, smoke-safety, API + UI lanes, Serenity report)
         run: npm run verify
 
+      # DR-PB-12: the second, plain-Playwright style runs as its own step so the `verify`
+      # contract stays unchanged; a red result still fails the job. It reseeds the SUT itself.
+      - name: Test style 02 (plain Playwright Test; typecheck + suite)
+        run: |
+          npm run typecheck:style-02
+          npm run test:style-02
+
+      - name: Test style 02 report artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-style-02-report
+          path: test-style-02/playwright-report
+          if-no-files-found: ignore
+
       - name: Prepare and validate static Pages evidence
         env:
           SOURCE_REF: ${{ github.sha }}

@@ -16,6 +16,9 @@
   `b3-rest-soap-parity.feature` — one feature file per FR, no orphan features.
 - Lanes live apart, shared code lives shared: `features/ui/`, `features/api/`,
   `src/api/` (shared client), `src/screenplay/` (per-lane subfolders).
+- `test-style-02/` (DR-PB-12) follows Playwright Test conventions instead, and only there:
+  `*.spec.ts` specs, `*.page.ts` page objects with `PascalCase` classes, helpers under
+  `tests/support/`. Its test titles use plain sentences, with Given/When/Then as `test.step` names.
 
 ## Gherkin
 

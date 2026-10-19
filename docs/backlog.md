@@ -13,7 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 30 — **PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-09-14).** Scheduled
+**Version:** 31 — **PB-STYLE-01 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-10-19).** A second, plain-Playwright test style now lives in [`test-style-02/`](../test-style-02/README.md) (DR-PB-12). It covers a fund-transfer interview brief in `@playwright/test` style against the same pinned SUT: 12 tests, which are 1 UI transfer, 1 valid transfer, 6 rejections, 3 annotated assert-as-observed quirks and 1 ledger debit. It is outside `npm run verify` (unchanged: 36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON) and runs as its own CI step. Plan: [`implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md`](implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md). Closure needs PR CI green, the owner merge and green post-merge `main` CI.
+v30 — **PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-09-14).** Scheduled
 [`pin-drift` run 34814232263](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/34814232263)
 correctly raised [issue #45](https://github.com/GBrooks1970/parabank-bank-automation/issues/45)
 after the exact Maven 3.9.16 tag moved from reviewed index `sha256:a8746f15…` to
@@ -91,7 +92,7 @@ Previous:
 LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
 PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
 upstream/Node-runtime bump). No immediately-actionable items remain.
-**Last Updated:** 2026-09-14
+**Last Updated:** 2026-10-19
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -729,6 +730,25 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
   `main` CI run `30703247082` passed.
 
 ---
+
+## Second Test Style Cycle
+
+### PB-STYLE-01 — `test-style-02/`: the fund-transfer brief in plain Playwright Test style — 🟡 IMPLEMENTED, MERGE PENDING
+
+**What it is:** a side-by-side second style (DR-PB-12, design doc §5.11) that implements the
+`sdet-technical-task` brief in mainstream `@playwright/test` style: page objects,
+`APIRequestContext`, `test.extend` fixtures and `test.step`. The brief has three parts: a UI $50
+Checking→Savings transfer, a valid and invalid direct `POST /transfer`, and the source-ledger debit.
+It runs against the pinned SUT. The owner approved D1–D5 as recommended on 2026-10-19.
+
+- [x] Step 0 live probe recorded (plan, Outcome section): rejection statuses and bodies, plus the accepted quirks
+- [x] `npm run typecheck:style-02` passes, and the root `npm run typecheck` is unaffected
+- [x] `npm run test:style-02` 12/12, 3 consecutive green runs (6.2 s / 6.0 s / 8.8 s)
+- [x] Must-fail checks are red as intended: wrong UI amount, wrong ledger type, SUT down (fails fast in 6.6 s)
+- [x] `npm run verify` is unchanged and green (36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON)
+- [ ] PR CI green on the final head, then the owner merges
+- [ ] Post-merge `main` CI green, including the new style-02 step and the Pages deploy
+- [ ] Portfolio capability matrix row (separate root-repo PR)
 
 ## Outstanding Risks
 
