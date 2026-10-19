@@ -22,6 +22,8 @@ perf/dist/
 /test-style-02/playwright-report/
 
 # Test style 03 (Serenity/JS Screenplay on Playwright Test) output
+# (root test-results/ is Playwright's default outputDir for any ad-hoc config)
+/test-results/
 /test-style-03/test-results/
 /test-style-03/playwright-report/
 /test-style-03/target/
