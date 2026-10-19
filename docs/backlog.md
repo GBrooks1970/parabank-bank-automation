@@ -13,7 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 31 — **PB-STYLE-01 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-10-19).** A second, plain-Playwright test style now lives in [`test-style-02/`](../test-style-02/README.md) (DR-PB-12). It covers a fund-transfer interview brief in `@playwright/test` style against the same pinned SUT: 12 tests, which are 1 UI transfer, 1 valid transfer, 6 rejections, 3 annotated assert-as-observed quirks and 1 ledger debit. It is outside `npm run verify` (unchanged: 36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON) and runs as its own CI step. Plan: [`implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md`](implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md). Closure needs PR CI green, the owner merge and green post-merge `main` CI.
+**Version:** 32 — **PB-STYLE-01 COMPLETE; PB-STYLE-02 IMPLEMENTED, MERGE EVIDENCE PENDING (2026-10-19).** PB-STYLE-01 merged as [#51](https://github.com/GBrooks1970/parabank-bank-automation/pull/51) (`daecf34`). Post-merge `main` CI [run 39321895997](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39321895997) was green, including the Pages deploy, with the style-02 step at `12 passed`. PB-STYLE-02 adds [`test-style-03/`](../test-style-03/README.md): the same 12 tests in Serenity/JS Screenplay on Playwright Test, with its own content-checked Serenity report. DR-PB-12 is generalised to "additional test styles". `npm run verify` is unchanged. Plan: [`implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md`](implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md).
+v31 — **PB-STYLE-01 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-10-19).** A second, plain-Playwright test style now lives in [`test-style-02/`](../test-style-02/README.md) (DR-PB-12). It covers a fund-transfer interview brief in `@playwright/test` style against the same pinned SUT: 12 tests, which are 1 UI transfer, 1 valid transfer, 6 rejections, 3 annotated assert-as-observed quirks and 1 ledger debit. It is outside `npm run verify` (unchanged: 36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON) and runs as its own CI step. Plan: [`implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md`](implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md). Closure needs PR CI green, the owner merge and green post-merge `main` CI.
 v30 — **PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-09-14).** Scheduled
 [`pin-drift` run 34814232263](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/34814232263)
 correctly raised [issue #45](https://github.com/GBrooks1970/parabank-bank-automation/issues/45)
@@ -733,7 +734,7 @@ does not host ParaBank, its REST/SOAP services or any Docker workload.
 
 ## Second Test Style Cycle
 
-### PB-STYLE-01 — `test-style-02/`: the fund-transfer brief in plain Playwright Test style — 🟡 IMPLEMENTED, MERGE PENDING
+### PB-STYLE-01 — `test-style-02/`: the fund-transfer brief in plain Playwright Test style — ✅ COMPLETE 2026-10-19
 
 **What it is:** a side-by-side second style (DR-PB-12, design doc §5.11) that implements the
 `sdet-technical-task` brief in mainstream `@playwright/test` style: page objects,
@@ -746,9 +747,22 @@ It runs against the pinned SUT. The owner approved D1–D5 as recommended on 202
 - [x] `npm run test:style-02` 12/12, 3 consecutive green runs (6.2 s / 6.0 s / 8.8 s)
 - [x] Must-fail checks are red as intended: wrong UI amount, wrong ledger type, SUT down (fails fast in 6.6 s)
 - [x] `npm run verify` is unchanged and green (36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON)
-- [ ] PR CI green on the final head, then the owner merges
-- [ ] Post-merge `main` CI green, including the new style-02 step and the Pages deploy
-- [ ] Portfolio capability matrix row (separate root-repo PR)
+- [x] PR CI green on the final head, then the owner merged [#51](https://github.com/GBrooks1970/parabank-bank-automation/pull/51) (`daecf34`, 2026-10-19T20:44:52Z)
+- [x] Post-merge `main` CI green, including the new style-02 step (`12 passed`) and the Pages deploy: [run 39321895997](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39321895997)
+- [ ] Portfolio capability matrix row (separate root-repo PR; to be done together with PB-STYLE-02)
+
+### PB-STYLE-02 — `test-style-03/`: the same 12 tests in Serenity/JS Screenplay on Playwright Test — 🟡 IMPLEMENTED, MERGE PENDING
+
+**What it is:** the third style (DR-PB-12 generalised, design doc §5.11 v1.10). It has style-02's titles, structure and assert-as-observed expectations, rewritten as Screenplay: the default actor can `BrowseTheWebWithPlaywright`, `CallAnApi` and `TakeNotes`, and Given/When/Then are named Tasks. It writes a separate Serenity BDD report (`test-style-03/target/site/serenity`), which `scripts/check-style-03-report.ts` content-checks. The owner approved D1–D6 as recommended on 2026-10-19.
+
+- [x] Step 0 mechanics spike confirmed (plan, Outcome section): plain-text `LastResponse.body`, 4xx/5xx without a throw, Serenity JSON in its own folder, the shared Playwright `page`
+- [x] `typecheck:style-03`, `typecheck:style-02` and the root `typecheck` all pass
+- [x] `npm run test:style-03` 12/12 on 5 runs (20.5 s, 19.1 s, 16.8 s, 18.7 s, 18.9 s); `check:style-03-report` OK (12/12 SUCCESS, JSON; HTML in CI)
+- [x] Must-fail checks red as intended: wrong UI amount, wrong ledger type, SUT down (7 s), renamed test (report check names the missing and unexpected scenarios)
+- [x] `npm run test:style-02` is still 12/12, and `npm run verify` is unchanged (36/36, 3/3, 14/14, 8/8, 8/8), with 0 style-03 artefacts in `target/site/serenity`
+- [ ] PR CI green on the final head, including the Java-backed style-03 HTML report check, then the owner merges
+- [ ] Post-merge `main` CI green
+- [ ] Portfolio capability matrix row (separate root-repo PR, covering both styles)
 
 ## Outstanding Risks
 

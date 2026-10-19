@@ -64,6 +64,26 @@ jobs:
           path: test-style-02/playwright-report
           if-no-files-found: ignore
 
+      # DR-PB-12 (PB-STYLE-02): Serenity/JS Screenplay on Playwright Test. Its Serenity report
+      # lives in test-style-03/target/site/serenity, never the main lane's folder, and is
+      # content-checked here (Java is installed above, so the HTML half is enforced).
+      - name: Test style 03 (Serenity/JS Screenplay on Playwright Test; suite + report check)
+        run: |
+          npm run typecheck:style-03
+          npm run test:style-03
+          npm run report:style-03
+          npm run check:style-03-report
+
+      - name: Test style 03 report artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-style-03-report
+          path: |
+            test-style-03/target/site/serenity
+            test-style-03/playwright-report
+          if-no-files-found: ignore
+
       - name: Prepare and validate static Pages evidence
         env:
           SOURCE_REF: ${{ github.sha }}

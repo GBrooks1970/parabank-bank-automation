@@ -20,3 +20,8 @@ perf/dist/
 # Test style 02 (plain Playwright Test) output
 /test-style-02/test-results/
 /test-style-02/playwright-report/
+
+# Test style 03 (Serenity/JS Screenplay on Playwright Test) output
+/test-style-03/test-results/
+/test-style-03/playwright-report/
+/test-style-03/target/
