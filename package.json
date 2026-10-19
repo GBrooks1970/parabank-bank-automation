@@ -22,7 +22,7 @@
     "report:style-03": "node scripts/report-style-03.mjs",
     "check:style-03-report": "tsx scripts/check-style-03-report.ts",
     "report": "node scripts/report.mjs",
-    "check:smoke-safety": "node scripts/smoke-safety.mjs",
+    "check:smoke-safety": "tsx scripts/smoke-safety.mjs",
     "check:report": "tsx scripts/check-report.ts",
     "prepare:pages": "tsx scripts/prepare-pages-report.ts",
     "check:pages": "tsx scripts/check-pages-report.ts",

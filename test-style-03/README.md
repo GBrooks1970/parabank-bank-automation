@@ -31,8 +31,32 @@ npm run check:style-03-report    # all 12 scenarios present and SUCCESS (+ HTML 
 > Use the npm script for evidence runs.
 
 The settings are the same as style-02's (see [`.env.example`](.env.example)): `PARABANK_URL`,
-`PARABANK_USERNAME` / `PARABANK_PASSWORD` and `PARABANK_SKIP_RESET`. `global-setup.ts` reseeds through
-`initializeDB` (DR-PB-06).
+`PARABANK_USERNAME` / `PARABANK_PASSWORD` and `PARABANK_SKIP_RESET`. `global-setup.ts` reseeds the local
+SUT through `initializeDB` (DR-PB-06).
+
+## Run against the live demo
+
+When you want to, point `PARABANK_URL` at the public demo. It is never used in CI.
+
+PowerShell:
+```powershell
+$env:PARABANK_URL="https://parabank.parasoft.com"; npm run test:style-03; Remove-Item Env:PARABANK_URL
+```
+
+Bash:
+```bash
+PARABANK_URL=https://parabank.parasoft.com npm run test:style-03
+```
+
+On a remote host the rules are the same as style-02's (DR-PB-13):
+- **No reset.** Setup prints `ParaBank target is not the local SUT (…): no reset`.
+- **11 run, 1 skipped.** The overdraft test is skipped (`live-skip`) so it doesn't drain john's funded accounts.
+- **Real demo money moves.** If a concurrent user's transfer causes a one-off failure, add `-- --retries=1`.
+- The expectations held live on 2026-10-19 (observed: 11 passed, 1 skipped).
+
+`check:style-03-report` is evidence for **local** runs only: it needs all 12 scenarios to be SUCCESS, so after a live run it
+reports the skipped overdraft scenario. The main Cucumber lanes refuse a non-local `PARABANK_URL`, so unset it before
+running `npm run verify`.
 
 ## How the Screenplay maps onto the brief
 

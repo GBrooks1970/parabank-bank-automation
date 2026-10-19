@@ -72,6 +72,9 @@ cross-check, 1 valid API transfer, 6 rejected requests, 3 flagged assert-as-obse
 
 Both sit outside `npm run verify` and run in CI as their own steps (DR-PB-12):
 `npm run test:style-02`, and `npm run test:style-03 && npm run report:style-03 && npm run check:style-03-report`.
+Either can also run against the live public demo when directed: set `PARABANK_URL=https://parabank.parasoft.com`.
+A remote host is never reset and the overdraft test is skipped there. The main Cucumber lanes refuse any non-local
+`PARABANK_URL` (DR-PB-13).
 
 ### Seeding and resetting state (important)
 

@@ -29,11 +29,34 @@ Settings (see [`.env.example`](.env.example); export them, there is no dotenv):
 |---|---|---|
 | `PARABANK_URL` | `http://localhost:8090` | Origin only, with no `/parabank`; paths are written in full |
 | `PARABANK_USERNAME` / `PARABANK_PASSWORD` | `john` / `demo` | Seeded customer |
-| `PARABANK_SKIP_RESET` | unset | `1` skips the `initializeDB` reset, for a shared environment you must not reset |
+| `PARABANK_SKIP_RESET` | unset | `1` skips the reset of the **local** SUT; a remote host is never reset anyway |
 
-To rehearse against the public demo (best effort, never in CI), set
-`PARABANK_URL=https://parabank.parasoft.com` and `PARABANK_SKIP_RESET=1`. The public demo's data
-and behaviour aren't pinned, so the assert-as-observed expectations may not hold there.
+## Run against the live demo
+
+When you want to, point `PARABANK_URL` at the public demo. It is never used in CI.
+
+PowerShell:
+```powershell
+$env:PARABANK_URL="https://parabank.parasoft.com"; npm run test:style-02; Remove-Item Env:PARABANK_URL
+```
+
+Bash:
+```bash
+PARABANK_URL=https://parabank.parasoft.com npm run test:style-02
+```
+
+What changes on a remote host (DR-PB-13):
+- **No reset.** `global-setup.ts` resets only a loopback host. Elsewhere it prints
+  `ParaBank target is not the local SUT (…): no reset; tests move real money there.`
+- **11 run, 1 skipped.** The overdraft test is skipped (`live-skip`) because each run would drain one of john's
+  funded CHECKING accounts, which every other test needs.
+- **Real demo money moves.** Other users share the demo. If a concurrent transfer on the same account causes a one-off
+  balance-delta failure, add `-- --retries=1` to the npm command.
+- The expectations held on the live demo on 2026-10-19 (observed: 11 passed, 1 skipped). The demo isn't pinned, though,
+  so a future change on Parasoft's side could break them.
+
+The main Cucumber lanes and `check:smoke-safety` **refuse** any non-local `PARABANK_URL` before making a request, because they
+reset, wipe and re-configure their target. Unset the variable before running `npm run verify`.
 
 ## Requirement map
 

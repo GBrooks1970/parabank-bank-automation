@@ -10,7 +10,7 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.10
+**Version:** v1.11
 **Date:** 2026-10-19
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
@@ -23,7 +23,8 @@ merged by PR #19 (`cf00434`, 2026-08-01); v1.7 records the PB-CODEX-07 request-d
 policy, effective when its implementation merges; v1.8 records the DR-PB-11 pin-drift
 split (NFR-5), effective when PB-PIN-02 merges; v1.9 adds §5.11, the second test style
 (DR-PB-12), effective when PB-STYLE-01 merges; v1.10 extends §5.11 to
-test-style-03 (PB-STYLE-02), effective when it merges.
+test-style-03 (PB-STYLE-02), effective when it merges; v1.11 adds the local-only guard
+(§5.5) and remote style runs (§5.11, DR-PB-13), effective when PB-STYLE-03 merges.
 
 ---
 
@@ -349,6 +350,10 @@ is forwarded unchanged rather than mislabelled as a deadline. The reset helper i
 
 ### 5.5 Reset bracket (DR-PB-06)
 
+**Local-only guard (DR-PB-13):** the Cucumber lanes and `check:smoke-safety` refuse any non-loopback
+`PARABANK_URL` before making a request (`assertLocalSut`, `src/quality/target-guard.ts`), because this
+bracket resets, wipes and re-configures its target.
+
 ```
 beforeEach mutating scenario:  POST initializeDB  → expect 204
    (read-only scenarios skip the bracket and are taggable @smoke, §5.9)
@@ -440,6 +445,10 @@ Playwright Test** (`@serenity-js/playwright-test`). The integration's default ac
 `CallAnApi` (`@serenity-js/rest`) and `TakeNotes`. Discovered account IDs live in the actor's notepad, and Given/When/Then are
 named Tasks. Its Serenity BDD report goes to `test-style-03/target/site/serenity`, kept apart from the main lane's report
 and the Pages evidence, and is content-checked by `scripts/check-style-03-report.ts`. See `test-style-03/README.md`.
+
+**Remote runs (DR-PB-13):** either style can target a remote host when explicitly directed through `PARABANK_URL`, for example
+the public demo. Their `global-setup.ts` never resets a non-loopback host, and the overdraft test is skipped there. The style-03
+report check is evidence for local runs only, and CI runs local only.
 
 ---
 
@@ -550,6 +559,7 @@ None blocking.
 | v1.7 | 2026-08-01 | Codex | Record PB-CODEX-07 central request deadline, safe diagnostics, and reset-poller boundary |
 | v1.9 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D5 | Add §5.11: the second, plain-Playwright test style (DR-PB-12, PB-STYLE-01) |
 | v1.10 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D6 | Extend §5.11 to test-style-03, Serenity/JS Screenplay on Playwright Test (PB-STYLE-02) |
+| v1.11 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D4 (plan v2) | Local-only guard (§5.5) and remote style runs (§5.11), DR-PB-13 (PB-STYLE-03) |
 
 ## Approval
 

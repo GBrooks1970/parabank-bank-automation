@@ -11,6 +11,7 @@ import {
 } from './screenplay/api/questions';
 import { DiscoverTheStandardCustomer, RecordTheBalanceOf, RecordTheTransactionIdsOf, TransferViaTheApi } from './screenplay/api/tasks';
 import { idOf } from './screenplay/notes';
+import { IS_LOCAL_TARGET } from '../playwright.config';
 
 /**
  * Brief Parts 2 and 3 (map to FR-B4 and the FR-B2 ledger checks). The same 11 tests and
@@ -149,6 +150,7 @@ test.describe('ParaBank fund transfer API', () => {
       });
 
       test('accepts an overdraft beyond the available balance', async ({ actor }) => {
+        test.skip(!IS_LOCAL_TARGET, 'live-skip: drains a funded demo account on every run');
         await actor.attemptsTo(
           flagSutQuirk('Overdrafts are permitted (seed holds negative balances).'),
           DiscoverTheStandardCustomer(),

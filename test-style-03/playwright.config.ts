@@ -17,6 +17,13 @@ import type { SerenityFixtures, SerenityWorkerFixtures } from '@serenity-js/play
  * Serial by design: one shared datastore, seeded once by global-setup.ts (DR-PB-06).
  */
 export const PARABANK_URL = (process.env.PARABANK_URL ?? 'http://localhost:8090').replace(/\/+$/, '');
+
+/**
+ * DR-PB-13: only the local SUT (a loopback host) is ever reset. Any other host, such as the live
+ * demo when directed with PARABANK_URL=https://parabank.parasoft.com, is used as it is: no reset,
+ * and the overdraft test is skipped there.
+ */
+export const IS_LOCAL_TARGET = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(new URL(PARABANK_URL).hostname.toLowerCase());
 export const SERENITY_OUTPUT = join(__dirname, 'target', 'site', 'serenity');
 
 export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
