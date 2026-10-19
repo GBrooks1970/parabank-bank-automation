@@ -352,7 +352,9 @@ is forwarded unchanged rather than mislabelled as a deadline. The reset helper i
 
 **Local-only guard (DR-PB-13):** the Cucumber lanes and `check:smoke-safety` refuse any non-loopback
 `PARABANK_URL` before making a request (`assertLocalSut`, `src/quality/target-guard.ts`), because this
-bracket resets, wipes and re-configures its target.
+bracket resets, wipes and re-configures its target. The destructive operations also guard themselves
+(`ParaBankRestClient.initializeDB` / `cleanDB` / `setParameter`, `seedDatabase()`), as do `gate.ps1` and the perf
+lane. An architecture unit test keeps every destructive call site on a reviewed, guarded list.
 
 ```
 beforeEach mutating scenario:  POST initializeDB  → expect 204

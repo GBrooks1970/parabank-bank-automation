@@ -1,16 +1,22 @@
 ---
-version: 2
+version: 3
 created: 2026-10-19T21:28Z
 project: parabank-bank-automation
 type: implementation-plan
 item: PB-STYLE-03 (proposed new backlog item)
 status: approved
-approved: 2026-10-19, owner (Gary Brooks), v2 with D1–D4 as recommended
+approved: 2026-10-19, owner (Gary Brooks), v2 with D1–D4 as recommended; v3 hardening on the owner's instruction ("Write plan v3 for #53 with the four hardening items, then implement it before merge")
 delivered: not yet
 language: en-GB
 ---
 
 # Implementation plan: PB-STYLE-03 — run test-style-02/03 against the live demo on request, safely
+
+**Changes in v3 (2026-10-19T22:02Z).** Before merging #53, the owner asked for confirmation that further changes to the main
+lanes could not remove or delete live-demo data. The honest answer was no. v2 guards how the Cucumber lanes and
+smoke-safety *read* their URL, not the destructive calls themselves. It also leaves `gate.ps1 -BaseUrl` and the perf lane's
+`PARABANK_BASE_URL` unguarded. v3 adds four hardening items (section "v3 hardening" below) to the same PR. The v2 steps and
+their Outcome evidence stand unchanged.
 
 **Changes in v2 (2026-10-19T21:37Z).** The owner asked whether v1 was too complicated for its return; it was, in part. v2 keeps
 the two safety changes and the overdraft skip, and drops the convenience layer. Running live stays a documented one-liner on the
@@ -119,6 +125,58 @@ pending from PB-STYLE-01/02) in the root repo.
 | D3 Overdraft test on a remote host | (a) skip it on remote; (b) run it | **(a)**: one line per style, and it protects the shared demo's funded accounts | Recommended option, 2026-10-19 |
 | D4 Decision record | (a) new DR-PB-13; (b) amend DR-PB-12 | **(a)**: the guard covers the main lanes, beyond the style folders | Recommended option, 2026-10-19 |
 
+## v3 hardening (added 2026-10-19T22:02Z, before #53 merges)
+
+**Goal.** Make "no lane resets, wipes or re-configures a non-local host" hold for **future** changes as well as today's code. Guard
+the destructive operations themselves, close the two remaining entry points, and fail CI when a new destructive call site
+appears outside the reviewed, guarded set.
+
+### Evidence gathered (read-only, at `ac808bf`)
+
+| Finding | Consequence |
+|---|---|
+| Every reset, wipe and admin call in code: `src/api/client.ts` (`initializeDB`, `cleanDB`, `setParameter`); `src/api/reset.ts` (`seedDatabase`, which POSTs `initializeDB`); `src/screenplay/contract-tasks.ts` and `features/ui/steps/ui.steps.ts:205` (through the client); `scripts/smoke-safety.mjs:12`; `scripts/gate.ps1:31`; `perf/src/parabank-load.ts:75,135`; `test-style-0{2,3}/global-setup.ts:21`. `src/api/soap.ts` has none. | Guarding the client methods and `seedDatabase()` covers every current **and future** TypeScript caller, whatever URL it's given. |
+| `gate.ps1` takes `-BaseUrl` (default `http://localhost:8090`) and POSTs `initializeDB` to it. | Refuse a non-loopback `-BaseUrl`. CI calls it with no argument. |
+| `scripts/run-perf.mjs:24` takes `PARABANK_BASE_URL` and starts k6 with `--network host`. The k6 script POSTs `initializeDB` twice. | Refuse a non-loopback URL in `run-perf.mjs` before k6 starts. The k6 script also checks itself in its init context, in case it's ever run directly. |
+
+### Steps
+
+1. **Guard the destructive operations.**
+   - Call `assertLocalSut(this.baseUrl, …)` at the start of `ParaBankRestClient.initializeDB()`, `cleanDB()` and `setParameter()`, and of
+     `seedDatabase()`. They throw before any `fetch`.
+   - New unit tests stub `fetch`, so they prove no request is made: each of the four refuses `https://parabank.parasoft.com`, and the
+     client still allows a loopback base URL.
+2. **Guard the two remaining entry points.**
+   - `gate.ps1`: just after `param(...)`, refuse a `-BaseUrl` whose host isn't `localhost` / `127.0.0.1` / `::1` (`exit 1`, with a message citing DR-PB-13).
+   - `scripts/run-perf.mjs`: `assertLocalSut(baseUrl, 'The perf lane')` before any Docker call. `perf:run` moves from `node` to `tsx`, so
+     it can import the TypeScript guard, as `check:smoke-safety` does.
+   - `perf/src/parabank-load.ts`: an init-context check, `throw new Error(...)` when `BASE` isn't a loopback http(s) URL. k6 can't
+     import the Node guard, so this is a small regex (an exception to the single-guard rule, noted in a code comment).
+3. **Architecture test** `tests/unit/destructive-call-sites.test.ts`.
+   - It scans the source (`src/`, `features/`, `scripts/`, `perf/src/`, `test-style-02/`, `test-style-03/`; extensions `.ts` `.mjs`
+     `.js` `.ps1`; excluding `node_modules`, `target`, `perf/dist` and `tests/unit` itself) for `initializeDB`, `cleanDB` and `setParameter`.
+   - Each matching file must be in a reviewed allowlist, which maps the file to the **guard marker** it must still contain, with a reason.
+   - It fails if a new file mentions a destructive operation, if a listed file loses its marker (the guard was removed), or if a listed
+     file no longer exists (a stale list).
+4. **Re-verify** (below).
+
+### Verification
+
+1. Unit: 38 + new tests, all green. **Must-fail checks** (reverted after each):
+   - (a) remove the guard line from `client.initializeDB` → the client unit test fails, and the architecture test fails (marker missing)
+   - (b) add an unlisted file that calls `initializeDB` → the architecture test fails, naming the file
+2. `gate.ps1 -BaseUrl https://parabank.parasoft.com` refuses with exit 1 before any request. The default run still gives `GATE PASS`.
+3. `PARABANK_BASE_URL=https://parabank.parasoft.com/parabank/services/bank npm run perf:run` refuses before Docker starts. A local
+   `npm run perf` still produces its summary, run against the local container.
+4. `npm run verify` green (unit 38 + N, 3/14/8/8). Local style-02 and style-03 12/12. The style code is unchanged in v3, so the live
+   runs aren't repeated.
+5. PR #53 CI green on the final head, and merged only after every check result is green.
+
+### Decisions
+
+None are open. The owner chose all four items. Implementation choices are recorded in the Outcome: `perf:run` under `tsx`, and the
+k6-side regex.
+
 ## Outcome
 
 Implemented 2026-10-19 on branch `feat/pb-style-03-live-demo-target`, from `main` at `e7130f5`. PR and merge evidence are in
@@ -163,3 +221,40 @@ Implemented 2026-10-19 on branch `feat/pb-style-03-live-demo-target`, from `main
 
 Implementation log: [`../implementation-logs/2026-10-19_pb-style-03-live-demo-target.md`](../implementation-logs/2026-10-19_pb-style-03-live-demo-target.md).
 Walkthrough: [`../walkthroughs/2026-10-19_pb-style-03-live-demo-target.md`](../walkthroughs/2026-10-19_pb-style-03-live-demo-target.md).
+
+### Outcome — v3 hardening (2026-10-19, before #53 merges)
+
+Delivered on the same branch, after the v2 commits (`70d3ed5`, `ac808bf`).
+
+**What changed:**
+- `src/api/client.ts`: `initializeDB`, `cleanDB` and `setParameter` call `assertLocalSut(this.baseUrl, …)` first.
+- `src/api/reset.ts`: `seedDatabase()` calls `assertLocalSut(baseUrl, 'seedDatabase')` first.
+- `scripts/gate.ps1`: refuses a non-loopback `-BaseUrl` with `GATE REFUSED: … (DR-PB-13)` and exit 1, before the wait loop.
+- `scripts/run-perf.mjs`: `assertLocalSut(baseUrl, 'The perf lane')` before any Docker call. `perf:run` now runs under `tsx`.
+- `perf/src/parabank-load.ts`: an init-context loopback regex that throws. It's a deliberate, commented duplicate, because k6 can't import the Node guard.
+- New `tests/unit/destructive-operations-guard.test.ts` (3 tests; `fetch` is stubbed and must see **no** request for a remote host) and
+  `tests/unit/destructive-call-sites.test.ts` (2 architecture tests over 13 reviewed files, each with its guard marker).
+
+**Differences from the v3 steps, and why:**
+- **The client's allowlist entry requires all three method guards by name.** Must-fail (a) showed that with one generic marker,
+  removing the `initializeDB` guard alone left the architecture test green; only the client unit test caught it. With the
+  per-method markers, the same edit fails both.
+- **The guard message names `PARABANK_URL` even for the perf lane,** whose variable is `PARABANK_BASE_URL`. It was left unchanged
+  because the v2 evidence quotes it. A wording fix can come later without changing behaviour.
+
+**Verification evidence** (local, Windows, Node 24.18.0, Docker 29.0.1):
+- Unit **43/43** (38 + 5). Typechecks pass. `npm run perf:build` bundles the k6 check.
+- **Must-fail:**
+  - (a) guard line removed from `client.initializeDB`: the client unit test **and** the architecture test fail, the latter with
+    `src/api/client.ts lost its guard (expected to contain: assertLocalSut(this.baseUrl, 'ParaBankRestClient.initializeDB'))`
+  - (b) an unlisted `src/api/unguarded-probe.ts` calling `initializeDB`:
+    `New destructive call site(s): src/api/unguarded-probe.ts. Guard them … (DR-PB-13).`
+- `gate.ps1 -BaseUrl https://parabank.parasoft.com`: `GATE REFUSED …`, exit 1. Default `gate.ps1`: `GATE PASS`, exit 0.
+- `PARABANK_BASE_URL=https://parabank.parasoft.com/… npm run perf:run`: refused by the guard, exit 1, before Docker. Running the k6
+  bundle directly with that URL also refuses: `The perf lane refuses PARABANK_BASE_URL=https://parabank.parasoft.com/parabank/services/bank`.
+- Local `npm run perf`: both scenarios ✓, summary written, exit 0 (63 s). The regenerated `perf/report/` files were restored, so this
+  branch doesn't change the nightly lane's committed evidence.
+- `npm run verify` exit 0 (81.8 s): unit 43/43; tag lint OK; smoke 2 + 1, seed byte-identical; API 14/14; UI 8/8; report OK on 8.
+- Local `test:style-02` 12/12 and `test:style-03` 12/12; `check:style-03-report` OK. The style code didn't change in v3, so the live runs weren't repeated.
+
+Walkthrough: [`../walkthroughs/2026-10-19_pb-style-03-v3-hardening.md`](../walkthroughs/2026-10-19_pb-style-03-v3-hardening.md).

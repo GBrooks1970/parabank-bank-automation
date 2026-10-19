@@ -775,6 +775,8 @@ It runs against the pinned SUT. The owner approved D1–D5 as recommended on 202
 - [x] Live: style-02 and style-03 each **11 passed, 1 skipped (overdraft)**, each printing the "no reset" line
 - [x] Must-fail checks red as intended: the API and UI lanes and smoke-safety with a remote URL refuse with the guard message (no DNS error); a loosened guard fails both unit tests; the style-03 report check fails after a live run (the skipped scenario is named)
 - [x] `npm run verify` green: 38/38 unit, 3/3 smoke (via `tsx`), 14/14 API, 8/8 UI, 8/8 report (49.0 s)
+- [x] **v3 hardening** (owner's instruction, before merge): the client's `initializeDB` / `cleanDB` / `setParameter` and `seedDatabase()` guard themselves; so do `gate.ps1 -BaseUrl`, `run-perf.mjs` (now under `tsx`) and the k6 init context; plus the architecture test `destructive-call-sites.test.ts`
+- [x] v3 verification: unit **43/43**; must-fails red (a removed client guard fails the unit test and the architecture test; an unlisted call site is named; gate, perf runner and k6 refuse a remote URL); local `npm run perf` exit 0 (63 s); `verify` green (81.8 s); style-02 and style-03 12/12 locally
 - [ ] PR CI green on the final head, then merged only after every check is green
 - [ ] Post-merge `main` CI green
 

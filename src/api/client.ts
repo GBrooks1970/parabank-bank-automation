@@ -1,6 +1,7 @@
 import { ApiResponse } from './types';
 import { OPERATION_CONTRACTS, OperationName } from './operation-contracts';
 import { withRequestDeadline } from './request-deadline';
+import { assertLocalSut } from '../quality/target-guard';
 
 /**
  * Shared ParaBank REST client (design doc §5.4) — used by Lane B Abilities and, from
@@ -93,14 +94,18 @@ export class ParaBankRestClient {
 
   /** Admin parameter tuning — used only by the FR-A5 loan-pinning hook (design doc §5.6). */
   setParameter(name: string, value: string): Promise<ApiResponse> {
+    // DR-PB-13: destructive/admin operations refuse any host but the local SUT, whoever calls them.
+    assertLocalSut(this.baseUrl, 'ParaBankRestClient.setParameter');
     return this.exec('setParameter', 'POST', `${this.services}/setParameter/${encodeURIComponent(name)}/${encodeURIComponent(value)}`);
   }
 
   initializeDB(): Promise<ApiResponse> {
+    assertLocalSut(this.baseUrl, 'ParaBankRestClient.initializeDB');
     return this.exec('initializeDB', 'POST', `${this.services}/initializeDB`);
   }
 
   cleanDB(): Promise<ApiResponse> {
+    assertLocalSut(this.baseUrl, 'ParaBankRestClient.cleanDB');
     return this.exec('cleanDB', 'POST', `${this.services}/cleanDB`);
   }
 

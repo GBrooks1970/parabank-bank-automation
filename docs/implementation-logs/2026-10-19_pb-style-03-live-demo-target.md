@@ -98,3 +98,27 @@ Local and live runs are green, and a PR is open.
   any safety.
 - **Prove "before any request" with an unresolvable host.** `https://unreachable.invalid` distinguishes the guard firing from a network
   failure in one run.
+
+---
+
+## Addendum — v3 hardening (appended 2026-10-19, before #53 merges)
+
+Before merging, the owner asked whether further main-lane changes could still delete live-demo data. **They could:** v2 guarded the
+place where the Cucumber lanes and smoke-safety *read* their URL. The destructive calls themselves, `gate.ps1 -BaseUrl` and the perf lane's
+`PARABANK_BASE_URL` were unguarded. The owner instructed plan v3, which is delivered here:
+- the guard moved onto the operations (`ParaBankRestClient.initializeDB` / `cleanDB` / `setParameter`, `seedDatabase()`)
+- the remaining entry points are guarded: `gate.ps1`, `run-perf.mjs` and the k6 init context
+- an **architecture test** keeps every destructive call site on a reviewed list, and each listed file must keep its guard marker
+
+| Suite | Before v3 | After v3 | Status |
+|---|---|---|---|
+| Framework unit | 38/38 | 43/43 | ✅ PASS |
+| `npm run verify` | green | green (81.8 s) | ✅ PASS |
+| Local perf lane | — | exit 0 (63 s) | ✅ PASS |
+| Style-02 / style-03 (local) | 12/12 / 12/12 | 12/12 / 12/12 | ✅ PASS |
+
+**Lessons:**
+- **Guard the action, not the entrance.** An entry-point check protects only today's callers. A guard inside the destructive
+  operation protects tomorrow's too, and an architecture test catches the call sites that bypass even that.
+- **Make the must-fail test prove each guard on its own.** One generic marker per file let a single removed guard go unnoticed. The
+  must-fail check found that gap before the PR did.

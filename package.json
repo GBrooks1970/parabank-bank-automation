@@ -28,7 +28,7 @@
     "check:pages": "tsx scripts/check-pages-report.ts",
     "perf:typecheck": "tsc -p perf/tsconfig.json",
     "perf:build": "npm run perf:typecheck && node perf/build.mjs",
-    "perf:run": "node scripts/run-perf.mjs",
+    "perf:run": "tsx scripts/run-perf.mjs",
     "perf": "npm run perf:build && npm run perf:run",
     "verify": "npm run typecheck && npm run test:unit && npm run lint:tags && npm run check:smoke-safety && npm run test:api && npm run test:ui && npm run report && npm run check:report"
   },
