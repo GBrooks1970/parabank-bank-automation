@@ -9,11 +9,13 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "typecheck:style-02": "tsc -p test-style-02/tsconfig.json",
     "test:unit": "node scripts/run-unit-tests.mjs",
     "lint:tags": "tsx scripts/check-tags.ts",
     "test:api": "cucumber-js --profile api",
     "pretest:ui": "node -e \"require('node:fs').rmSync('target/site/serenity',{recursive:true,force:true})\"",
     "test:ui": "cucumber-js --profile ui",
+    "test:style-02": "playwright test -c test-style-02/playwright.config.ts",
     "report": "node scripts/report.mjs",
     "check:smoke-safety": "node scripts/smoke-safety.mjs",
     "check:report": "tsx scripts/check-report.ts",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.9.0",
+    "@playwright/test": "~1.61.1",
     "@serenity-js/assertions": "^3.44.1",
     "@serenity-js/console-reporter": "^3.44.1",
     "@serenity-js/core": "^3.44.1",

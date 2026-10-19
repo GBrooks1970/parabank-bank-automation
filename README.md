@@ -57,6 +57,15 @@ Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
 `--profile ui --tags "@smoke"` (store-safe read-only), `--profile api --tags "@negative"`
 (FR-B4 observed error contract), `--profile ui` (UI journeys only).
 
+### Second test style: plain Playwright Test (`test-style-02/`)
+
+[`test-style-02/`](test-style-02/README.md) implements a fund-transfer interview brief in
+mainstream **`@playwright/test`** style (page objects, `APIRequestContext`, fixtures, `test.step`)
+against the same pinned SUT, as a side-by-side comparison with the Screenplay lanes. It has
+12 tests: 1 UI transfer with a REST cross-check, 1 valid API transfer, 6 rejected requests,
+3 annotated assert-as-observed quirks and 1 ledger debit. It sits outside `npm run verify`
+and runs in CI as its own step (DR-PB-12): `npm run typecheck:style-02 && npm run test:style-02`.
+
 ### Seeding and resetting state (important)
 
 - **Always seed after boot:** a fresh container does not reliably self-seed. `gate.ps1`

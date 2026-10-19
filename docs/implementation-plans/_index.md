@@ -13,3 +13,4 @@ Every implementation plan is written to a file here before implementation starts
 | Plan | Item | Presented | Status | Delivered |
 |---|---|---|---|---|
 | [`2026-10-07_pb-pin-06-maven-builder-refresh.md`](2026-10-07_pb-pin-06-maven-builder-refresh.md) | PB-PIN-06 Refresh the stale MavenBuilder container image pin | 2026-10-07 | implemented | [#49](https://github.com/GBrooks1970/parabank-bank-automation/pull/49) (`25c83b8`, 2026-10-07) |
+| [`2026-10-19_pb-style-01-playwright-test-style-02.md`](2026-10-19_pb-style-01-playwright-test-style-02.md) | PB-STYLE-01 `test-style-02/`: fund-transfer brief in plain Playwright Test style | 2026-10-19 | approved | not yet |
