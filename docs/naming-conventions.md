@@ -19,6 +19,9 @@
 - `test-style-02/` (DR-PB-12) follows Playwright Test conventions instead, and only there:
   `*.spec.ts` specs, `*.page.ts` page objects with `PascalCase` classes, helpers under
   `tests/support/`. Its test titles use plain sentences, with Given/When/Then as `test.step` names.
+- `test-style-03/` (DR-PB-12) keeps the same `*.spec.ts` files and test titles as style-02, and the
+  Screenplay rule above: Tasks are imperative verb phrases (`TransferFundsThroughTheUi`), Questions are noun
+  phrases (`TheBalanceOf`), and targets are grouped per page (`TransferForm.amount`) under `tests/screenplay/`.
 
 ## Gherkin
 

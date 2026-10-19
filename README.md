@@ -57,14 +57,21 @@ Useful subsets: `npx cucumber-js --profile api --tags "@smoke"` /
 `--profile ui --tags "@smoke"` (store-safe read-only), `--profile api --tags "@negative"`
 (FR-B4 observed error contract), `--profile ui` (UI journeys only).
 
-### Second test style: plain Playwright Test (`test-style-02/`)
+### Additional test styles (`test-style-02/`, `test-style-03/`)
 
-[`test-style-02/`](test-style-02/README.md) implements a fund-transfer interview brief in
-mainstream **`@playwright/test`** style (page objects, `APIRequestContext`, fixtures, `test.step`)
-against the same pinned SUT, as a side-by-side comparison with the Screenplay lanes. It has
-12 tests: 1 UI transfer with a REST cross-check, 1 valid API transfer, 6 rejected requests,
-3 annotated assert-as-observed quirks and 1 ledger debit. It sits outside `npm run verify`
-and runs in CI as its own step (DR-PB-12): `npm run typecheck:style-02 && npm run test:style-02`.
+Two folders implement the same fund-transfer interview brief against the same pinned SUT, as a
+side-by-side comparison with the main lanes. Both have the same 12 tests: 1 UI transfer with a REST
+cross-check, 1 valid API transfer, 6 rejected requests, 3 flagged assert-as-observed quirks and
+1 ledger debit.
+
+- [`test-style-02/`](test-style-02/README.md) uses plain **`@playwright/test`**: page objects,
+  `APIRequestContext`, fixtures and `test.step`.
+- [`test-style-03/`](test-style-03/README.md) uses **Serenity/JS Screenplay on Playwright Test**
+  (`@serenity-js/playwright-test`, `CallAnApi`). It produces its own content-checked Serenity BDD
+  report.
+
+Both sit outside `npm run verify` and run in CI as their own steps (DR-PB-12):
+`npm run test:style-02`, and `npm run test:style-03 && npm run report:style-03 && npm run check:style-03-report`.
 
 ### Seeding and resetting state (important)
 
