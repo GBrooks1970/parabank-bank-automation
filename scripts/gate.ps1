@@ -22,6 +22,15 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# DR-PB-13: this gate POSTs initializeDB (a full data reset), so it refuses any host but the
+# local SUT before making a request.
+$gateHost = try { ([uri]$BaseUrl).Host.ToLowerInvariant() } catch { '' }
+if ($gateHost -notin @('localhost', '127.0.0.1', '::1', '[::1]')) {
+    Write-Error "GATE REFUSED: -BaseUrl $BaseUrl is not the local SUT (localhost / 127.0.0.1 / ::1). The gate resets data (initializeDB), so it never runs against another host (DR-PB-13)."
+    exit 1
+}
+
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 
 Write-Host "Waiting up to ${TimeoutSeconds}s for ParaBank at $BaseUrl (seeding via initializeDB) ..."

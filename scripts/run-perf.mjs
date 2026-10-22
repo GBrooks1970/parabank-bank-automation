@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, existsSync, renameSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import process from 'node:process';
+import { assertLocalSut } from '../src/quality/target-guard.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const DIST = resolve(ROOT, 'perf/dist');
@@ -22,6 +23,8 @@ mkdirSync(REPORT, { recursive: true });
 // Pin k6 by digest via K6_IMAGE when available; default to the floating tag locally.
 const k6Image = process.env.K6_IMAGE || 'grafana/k6:latest';
 const baseUrl = process.env.PARABANK_BASE_URL || 'http://localhost:8090/parabank/services/bank';
+// DR-PB-13: the k6 write scenario resets data (initializeDB); refuse a remote host before Docker starts.
+assertLocalSut(baseUrl, 'The perf lane');
 
 // Provenance (PB-PIN-04). The summary is committed to main and published on a later
 // functional deploy, so it must carry when and from what it was measured; without this the

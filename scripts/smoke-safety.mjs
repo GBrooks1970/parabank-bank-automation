@@ -2,8 +2,11 @@
 // seeded state and assert the seed state is unchanged WITHOUT an intervening reset
 // (design doc §5.9; magento C-01 lesson).
 import { execSync } from 'node:child_process';
+import { assertLocalSut } from '../src/quality/target-guard.ts';
 
 const BASE_URL = process.env.PARABANK_URL ?? 'http://localhost:8090';
+// DR-PB-13: this check seeds (initializeDB) before anything else; refuse a remote host first.
+assertLocalSut(BASE_URL, 'The smoke-safety check');
 
 async function seed() {
   const res = await fetch(`${BASE_URL}/parabank/services/bank/initializeDB`, { method: 'POST' });

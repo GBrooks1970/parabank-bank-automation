@@ -1,5 +1,6 @@
 import { test, expect } from './support/fixtures';
 import { cents } from './support/parabank-api';
+import { IS_LOCAL_TARGET } from '../playwright.config';
 
 /**
  * Brief Parts 2 and 3 (map to FR-B4 and the FR-B2 ledger checks).
@@ -120,6 +121,7 @@ test.describe('ParaBank fund transfer API', () => {
       });
 
       test('accepts an overdraft beyond the available balance', async ({ api, customer }) => {
+        test.skip(!IS_LOCAL_TARGET, 'live-skip: drains a funded demo account on every run');
         test.info().annotations.push({ type: 'sut-quirk', description: 'Overdrafts are permitted (seed holds negative balances).' });
         const { checking, savings } = customer;
         const before = (await api.account(checking.id)).balance;

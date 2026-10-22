@@ -1,15 +1,19 @@
 import { request } from '@playwright/test';
-import { PARABANK_URL } from './playwright.config';
+import { IS_LOCAL_TARGET, PARABANK_URL } from './playwright.config';
 
 /**
  * Boot -> seed -> use (DR-PB-06): a fresh container is not assumed seeded, so the suite
  * resets the datastore to the built-in seed once before any test runs. Fails fast with a
  * clear message when the SUT is down, instead of letting every test time out.
  *
- * Set PARABANK_SKIP_RESET=1 when pointing PARABANK_URL at a shared environment you must
- * not reset (for example the public demo, used only for best-effort rehearsal).
+ * Only the local SUT is ever reset (DR-PB-13). Any other host, such as the live demo, is used as it
+ * is. PARABANK_SKIP_RESET=1 skips the reset of the local SUT too.
  */
 export default async function globalSetup(): Promise<void> {
+  if (!IS_LOCAL_TARGET) {
+    console.log(`ParaBank target is not the local SUT (${PARABANK_URL}): no reset; tests move real money there.`);
+    return;
+  }
   if (process.env.PARABANK_SKIP_RESET === '1') return;
 
   const context = await request.newContext({ baseURL: PARABANK_URL });

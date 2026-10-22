@@ -1,3 +1,5 @@
+import { assertLocalSut } from '../quality/target-guard';
+
 /**
  * DR-PB-06 boot→seed→use: the single reset/seed helper both lanes share.
  * Polls POST initializeDB until 204 — doubling as the readiness wait (the same
@@ -5,6 +7,8 @@
  * poll interval; total time is bounded by timeoutMs.
  */
 export async function seedDatabase(baseUrl: string, timeoutMs = 120_000): Promise<void> {
+  // DR-PB-13: never reset a host other than the local SUT, whoever calls this.
+  assertLocalSut(baseUrl, 'seedDatabase');
   const deadline = Date.now() + timeoutMs;
   const url = `${baseUrl}/parabank/services/bank/initializeDB`;
   let lastError = 'no attempt made';

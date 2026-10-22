@@ -8,6 +8,12 @@ import { check, sleep } from 'k6';
 import type { Options } from 'k6/options';
 
 const BASE = __ENV.PARABANK_BASE_URL || 'http://localhost:8090/parabank/services/bank';
+// DR-PB-13: the write scenario resets data (initializeDB), so refuse any host but the local SUT.
+// k6 cannot import the Node guard (src/quality/target-guard.ts), so this is a deliberate,
+// minimal duplicate of its loopback rule; run-perf.mjs also applies the real guard first.
+if (!/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/i.test(BASE)) {
+  throw new Error(`The perf lane refuses PARABANK_BASE_URL=${BASE}: it resets data, so it runs only against the local SUT (DR-PB-13).`);
+}
 const USERNAME = __ENV.PARABANK_USER || 'john';
 const PASSWORD = __ENV.PARABANK_PASS || 'demo';
 const K6_IMAGE = __ENV.K6_IMAGE || 'grafana/k6';

@@ -4,9 +4,9 @@ created: 2026-10-19T20:34Z
 project: parabank-bank-automation
 type: implementation-plan
 item: PB-STYLE-02 (proposed new backlog item)
-status: approved
+status: implemented
 approved: 2026-10-19, owner (Gary Brooks), D1–D6 as recommended; implement after PR #51 merges; owner merges
-delivered: not yet
+delivered: PR #52, squash commit e7130f5 (2026-10-19)
 language: en-GB
 ---
 

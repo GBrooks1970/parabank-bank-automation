@@ -13,7 +13,8 @@
 
 # parabank-bank-automation — Backlog
 
-**Version:** 32 — **PB-STYLE-01 COMPLETE; PB-STYLE-02 IMPLEMENTED, MERGE EVIDENCE PENDING (2026-10-19).** PB-STYLE-01 merged as [#51](https://github.com/GBrooks1970/parabank-bank-automation/pull/51) (`daecf34`). Post-merge `main` CI [run 39321895997](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39321895997) was green, including the Pages deploy, with the style-02 step at `12 passed`. PB-STYLE-02 adds [`test-style-03/`](../test-style-03/README.md): the same 12 tests in Serenity/JS Screenplay on Playwright Test, with its own content-checked Serenity report. DR-PB-12 is generalised to "additional test styles". `npm run verify` is unchanged. Plan: [`implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md`](implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md).
+**Version:** 33 — **PB-STYLE-02 COMPLETE; PB-STYLE-03 IMPLEMENTED, MERGE EVIDENCE PENDING (2026-10-19).** PB-STYLE-02 merged as [#52](https://github.com/GBrooks1970/parabank-bank-automation/pull/52) (`e7130f5`). Post-merge `main` CI [run 39327685933](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39327685933) was green. PB-STYLE-03 lets both style folders run against the live demo through the existing `PARABANK_URL`: a remote host is never reset, and the overdraft test is skipped there. It also resolves **PBR-08**, found while planning: the main lanes would have reset, wiped and re-configured any host `PARABANK_URL` named. They now refuse a non-local host before making a request (DR-PB-13). Plan: [`implementation-plans/2026-10-19_pb-style-03-live-demo-target.md`](implementation-plans/2026-10-19_pb-style-03-live-demo-target.md) (v2).
+v32 — **PB-STYLE-01 COMPLETE; PB-STYLE-02 IMPLEMENTED, MERGE EVIDENCE PENDING (2026-10-19).** PB-STYLE-01 merged as [#51](https://github.com/GBrooks1970/parabank-bank-automation/pull/51) (`daecf34`). Post-merge `main` CI [run 39321895997](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39321895997) was green, including the Pages deploy, with the style-02 step at `12 passed`. PB-STYLE-02 adds [`test-style-03/`](../test-style-03/README.md): the same 12 tests in Serenity/JS Screenplay on Playwright Test, with its own content-checked Serenity report. DR-PB-12 is generalised to "additional test styles". `npm run verify` is unchanged. Plan: [`implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md`](implementation-plans/2026-10-19_pb-style-02-serenity-screenplay-test-style-03.md).
 v31 — **PB-STYLE-01 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-10-19).** A second, plain-Playwright test style now lives in [`test-style-02/`](../test-style-02/README.md) (DR-PB-12). It covers a fund-transfer interview brief in `@playwright/test` style against the same pinned SUT: 12 tests, which are 1 UI transfer, 1 valid transfer, 6 rejections, 3 annotated assert-as-observed quirks and 1 ledger debit. It is outside `npm run verify` (unchanged: 36/36 unit, 3/3 smoke, 14/14 API, 8/8 UI, 8/8 report JSON) and runs as its own CI step. Plan: [`implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md`](implementation-plans/2026-10-19_pb-style-01-playwright-test-style-02.md). Closure needs PR CI green, the owner merge and green post-merge `main` CI.
 v30 — **PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING (2026-09-14).** Scheduled
 [`pin-drift` run 34814232263](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/34814232263)
@@ -751,7 +752,7 @@ It runs against the pinned SUT. The owner approved D1–D5 as recommended on 202
 - [x] Post-merge `main` CI green, including the new style-02 step (`12 passed`) and the Pages deploy: [run 39321895997](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39321895997)
 - [ ] Portfolio capability matrix row (separate root-repo PR; to be done together with PB-STYLE-02)
 
-### PB-STYLE-02 — `test-style-03/`: the same 12 tests in Serenity/JS Screenplay on Playwright Test — 🟡 IMPLEMENTED, MERGE PENDING
+### PB-STYLE-02 — `test-style-03/`: the same 12 tests in Serenity/JS Screenplay on Playwright Test — ✅ COMPLETE 2026-10-19
 
 **What it is:** the third style (DR-PB-12 generalised, design doc §5.11 v1.10). It has style-02's titles, structure and assert-as-observed expectations, rewritten as Screenplay: the default actor can `BrowseTheWebWithPlaywright`, `CallAnApi` and `TakeNotes`, and Given/When/Then are named Tasks. It writes a separate Serenity BDD report (`test-style-03/target/site/serenity`), which `scripts/check-style-03-report.ts` content-checks. The owner approved D1–D6 as recommended on 2026-10-19.
 
@@ -760,9 +761,24 @@ It runs against the pinned SUT. The owner approved D1–D5 as recommended on 202
 - [x] `npm run test:style-03` 12/12 on 5 runs (20.5 s, 19.1 s, 16.8 s, 18.7 s, 18.9 s); `check:style-03-report` OK (12/12 SUCCESS, JSON; HTML in CI)
 - [x] Must-fail checks red as intended: wrong UI amount, wrong ledger type, SUT down (7 s), renamed test (report check names the missing and unexpected scenarios)
 - [x] `npm run test:style-02` is still 12/12, and `npm run verify` is unchanged (36/36, 3/3, 14/14, 8/8, 8/8), with 0 style-03 artefacts in `target/site/serenity`
-- [ ] PR CI green on the final head, including the Java-backed style-03 HTML report check, then the owner merges
+- [x] PR CI green on the final head ([run 39324691644](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39324691644): style-02 `12 passed`, style-03 `12 passed`, `Style-03 report content check OK: all 12 scenarios present and SUCCESS; HTML report present.`). Merged as [#52](https://github.com/GBrooks1970/parabank-bank-automation/pull/52) (`e7130f5`, 2026-10-19T21:27:49Z) on the owner's instruction
+- [x] Post-merge `main` CI green: [run 39327685933](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/39327685933)
+- [ ] Portfolio capability matrix row (separate root-repo PR, covering both styles and the live option)
+
+### PB-STYLE-03 — Run the style folders against the live demo on request; main lanes guarded to the local SUT — 🟡 IMPLEMENTED, MERGE PENDING
+
+**What it is:** plan v2, owner-approved 2026-10-19 (D1–D4 as recommended). It uses the existing `PARABANK_URL` with documented one-liners, adds a loopback-only reset in both styles' `global-setup.ts`, skips the overdraft test on a remote host, and adds `assertLocalSut()` in the main lanes (DR-PB-13).
+
+- [x] Step 0 live probe: missing source → 400 `…number 0 and/or…`, unknown destination → 400, `fromAccountId=abc` → 404 empty, same account → 200 exact text. All match local
+- [x] Unit 36 → **38/38** (`target-guard.test.ts`); typechecks pass (root, style-02, style-03)
+- [x] Local unchanged: style-02 12/12, style-03 12/12, `check:style-03-report` OK, exactly 2 `initializeDB` calls in the container's access log (one per suite)
+- [x] Live: style-02 and style-03 each **11 passed, 1 skipped (overdraft)**, each printing the "no reset" line
+- [x] Must-fail checks red as intended: the API and UI lanes and smoke-safety with a remote URL refuse with the guard message (no DNS error); a loosened guard fails both unit tests; the style-03 report check fails after a live run (the skipped scenario is named)
+- [x] `npm run verify` green: 38/38 unit, 3/3 smoke (via `tsx`), 14/14 API, 8/8 UI, 8/8 report (49.0 s)
+- [x] **v3 hardening** (owner's instruction, before merge): the client's `initializeDB` / `cleanDB` / `setParameter` and `seedDatabase()` guard themselves; so do `gate.ps1 -BaseUrl`, `run-perf.mjs` (now under `tsx`) and the k6 init context; plus the architecture test `destructive-call-sites.test.ts`
+- [x] v3 verification: unit **43/43**; must-fails red (a removed client guard fails the unit test and the architecture test; an unlisted call site is named; gate, perf runner and k6 refuse a remote URL); local `npm run perf` exit 0 (63 s); `verify` green (81.8 s); style-02 and style-03 12/12 locally
+- [ ] PR CI green on the final head, then merged only after every check is green
 - [ ] Post-merge `main` CI green
-- [ ] Portfolio capability matrix row (separate root-repo PR, covering both styles)
 
 ## Outstanding Risks
 
@@ -972,15 +988,28 @@ rename moved inside the container invocation.
 ---
 ---
 
+#### Risk PBR-08: Main lanes would reset, wipe and re-configure any host PARABANK_URL named — Score: 12
+
+**Priority Score:** Security Impact (8) + Breakage Probability (3) + Maintenance Burden (1) = **12 points**
+**Impact:** `features/support/world.ts` and `scripts/smoke-safety.mjs` read the same `PARABANK_URL` as the style folders. The
+Cucumber hooks call `initializeDB` before scenarios, the FR-B1 contract matrix exercises `cleanDB`, the `@loan` hooks change admin
+parameters, and smoke-safety seeds first. Exporting `PARABANK_URL` at the public demo for a style run, then running `npm run verify`
+in the same shell, would have wiped, re-seeded and re-configured a site shared by every ParaBank user.
+**Status:** ✅ RESOLVED 2026-10-19 by PB-STYLE-03 (DR-PB-13). The risk never fired; it was found while planning the live-demo option.
+**Affected:** `features/support/world.ts`; `scripts/smoke-safety.mjs`; `src/quality/target-guard.ts`
+
+**Fix:** `assertLocalSut()` refuses any non-loopback host before making a request, and is unit-tested (`tests/unit/target-guard.test.ts`).
+The style folders' setup independently never resets a non-loopback host.
+
 ## Risk Summary
 
 | Priority | Outstanding | Accepted (RECORDED) | Status |
 |---|---:|---:|---|
 | HIGH (20–30) | 0 | 0 | — |
-| MEDIUM (10–19) | 0 | 0 | PBR-06, PBR-07 resolved 2026-09-01 |
+| MEDIUM (10–19) | 0 | 0 | PBR-06, PBR-07 resolved 2026-09-01; PBR-08 resolved 2026-10-19 |
 | LOW (0–9) | 0 | 3 | PBR-01, PBR-04, PBR-05 — asserted, not accommodated |
 | **Total requiring action** | **0** | **3** | — |
-| Resolved | 6 | — | PBR-02, PBR-03, PBR-06, PBR-07 + 2 phase-0 risks |
+| Resolved | 7 | — | PBR-02, PBR-03, PBR-06, PBR-07, PBR-08 + 2 phase-0 risks |
 
 **Nothing requires action.** The three LOW items are `RECORDED`: each is a live upstream
 defect this project asserts against rather than accommodates, re-checked whenever the pinned
