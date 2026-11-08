@@ -4,9 +4,9 @@ created: 2026-11-08T01:11Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-02 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-08, owner (Gary Brooks), "Approved both as recommended" (relayed by the coordinating session); D-T02-1 to D-T02-8 as recommended; the main session merges the project PR only when every check is green
-delivered: not yet
+delivered: PR #58, merge commit 6ba613d (2026-11-08); implementation commit 4f2804b
 language: en-GB
 ---
 
@@ -225,4 +225,36 @@ durable lesson).
 
 ## Outcome
 
-Not yet delivered.
+**Delivered 2026-11-08** as [#58](https://github.com/GBrooks1970/parabank-bank-automation/pull/58):
+- implementation commit `4f2804b`, merge commit `6ba613d`;
+- PR CI `sut-boot-gate` [run 42436949185](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42436949185)
+  passed on head `4f2804b`;
+- post-merge `main` CI [run 42437187232](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42437187232)
+  passed on `6ba613d` (`sut-boot-gate` and `Deploy GitHub Pages` both successful).
+
+Evidence is in
+[`../implementation-logs/2026-11-08_triage-02-smoke-safety-mutation-detection.md`](../implementation-logs/2026-11-08_triage-02-smoke-safety-mutation-detection.md).
+
+**Delivered as planned (option C).**
+- The runner owns the seed state. Neither lane re-seeds, and reset hooks throw during an owned run.
+- A comparison after each lane covers customer 12212's 11 accounts and 21 transactions.
+- Step 0 showed the re-seed is deterministic, so option A alone would also have detected a mutation. C was kept for its
+  literal "no intervening reset" and its lane attribution.
+- Before the fix, MF-1 exited 0. After the fix, MF-1, MF-2, MF-3 and MF-4 each exited 1.
+- Unit tests went from 43 to 50.
+- The local five-command contract and `verify` were green.
+
+**Differences from the plan, and why:**
+- The optional UI-transfer must-fail (D-T02-3) was not run. The approved REST-deposit proof (MF-2) covers the UI lane.
+- `docs/qa-strategy.md` received two edits beyond the planned lines 34 and 68. The PB-P3 exit line gained a scope
+  qualifier, and the framework-unit row lists the two new helpers. Both serve Step 5's "no file still claims universal
+  immutability" check.
+- The local `npm ci` in the worktree reported esbuild's install script as not approved. This affects only the perf
+  build, which is outside `verify`.
+- **Brief pre-commit push.** The first commit attempt failed, because PowerShell passed the commit message as a
+  pathspec, but the `push -u` in the same command still ran. For a short time,
+  `origin/worklist/triage-02-smoke-safety` existed at `81d11eb`, identical to `main` and with no new content. The
+  commit was then made from a message file and pushed as `4f2804b`. The branch was deleted after the merge.
+- The backlog entry (v36), this Outcome and the index status were written in this follow-up with merge evidence, as
+  D-T02-7 intended. A dated note in the backlog's PB-P3 section marks the historical "byte-identical" wording as
+  superseded, without rewriting it.
