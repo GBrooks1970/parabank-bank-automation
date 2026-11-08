@@ -4,9 +4,9 @@ created: 2026-11-08T06:05Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-01 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-08, owner (Gary Brooks), "Approved both" (relayed by the coordinating session); D-T01-1 to D-T01-5 as recommended; the main session merges the project PR only when every check is green
-delivered: not yet
+delivered: PR #60, merge commit adb9b51 (2026-11-08); implementation commit 594119e
 language: en-GB
 ---
 
@@ -146,4 +146,25 @@ and about 8 GB of RAM, must not disturb other sessions' containers, and must end
 
 ## Outcome
 
-Not yet delivered.
+**Delivered 2026-11-08** as [#60](https://github.com/GBrooks1970/parabank-bank-automation/pull/60):
+- implementation commit `594119e`, merge commit `adb9b51`;
+- PR CI `sut-boot-gate` [run 42462812281](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42462812281)
+  passed on head `594119e`, running the full five-command contract on the updated lock;
+- post-merge `main` CI [run 42463042460](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42463042460)
+  passed on `adb9b51` (`sut-boot-gate` and `Deploy GitHub Pages` both successful).
+
+Evidence is in
+[`../implementation-logs/2026-11-08_triage-01-fast-uri-lock-update.md`](../implementation-logs/2026-11-08_triage-01-fast-uri-lock-update.md).
+
+**Delivered as planned (option A, lockfile only).**
+- 3.1.9 was re-checked at execution as the newest 3.x.
+- The lock diff was exactly the three lines of the `fast-uri` entry, and `package.json` was unchanged.
+- The must-fail audit check exited 1 before (10 advisories, range 3.0.0 - 3.1.8) and 0 after.
+- Audit totals went from 11 (7 high) to 10 (6 high), with no collateral change.
+- `npm ci`, typecheck and `test:unit` 50/50 passed locally. The five-command contract ran in PR CI and post-merge CI,
+  as D-T01-3 decided.
+
+**Differences from the plan:** none.
+- The esbuild install script was left unapproved during `npm ci`, as planned.
+- Backlog v37, this Outcome and the index status were written in this follow-up (D-T01-5).
+- The TRIAGE-07 target correction (D-T01-4) goes in the root worklist as a dated amendment.
