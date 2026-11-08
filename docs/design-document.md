@@ -10,8 +10,8 @@
 
 # parabank-bank-automation — Design Document
 
-**Version:** v1.11
-**Date:** 2026-10-19
+**Version:** v1.12
+**Date:** 2026-11-08
 **Author:** Claude (Fable 5) + Codex with Gary Brooks (owner decisions §1/§11)
 **Reviewer:** Gary Brooks (owner) — review vehicle is the PR; **merge = approval** (backlog PB-P1 gate)
 **Status:** v1.0 approved by PR #2 (`906a00d`, 2026-07-22); v1.1 A/A/A amendment
@@ -24,7 +24,9 @@ policy, effective when its implementation merges; v1.8 records the DR-PB-11 pin-
 split (NFR-5), effective when PB-PIN-02 merges; v1.9 adds §5.11, the second test style
 (DR-PB-12), effective when PB-STYLE-01 merges; v1.10 extends §5.11 to
 test-style-03 (PB-STYLE-02), effective when it merges; v1.11 adds the local-only guard
-(§5.5) and remote style runs (§5.11, DR-PB-13), effective when PB-STYLE-03 merges.
+(§5.5) and remote style runs (§5.11, DR-PB-13), effective when PB-STYLE-03 merges;
+v1.12 restates how §5.9's store-safety proof works and what it measures (TRIAGE-02),
+effective when its implementation merges.
 
 ---
 
@@ -414,8 +416,14 @@ each with a comment linking here:
 
 **Smoke set (fixed here, count = 3):** ① UI seeded login + account overview renders
 (read-only A1 half); ② REST seeded login + accounts read (B1 subset); ③ SOAP `getAccount`
-on a seeded account (B3 read half). The PB-P3 gate proves store-safety by running `@smoke`
-then asserting seed state unchanged **without** an intervening reset. Changing the smoke
+on a seeded account (B3 read half). The PB-P3 gate (`npm run check:smoke-safety`) proves
+store-safety **without** an intervening reset: the runner seeds once and owns the seed state
+(`PARABANK_SEED_OWNER=smoke-safety`, so neither lane's hooks re-seed, and any reset hook that
+would fire fails the gate). After **each** lane, before the next one runs, it compares the
+measured state with the seeded snapshot and fails naming the lane (TRIAGE-02, v1.12). The
+measured state is seeded customer 12212's accounts and each of those accounts' transactions;
+admin parameters, other customers and customers registered during a run are not measured, so
+the proof is of that scope, not of universal datastore immutability. Changing the smoke
 set or count is a design-doc amendment, not a drive-by edit (magento C-01 lesson).
 
 ### 5.10 Verify entry point & gates
@@ -562,6 +570,7 @@ None blocking.
 | v1.9 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D5 | Add §5.11: the second, plain-Playwright test style (DR-PB-12, PB-STYLE-01) |
 | v1.10 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D6 | Extend §5.11 to test-style-03, Serenity/JS Screenplay on Playwright Test (PB-STYLE-02) |
 | v1.11 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D4 (plan v2) | Local-only guard (§5.5) and remote style runs (§5.11), DR-PB-13 (PB-STYLE-03) |
+| v1.12 | 2026-11-08 | Claude (Opus 5.5) + owner decisions D-T02-1 to D-T02-8 | §5.9 store-safety proof: runner-owned seed, per-lane comparison, measured scope stated (TRIAGE-02); smoke set and count unchanged |
 
 ## Approval
 
