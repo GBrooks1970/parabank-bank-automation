@@ -11,7 +11,8 @@ banking demo application — run as a local, Docker-backed, resettable system un
 > account, FR-A3 transfer, FR-A4 bill pay, and deterministic approved/denied FR-A5 loans.
 > The A2–A4 monetary state outcomes are cross-checked through the REST client; A1 and A5
 > use their specified UI oracles. All 22 scenarios run behind `npm run verify`, alongside
-> the store-safe `@smoke` proof and content-verified Serenity report. **The completed
+> the store-safe `@smoke` proof (seeded customer 12212's accounts and transactions, compared
+> after each lane with no reset in between) and content-verified Serenity report. **The completed
 > delivery gates, completed remediation evidence, and current outstanding risks live in
 > [`docs/backlog.md`](docs/backlog.md)** — any agent picking this project up starts there.
 
@@ -48,7 +49,7 @@ npm run verify                      # fast unit lane + both E2E lanes + report c
 ```
 
 `npm run verify` = typecheck → SUT-independent framework unit tests → tag lint → `@smoke`
-store-safety proof → API lane (14 scenarios) → UI lane (8 scenarios) → Serenity report
+store-safety proof (scope: design doc §5.9) → API lane (14 scenarios) → UI lane (8 scenarios) → Serenity report
 generation → report content check. The Serenity **HTML** report needs a JDK; without one the report step is a no-op
 locally and the JSON artefacts are still content-verified (CI installs the JDK and
 enforces the HTML).

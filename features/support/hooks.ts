@@ -4,14 +4,29 @@ import { ParaBankRestClient } from '../../src/api/client';
 import { SpecConformance } from '../../src/api/spec-conformance';
 import { Actor } from '../../src/screenplay/core';
 import { CallParaBankRest, CallParaBankSoap } from '../../src/screenplay/abilities';
+import { seedOwnedExternally } from '../../src/quality/seed-ownership';
 import { BASE_URL, PBWorld } from './world';
 
 // SUT calls poll (seed can wait for boot); scenario steps are network-bound.
 setDefaultTimeout(30_000);
 
+// TRIAGE-02: under check:smoke-safety the runner owns the seed state (it seeds once and compares
+// after each lane), so a reset here would erase the evidence. Any reset hook fails loudly instead.
+function refuseResetWhileSeedOwned(scenario: string): void {
+  if (seedOwnedExternally()) {
+    throw new Error(
+      `smoke-safety owns the seed state; scenario "${scenario}" would reset it. @smoke scenarios must not trigger a reset hook.`
+    );
+  }
+}
+
 BeforeAll({ timeout: 150_000 }, async function () {
   // DR-PB-06 boot→seed→use: seeding doubles as the readiness wait.
-  await seedDatabase(BASE_URL);
+  if (seedOwnedExternally()) {
+    console.error('BeforeAll seed skipped: the smoke-safety runner owns the seed state');
+  } else {
+    await seedDatabase(BASE_URL);
+  }
   // FR-B1: the spec is fetched live, once per run.
   PBWorld.spec = await SpecConformance.fromLiveSpec(BASE_URL);
 });
@@ -19,6 +34,7 @@ BeforeAll({ timeout: 150_000 }, async function () {
 Before(async function (this: PBWorld, { pickle }) {
   // Reset bracket (design doc §5.5): scenarios tagged @mutates start from seed state.
   if (pickle.tags.some((t) => t.name === '@mutates')) {
+    refuseResetWhileSeedOwned(pickle.name);
     await seedDatabase(BASE_URL);
   }
   this.actor = new Actor('Tess').whoCan(
@@ -29,6 +45,7 @@ Before(async function (this: PBWorld, { pickle }) {
 
 // FR-A5 and the FR-B1 matrix pin/mutate admin or database state; restore defaults
 // afterwards — initializeDB resets admin parameters along with the data.
-After('@loan or @contract-matrix', async function () {
+After('@loan or @contract-matrix', async function ({ pickle }) {
+  refuseResetWhileSeedOwned(pickle.name);
   await seedDatabase(BASE_URL);
 });

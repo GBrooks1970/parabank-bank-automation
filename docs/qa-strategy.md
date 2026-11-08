@@ -29,9 +29,9 @@ framework helpers and does not require a running SUT.
 |---|---|
 | Functional (behavioural) | All FR scenarios, both lanes |
 | Contract conformance | FR-B1 binds all 14 approved client methods to live method/path/status-or-default/media/schema definitions and emits exercised/excluded coverage |
-| Framework unit | SOAP envelope/parsing, OpenAPI operation/deviation selection, inherited Cucumber tags, Serenity JSON integrity, request deadline/abort diagnostics |
+| Framework unit | SOAP envelope/parsing, OpenAPI operation/deviation selection, inherited Cucumber tags, Serenity JSON integrity, request deadline/abort diagnostics, smoke-safety seed ownership and snapshot diff |
 | Negative / error handling | FR-B4 (+ the SOAP fault path, design doc §5.3) |
-| Smoke (store-safe) | The fixed 3-scenario `@smoke` set (design doc §5.9) |
+| Smoke (store-safe) | The fixed 3-scenario `@smoke` set (design doc §5.9); `check:smoke-safety` proves it leaves seeded customer 12212's accounts and their transactions unchanged, compared after each lane with no reset in between |
 | Non-functional | Out of scope v1 (scoping plan); revisit post-P5 |
 
 ## 3. Test design techniques (ISTQB vocabulary, applied)
@@ -65,7 +65,10 @@ framework helpers and does not require a running SUT.
 | CI (ubuntu) | Same scripts, same order, in `ci.yml` | Every push/PR; lanes run only after the boot gate |
 
 One SUT instance per environment; scenarios run **serially** (design doc §4 constraint);
-`@mutates` scenarios are reset-bracketed; `@smoke` runs against untouched seed state.
+`@mutates` scenarios are reset-bracketed; `@smoke` runs against untouched seed state. In
+the smoke-safety proof the runner owns the seed state and neither lane re-seeds; the
+measured scope is customer 12212's accounts and transactions, not admin parameters, other
+customers or newly registered ones (design doc §5.9).
 
 ## 5. Entry and exit criteria
 
@@ -75,7 +78,7 @@ Phase gates in [`docs/backlog.md`](backlog.md) are the authoritative exit criter
 - **Entry to implementation:** this strategy + the design document merged by the owner.
 - **Exit PB-P2:** all B-shapes green; suite deterministic (2× consecutive local, CI
   green); single `npm run verify` entry point.
-- **Exit PB-P3:** all A-journeys green; `@smoke` proven side-effect-free; Serenity report
+- **Exit PB-P3:** all A-journeys green; `@smoke` proven side-effect-free (within the measured scope of design doc §5.9); Serenity report
   generated **and content-verified automatically** (scenario names + counts present) — a
   generated-but-empty report is a gate failure, not a warning.
 - **Exit PB-CODEX-03:** the TypeScript unit command runs before E2E in `npm run verify`,
