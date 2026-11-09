@@ -1,4 +1,232 @@
 {
+  "metrics": {
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.07967134527220644,
+        "min": 0.016741,
+        "med": 0.059922500000000004,
+        "max": 0.99312,
+        "p(90)": 0.1477005,
+        "p(95)": 0.19947925
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 6.224434499999999,
+        "p(95)": 6.9457605000000004,
+        "avg": 4.930585582378231,
+        "min": 2.843062,
+        "med": 4.0259635,
+        "max": 191.875835
+      }
+    },
+    "http_req_failed": {
+      "values": {
+        "passes": 0,
+        "fails": 1396,
+        "rate": 0
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "type": "rate",
+      "contains": "default"
+    },
+    "checks{scenario:read_mostly}": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "passes": 1332,
+        "fails": 0,
+        "rate": 1
+      },
+      "thresholds": {
+        "rate>0.99": {
+          "ok": true
+        }
+      }
+    },
+    "checks": {
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 1394,
+        "fails": 0
+      },
+      "type": "rate"
+    },
+    "http_req_duration{scenario:read_mostly}": {
+      "values": {
+        "max": 107.537168,
+        "p(90)": 5.8603519,
+        "p(95)": 6.6639833500000005,
+        "avg": 4.4700922687687745,
+        "min": 2.843062,
+        "med": 3.976357
+      },
+      "thresholds": {
+        "p(95)<1500": {
+          "ok": true
+        }
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "med": 0,
+        "max": 0,
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0
+      }
+    },
+    "checks{scenario:write_transfer}": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 60,
+        "fails": 0
+      },
+      "thresholds": {
+        "rate>0.99": {
+          "ok": true
+        }
+      }
+    },
+    "http_reqs": {
+      "values": {
+        "rate": 25.190887917238943,
+        "count": 1396
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "iteration_duration": {
+      "contains": "time",
+      "values": {
+        "min": 506.31597,
+        "med": 508.944326,
+        "max": 1116.774236,
+        "p(90)": 516.3668205,
+        "p(95)": 1006.6791935,
+        "avg": 551.0237765371896
+      },
+      "type": "trend"
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 726,
+        "rate": 13.100705320856354
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 10,
+        "min": 10,
+        "max": 10
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.008970644699140405,
+        "min": 0.001803,
+        "med": 0.003657,
+        "max": 0.738523,
+        "p(90)": 0.006727,
+        "p(95)": 0.00874925
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "avg": 0.0033194161891117475,
+        "min": 0,
+        "med": 0,
+        "max": 0.688459,
+        "p(90)": 0
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 204641,
+        "rate": 3692.7568010542223
+      }
+    },
+    "http_req_sending": {
+      "values": {
+        "avg": 0.014342638252148992,
+        "min": 0.00552,
+        "med": 0.011256,
+        "max": 0.161844,
+        "p(90)": 0.0233835,
+        "p(95)": 0.029235
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 3.943135,
+        "max": 191.754089,
+        "p(90)": 6.03463,
+        "p(95)": 6.81630175,
+        "avg": 4.836571598853864,
+        "min": 2.782131
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 3544994,
+        "rate": 63969.589198627895
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 0,
+        "max": 10
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 4.0259635,
+        "max": 191.875835,
+        "p(90)": 6.224434499999999,
+        "p(95)": 6.9457605000000004,
+        "avg": 4.930585582378231,
+        "min": 2.843062
+      }
+    }
+  },
   "setup_data": {
     "accountIds": [
       12345,
@@ -21,41 +249,41 @@
     "id": "d41d8cd98f00b204e9800998ecf8427e",
     "groups": [
       {
+        "name": "setup",
         "path": "::setup",
         "id": "5c0f8025f7e0b6654089e5b00e950f1a",
         "groups": [],
         "checks": [
             {
-              "name": "initializeDB reset ok",
-              "path": "::setup::initializeDB reset ok",
-              "id": "edd76716568c677ad9a89b2c2c0278e0",
-              "passes": 1,
-              "fails": 0
-            },
-            {
               "passes": 1,
               "fails": 0,
+              "name": "initializeDB reset ok",
+              "path": "::setup::initializeDB reset ok",
+              "id": "edd76716568c677ad9a89b2c2c0278e0"
+            },
+            {
               "name": "login 200",
               "path": "::setup::login 200",
-              "id": "647055af8ffe21e58084ae4b140cdda0"
+              "id": "647055af8ffe21e58084ae4b140cdda0",
+              "passes": 1,
+              "fails": 0
             }
-          ],
-        "name": "setup"
+          ]
       }
     ],
     "checks": [
       {
-        "id": "dc9c82f0e9be7ea61a623f0a6f380e1a",
-        "passes": 667,
         "fails": 0,
         "name": "accounts 200",
-        "path": "::accounts 200"
+        "path": "::accounts 200",
+        "id": "dc9c82f0e9be7ea61a623f0a6f380e1a",
+        "passes": 666
       },
       {
         "name": "transactions 200",
         "path": "::transactions 200",
         "id": "9e7c4b189e3d7a0cf16ae2cf6706ac6a",
-        "passes": 667,
+        "passes": 666,
         "fails": 0
       },
       {
@@ -80,242 +308,14 @@
     "noColor": false
   },
   "state": {
-    "testRunDurationMs": 55759.348464,
     "isStdOutTTY": false,
-    "isStdErrTTY": false
-  },
-  "metrics": {
-    "http_req_duration": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "p(90)": 6.0599333,
-        "p(95)": 6.941827099999999,
-        "avg": 4.707712479256095,
-        "min": 2.78399,
-        "med": 3.7941965,
-        "max": 196.358889
-      }
-    },
-    "http_req_blocked": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "med": 0.003717,
-        "max": 1.401483,
-        "p(90)": 0.006773,
-        "p(95)": 0.008659999999999998,
-        "avg": 0.008713601573676682,
-        "min": 0.001863
-      }
-    },
-    "iterations": {
-      "type": "counter",
-      "contains": "default",
-      "values": {
-        "count": 727,
-        "rate": 13.038172432545087
-      }
-    },
-    "http_req_waiting": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "avg": 4.617749868383406,
-        "min": 2.726681,
-        "med": 3.70932,
-        "max": 196.172268,
-        "p(90)": 5.9424613,
-        "p(95)": 6.813793599999995
-      }
-    },
-    "data_sent": {
-      "type": "counter",
-      "contains": "data",
-      "values": {
-        "rate": 3675.258152134064,
-        "count": 204930
-      }
-    },
-    "vus_max": {
-      "type": "gauge",
-      "contains": "default",
-      "values": {
-        "min": 10,
-        "max": 10,
-        "value": 10
-      }
-    },
-    "checks{scenario:read_mostly}": {
-      "values": {
-        "rate": 1,
-        "passes": 1334,
-        "fails": 0
-      },
-      "thresholds": {
-        "rate>0.99": {
-          "ok": true
-        }
-      },
-      "type": "rate",
-      "contains": "default"
-    },
-    "vus": {
-      "contains": "default",
-      "values": {
-        "value": 1,
-        "min": 0,
-        "max": 10
-      },
-      "type": "gauge"
-    },
-    "http_reqs": {
-      "type": "counter",
-      "contains": "default",
-      "values": {
-        "count": 1398,
-        "rate": 25.072028969323288
-      }
-    },
-    "http_req_duration{expected_response:true}": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "avg": 4.707712479256095,
-        "min": 2.78399,
-        "med": 3.7941965,
-        "max": 196.358889,
-        "p(90)": 6.0599333,
-        "p(95)": 6.941827099999999
-      }
-    },
-    "http_req_receiving": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "min": 0.016481,
-        "med": 0.059101,
-        "max": 1.085162,
-        "p(90)": 0.1270813,
-        "p(95)": 0.17854254999999958,
-        "avg": 0.07549619241773955
-      }
-    },
-    "checks{scenario:write_transfer}": {
-      "type": "rate",
-      "contains": "default",
-      "values": {
-        "rate": 1,
-        "passes": 60,
-        "fails": 0
-      },
-      "thresholds": {
-        "rate>0.99": {
-          "ok": true
-        }
-      }
-    },
-    "http_req_duration{scenario:read_mostly}": {
-      "thresholds": {
-        "p(95)<1500": {
-          "ok": true
-        }
-      },
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "min": 2.78399,
-        "med": 3.7439720000000003,
-        "max": 114.641772,
-        "p(90)": 5.767496800000001,
-        "p(95)": 6.5900984,
-        "avg": 4.2646235802099035
-      }
-    },
-    "http_req_tls_handshaking": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "p(95)": 0,
-        "avg": 0,
-        "min": 0,
-        "med": 0,
-        "max": 0,
-        "p(90)": 0
-      }
-    },
-    "checks": {
-      "type": "rate",
-      "contains": "default",
-      "values": {
-        "rate": 1,
-        "passes": 1396,
-        "fails": 0
-      }
-    },
-    "http_req_sending": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "avg": 0.014466418454935634,
-        "min": 0.00556,
-        "med": 0.011391499999999999,
-        "max": 0.211228,
-        "p(90)": 0.0234477,
-        "p(95)": 0.027806499999999994
-      }
-    },
-    "iteration_duration": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "avg": 550.6015961513064,
-        "min": 506.023444,
-        "med": 508.479851,
-        "max": 1120.108267,
-        "p(90)": 515.9542822,
-        "p(95)": 1006.6214522
-      }
-    },
-    "http_req_failed": {
-      "type": "rate",
-      "contains": "default",
-      "values": {
-        "rate": 0,
-        "passes": 0,
-        "fails": 1398
-      },
-      "thresholds": {
-        "rate<0.01": {
-          "ok": true
-        }
-      }
-    },
-    "http_req_connecting": {
-      "type": "trend",
-      "contains": "time",
-      "values": {
-        "p(95)": 0,
-        "avg": 0.0027522381974248926,
-        "min": 0,
-        "med": 0,
-        "max": 0.625854,
-        "p(90)": 0
-      }
-    },
-    "data_received": {
-      "values": {
-        "count": 3549984,
-        "rate": 63666.167159251905
-      },
-      "type": "counter",
-      "contains": "data"
-    }
+    "isStdErrTTY": false,
+    "testRunDurationMs": 55416.863613
   },
   "provenance": {
-    "generatedAt": "2026-11-08T10:29:23.271Z",
-    "sourceRef": "aa9cb2ab0c26c90f9e6aa16da54ce3eb16cb64fd",
-    "runUrl": "https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42471543865",
+    "generatedAt": "2026-11-09T11:41:52.336Z",
+    "sourceRef": "cb8d0407c809ac289465d87ad30cbada4e0b4238",
+    "runUrl": "https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42610876011",
     "k6Image": "grafana/k6@sha256:e7eeddf1ce2361df6920d925297f487c0ba549c44be242c6a9c22f28d9b08efa"
   }
 }
