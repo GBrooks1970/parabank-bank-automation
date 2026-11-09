@@ -7,6 +7,7 @@ import { PBWorld } from '../../support/world';
 import { CallParaBankRest } from '../../../src/screenplay/abilities';
 import { TheAccount, TheTransactions } from '../../../src/screenplay/questions';
 import { Account } from '../../../src/api/types';
+import { formatCurrency } from '../../../src/quality/currency';
 import {
   LogInAs,
   LogOut,
@@ -20,12 +21,14 @@ import {
 } from '../../../src/screenplay/ui/tasks';
 import { LoanPage, OverviewPage } from '../../../src/screenplay/ui/pages';
 import {
+  TheBillPayResultAmount,
   TheBillPayResultText,
   TheContentTitle,
   TheLoanStatus,
   TheNewAccountId,
   TheNewLoanAccountId,
   TheOverviewTableText,
+  TheTransferResultAmount,
   TheTransferResultText,
   TheWelcomeMessage
 } from '../../../src/screenplay/ui/questions';
@@ -145,7 +148,7 @@ When('she transfers ${float} from account {int} to account {int} through the UI'
 Then('the UI confirms the transfer of ${float}', async function (this: PBWorld, amount: number) {
   await paula().attemptsTo(
     Ensure.that(TheTransferResultText(), includes('Transfer Complete')),
-    Ensure.that(TheTransferResultText(), includes(String(Math.trunc(amount))))
+    Ensure.that(TheTransferResultAmount(), equals(formatCurrency(amount)))
   );
 });
 
@@ -175,7 +178,7 @@ When('she pays a bill of ${float} to a generated payee from account {int} throug
 Then('the UI confirms the bill payment completed for ${float}', async function (this: PBWorld, amount: number) {
   await paula().attemptsTo(
     Ensure.that(TheBillPayResultText(), includes('Bill Payment Complete')),
-    Ensure.that(TheBillPayResultText(), includes(String(Math.trunc(amount))))
+    Ensure.that(TheBillPayResultAmount(), equals(formatCurrency(amount)))
   );
 });
 
