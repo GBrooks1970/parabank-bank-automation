@@ -78,3 +78,10 @@ Plan: [`../implementation-plans/2026-11-09_triage-04-exact-amounts.md`](../imple
 2. **Serenity Equality Oracle:**
    - Transfer: `Ensure.that(TheTransferResultAmount(), equals('$100.00'))` on `#amountResult`.
    - Bill Pay: `Ensure.that(TheBillPayResultAmount(), equals('$75.00'))` on `#billpayResult #amount`.
+
+---
+
+## Delivery Outcome
+
+Delivered in PR [#70](https://github.com/GBrooks1970/parabank-bank-automation/pull/70), merged as `b3d85c3` (implementation commit `5dbe97c`) on 2026-11-09. PR CI run [42683784666](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42683784666) passed on head `5dbe97c` (`sut-boot-gate` in 2m42s), and post-merge `main` CI run [42684336005](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42684336005) passed on `b3d85c3` (`sut-boot-gate` in 3m3s).
+

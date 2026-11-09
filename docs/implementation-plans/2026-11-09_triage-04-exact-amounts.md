@@ -4,8 +4,9 @@ created: 2026-11-09T17:35Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-04 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
 approved: 2026-11-09 (owner)
+delivered: 2026-11-09 (#70, b3d85c3)
 presented: 2026-11-09
 language: en-GB
 ---
@@ -151,4 +152,4 @@ All reads conducted in worktree `wt-parabank-t04` on branch `worklist/triage-04-
 
 ## Outcome
 
-*(To be recorded upon PR merge)*
+Delivered in PR [#70](https://github.com/GBrooks1970/parabank-bank-automation/pull/70), merged as `b3d85c3` (implementation commit `5dbe97c`) on 2026-11-09. PR CI run [42683784666](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42683784666) passed on head `5dbe97c` (`sut-boot-gate` in 2m42s), and post-merge `main` CI run [42684336005](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42684336005) passed on `b3d85c3` (`sut-boot-gate` in 3m3s).
