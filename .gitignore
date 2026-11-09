@@ -17,6 +17,9 @@ Thumbs.db
 # Built k6 bundle (perf lane) — generated
 perf/dist/
 
+# Run-specific performance diagnostics output (isolated from committed perf/report)
+/perf/run-output/
+
 # Test style 02 (plain Playwright Test) output
 /test-style-02/test-results/
 /test-style-02/playwright-report/
