@@ -107,3 +107,12 @@ Plan: [`../implementation-plans/2026-11-09_triage-08-perf-token-split.md`](../im
 - `docs/implementation-plans/_index.md`: row added and set to approved.
 - `docs/github-actions-pin-policy.md`: updated with `actions/download-artifact` pin.
 - `docs/implementation-logs/2026-11-09_triage-08-perf-token-split.md`: created with test evidence.
+---
+
+## Delivery Outcome
+
+- **PR:** [#66](https://github.com/GBrooks1970/parabank-bank-automation/pull/66) merged into `main` as `7fb14e8f9cc1c91c2bfb3a52c158c158fc45078c` (implementation commit `9c7d2909ec8343060a355f6b1f508917ea21d446`).
+- **PR CI:** [run 42654631485](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42654631485) passed on `9c7d290` (`sut-boot-gate` in 2m50s).
+- **Post-Merge Main CI:** [run 42655571208](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42655571208) green on `7fb14e8`.
+- **Backlog:** updated to v40 recording delivery, 10 unchecked items remaining in root worklist.
+- **Unblocks:** TRIAGE-09 (add a unit test that fails when backlog marks a merged PR as pending).

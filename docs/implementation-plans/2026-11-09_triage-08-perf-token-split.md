@@ -4,9 +4,9 @@ created: 2026-11-09T16:00Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-08 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-09 (owner)
-delivered: not yet
+delivered: 2026-11-09 (#66, 7fb14e8)
 language: en-GB
 ---
 
@@ -180,4 +180,15 @@ with Node 24.18.0 and npm 11.16.0.
 
 ## Outcome
 
-Not yet delivered.
+Delivered 2026-11-09 in PR [#66](https://github.com/GBrooks1970/parabank-bank-automation/pull/66) (merge commit `7fb14e8`, implementation commit `9c7d290`).
+PR CI [run 42654631485](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42654631485) passed on `9c7d290` (`sut-boot-gate` in 2m50s); post-merge `main` CI [run 42655571208](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42655571208) green on `7fb14e8`.
+
+All design points delivered as planned with zero deviations:
+- Dropped top-level write permission from `.github/workflows/perf.yml` in favor of an explicit `permissions: contents: read` baseline (D-T08-1).
+- `perf-smoke` job executes under `permissions: contents: read` with `actions/checkout` `persist-credentials: false`. SUT build, readiness gate, `npm ci`, and k6 container execute with zero repository write access. Uploads verified diagnostics artifact `perf-summary`.
+- `publish` job runs separately (`needs: perf-smoke`, `if: success() && github.ref == 'refs/heads/main'`, `permissions: contents: write`), downloading the artifact via pinned `actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2` (D-T08-3).
+- Authored zero-dependency pure Node ESM script `scripts/promote-perf-snapshot.mjs` (D-T08-2) promoting snapshots to `perf/report/` using only Node standard library modules (`node:fs`, `node:path`), without running `npm ci` or third-party code under the write token.
+- Commits to `main` with the skip-ci flag, retaining `continue-on-error: true` (D-T08-4).
+- Reviewed pin documented in `docs/github-actions-pin-policy.md`.
+- Unit test suite expanded from 54 to 61 (`tests/unit/promote-perf-snapshot.test.ts`), covering provenance validation, missing files, fallback handling, and CLI execution.
+- Unblocks TRIAGE-09 (backlog pending-merge test).
