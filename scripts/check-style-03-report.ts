@@ -8,6 +8,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { formatReportCoverageFailures, verifySerenityReport } from '../src/quality/report-integrity';
 
 const SITE = 'test-style-03/target/site/serenity';
 
@@ -29,28 +30,15 @@ const EXPECTED_SCENARIOS = [
 ];
 
 const failures: string[] = [];
-const results = new Map<string, string>();
 
 const artifactFiles = existsSync(SITE) ? readdirSync(SITE).filter((name) => name.endsWith('.json')) : [];
 if (artifactFiles.length === 0) failures.push(`${SITE} contains no Serenity JSON artefacts — did test:style-03 run?`);
 
-for (const file of artifactFiles) {
-  try {
-    const scenario = JSON.parse(readFileSync(join(SITE, file), 'utf8')) as { name?: unknown; result?: unknown };
-    if (typeof scenario.name === 'string') results.set(scenario.name, String(scenario.result));
-  } catch {
-    failures.push(`invalid Serenity JSON artefact: ${file}`);
-  }
-}
-
-for (const name of EXPECTED_SCENARIOS) {
-  const result = results.get(name);
-  if (result === undefined) failures.push(`scenario missing from Serenity artefacts: '${name}'`);
-  else if (result !== 'SUCCESS') failures.push(`scenario '${name}' is ${result}, not SUCCESS`);
-}
-for (const name of results.keys()) {
-  if (!EXPECTED_SCENARIOS.includes(name)) failures.push(`unexpected scenario in Serenity artefacts: '${name}'`);
-}
+const coverage = verifySerenityReport(
+  EXPECTED_SCENARIOS,
+  artifactFiles.map((file) => readFileSync(join(SITE, file), 'utf8'))
+);
+failures.push(...formatReportCoverageFailures(coverage, artifactFiles));
 
 function javaAvailable(): boolean {
   try {

@@ -97,6 +97,17 @@ test('validation rejects an absent expected scenario', (t) => {
   assert.throws(() => validatePagesEvidence(SOURCE_REF, fixture), /missing scenarios: Public evidence scenario 8/);
 });
 
+test('validation rejects non-SUCCESS scenario in Serenity report', (t) => {
+  const fixture = makeFixture(t);
+  preparePagesEvidence(SOURCE_REF, fixture);
+  writeFileSync(
+    join(fixture.stagingDir, 'serenity', 'scenario-1.json'),
+    JSON.stringify({ name: SCENARIOS[0], result: 'FAILURE' }),
+    'utf8'
+  );
+  assert.throws(() => validatePagesEvidence(SOURCE_REF, fixture), /non-SUCCESS scenarios/);
+});
+
 test('staging and local references cannot traverse outside the repository root', (t) => {
   const fixture = makeFixture(t);
   const outside = join(fixture.repositoryRoot, '..', 'outside-pages');
@@ -189,7 +200,7 @@ function makeFixture(t: test.TestContext) {
   );
   writeFileSync(join(reportDir, 'styles.css'), 'body { color: #123456; }\n', 'utf8');
   SCENARIOS.forEach((scenario, index) => {
-    writeFileSync(join(reportDir, `scenario-${index + 1}.json`), JSON.stringify({ name: scenario }), 'utf8');
+    writeFileSync(join(reportDir, `scenario-${index + 1}.json`), JSON.stringify({ name: scenario, result: 'SUCCESS' }), 'utf8');
   });
   writeFileSync(
     join(featureDir, 'public-evidence.feature'),
