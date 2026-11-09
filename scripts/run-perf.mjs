@@ -3,12 +3,13 @@
 //
 // Assumes: `npm run perf:build` has produced perf/dist/parabank-load.js, and the
 // SUT is up on http://localhost:8090 (scripts/build-sut.ps1 + compose + gate.ps1).
-// Writes perf/report/index.html (published /perf/ page) and perf/report/perf-summary.json.
+// Writes isolated diagnostics to perf/run-output/, and promotes verified snapshots to perf/report/.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, existsSync, renameSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import process from 'node:process';
 import { assertLocalSut } from '../src/quality/target-guard.ts';
+import { initPerfRunOutput, recordPerfFailure, promotePerfSnapshot } from '../src/quality/perf-run-lifecycle.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const DIST = resolve(ROOT, 'perf/dist');
@@ -18,7 +19,6 @@ if (!existsSync(resolve(DIST, 'parabank-load.js'))) {
   console.error('perf: perf/dist/parabank-load.js missing — run `npm run perf:build` first.');
   process.exit(1);
 }
-mkdirSync(REPORT, { recursive: true });
 
 // Pin k6 by digest via K6_IMAGE when available; default to the floating tag locally.
 const k6Image = process.env.K6_IMAGE || 'grafana/k6:latest';
@@ -49,6 +49,10 @@ if (!sourceRef) {
   process.exit(1);
 }
 
+// TRIAGE-03: Initialize clean isolated run-specific diagnostics directory.
+// Old committed snapshots in perf/report are never mounted or touched during k6 execution.
+const { runOutputDir } = initPerfRunOutput(ROOT, sourceRef, runUrl);
+
 // The grafana/k6 image runs as a non-root user, so it cannot write handleSummary
 // output to the host-mounted /work unless it runs AS the host user. On POSIX
 // (the CI runner) pass --user uid:gid; on Windows (local dev) Docker Desktop
@@ -59,7 +63,7 @@ const userArgs =
     : [];
 
 // k6 writes handleSummary outputs to its CWD (/work); mount perf/dist as /scripts
-// and perf/report as /work so the summary files land in perf/report.
+// and perf/run-output as /work so the run-specific summary files land in perf/run-output.
 const args = [
   'run', '--rm', '--network', 'host',
   ...userArgs,
@@ -69,29 +73,41 @@ const args = [
   '-e', `PERF_SOURCE_REF=${sourceRef}`,
   '-e', `PERF_RUN_URL=${runUrl}`,
   '-v', `${DIST}:/scripts:ro`,
-  '-v', `${REPORT}:/work`,
+  '-v', `${runOutputDir}:/work`,
   '-w', '/work',
   k6Image, 'run', '/scripts/parabank-load.js',
 ];
 
 console.log(`perf: docker ${args.join(' ')}`);
-execFileSync('docker', args, { stdio: 'inherit' });
 
-// Publish the generated summary as the /perf/ index page. Fail loudly if k6 did
-// not produce it (e.g. a mount-permission regression) rather than silently pass.
-const summaryHtml = resolve(REPORT, 'perf-summary.html');
-const summaryJson = resolve(REPORT, 'perf-summary.json');
-if (!existsSync(summaryHtml) || !existsSync(summaryJson)) {
-  console.error('perf: k6 did not write the summary files to perf/report (check container write permissions).');
+// Execute k6 in container. If k6 breaches a threshold (exit 99) or crashes, catch the failure,
+// record failure diagnostics in perf/run-output, and leave perf/report untouched.
+try {
+  execFileSync('docker', args, { stdio: 'inherit' });
+} catch (err) {
+  const exitCode = typeof err?.status === 'number' ? err.status : 1;
+  console.error(`perf: k6 execution failed with exit code ${exitCode}. Recording failure diagnostics in ${runOutputDir}.`);
+  recordPerfFailure(runOutputDir, {
+    exitCode,
+    error: err,
+    phase: 'k6_execution',
+    sourceRef,
+  });
+  process.exit(exitCode);
+}
+
+// On k6 success (exit 0): verify provenance and promote snapshot to perf/report.
+try {
+  promotePerfSnapshot(runOutputDir, REPORT, { generatedAt, sourceRef });
+} catch (err) {
+  console.error(`perf: snapshot promotion failed: ${err instanceof Error ? err.message : String(err)}`);
+  recordPerfFailure(runOutputDir, {
+    exitCode: 1,
+    error: err,
+    phase: 'snapshot_promotion',
+    sourceRef,
+  });
   process.exit(1);
 }
-renameSync(summaryHtml, resolve(REPORT, 'index.html'));
 
-// Prove the provenance actually reached the summary, rather than trusting that it did:
-// without it the page publishes undated numbers, which is the whole point of PB-PIN-04.
-const written = JSON.parse(readFileSync(summaryJson, 'utf8'));
-if (written?.provenance?.generatedAt !== generatedAt || written?.provenance?.sourceRef !== sourceRef) {
-  console.error('perf: the summary did not record the expected provenance; refusing to pass.');
-  process.exit(1);
-}
-console.log(`perf: wrote perf/report/index.html + perf/report/perf-summary.json (${generatedAt}, ${sourceRef.slice(0, 7)})`);
+console.log(`perf: verified provenance and promoted snapshot to perf/report (${generatedAt}, ${sourceRef.slice(0, 7)})`);

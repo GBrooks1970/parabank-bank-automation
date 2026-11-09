@@ -29,6 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
+      - name: Initialize performance diagnostics
+        shell: pwsh
+        run: ./scripts/init-perf-run.ps1
+
       - name: Build SUT image (pinned upstream, containerised Maven)
         shell: pwsh
         run: ./scripts/build-sut.ps1
@@ -59,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: perf-summary
-          path: perf/report
+          path: perf/run-output
           if-no-files-found: warn
 
       - name: Publish refreshed /perf/ summary (commit to main, skip CI)
