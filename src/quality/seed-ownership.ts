@@ -18,3 +18,15 @@ export const SMOKE_SAFETY_OWNER = 'smoke-safety';
 export function seedOwnedExternally(env: NodeJS.ProcessEnv = process.env): boolean {
   return env[SEED_OWNER_ENV] === SMOKE_SAFETY_OWNER;
 }
+
+/**
+ * TRIAGE-11 (DR-PB-06, design doc §5.5, R-07): Refuse a reset attempt while the
+ * smoke-safety runner owns the seed state.
+ */
+export function assertResetAllowed(scenarioName: string, env: NodeJS.ProcessEnv = process.env): void {
+  if (seedOwnedExternally(env)) {
+    throw new Error(
+      `smoke-safety owns the seed state; scenario "${scenarioName}" would reset it. @smoke scenarios must not trigger a reset hook.`
+    );
+  }
+}
