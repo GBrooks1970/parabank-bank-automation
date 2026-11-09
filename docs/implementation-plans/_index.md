@@ -25,5 +25,6 @@ Every implementation plan is written to a file here before implementation starts
 | [`2026-11-09_triage-04-exact-amounts.md`](2026-11-09_triage-04-exact-amounts.md) | TRIAGE-04 Assert exact displayed transfer and bill-pay amounts | 2026-11-09 | implemented | [#70](https://github.com/GBrooks1970/parabank-bank-automation/pull/70) (`b3d85c3`, 2026-11-09) |
 | [`2026-11-09_triage-05-operational-docs-reconciliation.md`](2026-11-09_triage-05-operational-docs-reconciliation.md) | TRIAGE-05 Reconcile active operational documentation and status summaries | 2026-11-09 | implemented | [#72](https://github.com/GBrooks1970/parabank-bank-automation/pull/72) (`bb2aa2c`, 2026-11-09) |
 | [`2026-11-09_triage-10-report-scenario-results.md`](2026-11-09_triage-10-report-scenario-results.md) | TRIAGE-10 Make the main-lane report and Pages checks verify each scenario's result | 2026-11-09 | implemented | [#74](https://github.com/GBrooks1970/parabank-bank-automation/pull/74) (`8dd6b37`, 2026-11-09) |
+| [`2026-11-09_triage-11-reseed-mutates.md`](2026-11-09_triage-11-reseed-mutates.md) | TRIAGE-11 Re-seed after every @mutates scenario so later scenarios read seed state | 2026-11-09 | approved | — |
 
 
