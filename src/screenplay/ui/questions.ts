@@ -13,7 +13,11 @@ export const TheNewAccountId = () => Text.of(OpenAccountPage.newAccountId).descr
 
 export const TheTransferResultText = () => Text.of(TransferPage.result).describedAs('the transfer result');
 
+export const TheTransferResultAmount = () => Text.of(TransferPage.amountResult).describedAs('the transferred amount');
+
 export const TheBillPayResultText = () => Text.of(BillPayPage.result).describedAs('the bill payment result');
+
+export const TheBillPayResultAmount = () => Text.of(BillPayPage.amountResult).describedAs('the bill payment amount');
 
 export const TheLoanStatus = () => Text.of(LoanPage.status).describedAs('the loan status');
 

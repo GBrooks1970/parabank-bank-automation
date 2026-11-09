@@ -57,7 +57,8 @@ export const TransferPage = {
   fromOption: (accountId: number) =>
     PageElement.located(By.css(`#transferForm #fromAccountId option[value="${accountId}"]`)).describedAs(`from option ${accountId}`),
   transferButton: PageElement.located(By.css('#rightPanel input.button')).describedAs('Transfer button'),
-  result: PageElement.located(By.id('showResult')).describedAs('transfer result')
+  result: PageElement.located(By.id('showResult')).describedAs('transfer result'),
+  amountResult: PageElement.located(By.id('amountResult')).describedAs('transferred amount')
 };
 
 export const BillPayPage = {
@@ -68,7 +69,8 @@ export const BillPayPage = {
   fromOption: (accountId: number) =>
     PageElement.located(By.css(`select[name="fromAccountId"] option[value="${accountId}"]`)).describedAs(`from option ${accountId}`),
   sendButton: PageElement.located(By.css('#rightPanel input.button')).describedAs('Send Payment button'),
-  result: PageElement.located(By.id('billpayResult')).describedAs('bill payment result')
+  result: PageElement.located(By.id('billpayResult')).describedAs('bill payment result'),
+  amountResult: PageElement.located(By.css('#billpayResult #amount')).describedAs('bill payment amount')
 };
 
 export const LoanPage = {
