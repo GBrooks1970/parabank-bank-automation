@@ -4,6 +4,12 @@
 # the summary as an artifact, and commits perf/report/ to main so the existing
 # ci.yml Pages build publishes /perf/ on the next main deploy (D1.5b). Uses
 # [skip ci] on the commit so it does not trigger a full functional run.
+#
+# Permissions split (TRIAGE-08):
+# Top-level and perf-smoke jobs are strictly read-only (contents: read) with
+# persist-credentials: false. No write token exists during SUT build, npm ci,
+# or k6 execution. The publish job runs separately, only on main success,
+# downloading the verified artifact and committing without running third-party code.
 name: perf
 
 on:
@@ -12,7 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # to commit the refreshed perf/report summary
+  contents: read # explicit least-privilege default (D-T08-1)
 
 concurrency:
   group: perf
@@ -26,8 +32,12 @@ jobs:
   perf-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Initialize performance diagnostics
         shell: pwsh
@@ -66,8 +76,34 @@ jobs:
           path: perf/run-output
           if-no-files-found: warn
 
+      - name: SUT logs on failure
+        if: failure()
+        run: docker logs parabank || true
+
+      - name: Teardown
+        if: always()
+        run: docker compose down
+
+  publish:
+    needs: perf-smoke
+    if: success() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # token-gated: only granted to publish after perf-smoke succeeds
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Download perf summary artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: perf-summary
+          path: downloaded-perf-summary
+
+      - name: Promote perf snapshot
+        run: node scripts/promote-perf-snapshot.mjs downloaded-perf-summary perf/report
+
       - name: Publish refreshed /perf/ summary (commit to main, skip CI)
-        if: success() && github.ref == 'refs/heads/main'
         continue-on-error: true # tolerate branch protection; the artifact remains the evidence
         run: |
           git config user.name "github-actions[bot]"
@@ -79,11 +115,3 @@ jobs:
             git commit -m "chore(perf): refresh nightly performance-smoke summary [skip ci]"
             git push
           fi
-
-      - name: SUT logs on failure
-        if: failure()
-        run: docker logs parabank || true
-
-      - name: Teardown
-        if: always()
-        run: docker compose down
