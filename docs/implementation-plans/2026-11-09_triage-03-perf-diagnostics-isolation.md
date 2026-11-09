@@ -4,9 +4,9 @@ created: 2026-11-09T15:18Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-03 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-09 (owner)
-delivered: not yet
+delivered: 2026-11-09 (#64, 8ac8a7d)
 language: en-GB
 ---
 
@@ -232,4 +232,15 @@ with Node 24.18.0 and npm 11.16.0.
 
 ## Outcome
 
-Not yet delivered.
+Delivered 2026-11-09 in PR [#64](https://github.com/GBrooks1970/parabank-bank-automation/pull/64) (merge commit `8ac8a7d`, implementation commit `e8cd6dc`).
+PR CI [run 42645583773](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42645583773) passed on `e8cd6dc` (`sut-boot-gate` in 2m51s); post-merge `main` CI [run 42646613505](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42646613505) passed on `8ac8a7d` (`sut-boot-gate` in 2m52s).
+
+All design points delivered as planned with zero deviations:
+- `/perf/run-output/` git-ignored and used for all container execution outputs.
+- `scripts/init-perf-run.ps1` runs early to record initial `run-metadata.json` (`status: in_progress`).
+- Pre-k6 failures upload only current run metadata; old committed metrics from previous runs are never attached.
+- Threshold failure or container error captures structured `failure-metadata.json` while `perf/report/` remains pristine.
+- `promotePerfSnapshot` in `src/quality/perf-run-lifecycle.ts` promotes verified snapshots only after strict provenance checks match on clean exit 0.
+- Workflow `perf.yml` artifact upload points to `perf/run-output` retaining artifact name `perf-summary`.
+- Unit test suite expanded from 50 to 54 (`tests/unit/perf-run-lifecycle.test.ts`), covering pre-k6 early abort, threshold breach, provenance gating, and successful promotion.
+- Unblocks TRIAGE-08 (splitting perf workflow runner and publish jobs).

@@ -111,3 +111,12 @@ Unit tests increased from 50 to 54, covering all run lifecycle states. Static ga
 - `docs/implementation-plans/2026-11-09_triage-03-perf-diagnostics-isolation.md`: status set to `approved`.
 - `docs/implementation-plans/_index.md`: row added and approved.
 - `docs/implementation-logs/2026-11-09_triage-03-perf-diagnostics-isolation.md`: created with test evidence.
+---
+
+## Delivery Outcome
+
+- **PR:** [#64](https://github.com/GBrooks1970/parabank-bank-automation/pull/64) merged into `main` as `8ac8a7da3b848fc399634ee3cd4aa0b1341e91c3` (implementation commit `e8cd6dc4b5bf3c0c0f0b80c5f323d6da93ac14be`).
+- **PR CI:** [run 42645583773](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42645583773) passed on `e8cd6dc` (`sut-boot-gate` in 2m51s).
+- **Post-Merge Main CI:** [run 42646613505](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42646613505) passed on `8ac8a7d` (`sut-boot-gate` in 2m52s).
+- **Backlog:** updated to v39 recording delivery, 11 unchecked items remaining in root worklist.
+- **Unblocks:** TRIAGE-08 (split perf workflow into read-only runner and token-gated publish job).
