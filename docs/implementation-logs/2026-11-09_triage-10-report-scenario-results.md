@@ -90,3 +90,9 @@ Plan: [`../implementation-plans/2026-11-09_triage-10-report-scenario-results.md`
    const result = verifySerenityReport(['Expected'], [JSON.stringify({ name: 'Surprise', result: 'SUCCESS' })]);
    assert.deepEqual(result.unexpectedScenarioNames, ['Surprise']);
    ```
+
+---
+
+## Delivery Outcome
+
+Delivered in PR [#74](https://github.com/GBrooks1970/parabank-bank-automation/pull/74), merged as `8dd6b37` (implementation commit `bcef932`) on 2026-11-09. PR CI run [42718492415](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42718492415) passed on head `bcef932` (`sut-boot-gate` in 3m27s), and post-merge `main` CI passed on `8dd6b37`.
