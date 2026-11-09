@@ -23,6 +23,6 @@ Every implementation plan is written to a file here before implementation starts
 | [`2026-11-09_triage-08-perf-token-split.md`](2026-11-09_triage-08-perf-token-split.md) | TRIAGE-08 Split the perf workflow so no job running third-party code holds a write token | 2026-11-09 | implemented | [#66](https://github.com/GBrooks1970/parabank-bank-automation/pull/66) (`7fb14e8`, 2026-11-09) |
 | [`2026-11-09_triage-09-backlog-pending-test.md`](2026-11-09_triage-09-backlog-pending-test.md) | TRIAGE-09 Add a unit test that fails when the backlog marks a merged PR as pending | 2026-11-09 | implemented | [#68](https://github.com/GBrooks1970/parabank-bank-automation/pull/68) (`17818db`, 2026-11-09) |
 | [`2026-11-09_triage-04-exact-amounts.md`](2026-11-09_triage-04-exact-amounts.md) | TRIAGE-04 Assert exact displayed transfer and bill-pay amounts | 2026-11-09 | implemented | [#70](https://github.com/GBrooks1970/parabank-bank-automation/pull/70) (`b3d85c3`, 2026-11-09) |
-| [`2026-11-09_triage-05-operational-docs-reconciliation.md`](2026-11-09_triage-05-operational-docs-reconciliation.md) | TRIAGE-05 Reconcile active operational documentation and status summaries | 2026-11-09 | approved | — |
+| [`2026-11-09_triage-05-operational-docs-reconciliation.md`](2026-11-09_triage-05-operational-docs-reconciliation.md) | TRIAGE-05 Reconcile active operational documentation and status summaries | 2026-11-09 | implemented | [#72](https://github.com/GBrooks1970/parabank-bank-automation/pull/72) (`bb2aa2c`, 2026-11-09) |
 
 
