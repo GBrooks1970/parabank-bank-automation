@@ -3,7 +3,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { inspectSerenityCoverage } from '../src/quality/report-integrity';
+import { formatReportCoverageFailures, inspectSerenityCoverage } from '../src/quality/report-integrity';
 
 const SITE = 'target/site/serenity';
 const failures: string[] = [];
@@ -29,12 +29,7 @@ if (coverage.scenarioNames.length === 0) failures.push('no ui scenarios found un
 if (artifactFiles.length === 0) {
   failures.push(`${SITE} contains no Serenity JSON artefacts — did the ui lane run?`);
 }
-for (const index of coverage.invalidArtifactIndexes) {
-  failures.push(`invalid Serenity JSON artefact: ${artifactFiles[index]}`);
-}
-for (const name of coverage.missingScenarioNames) {
-  failures.push(`scenario missing from Serenity artefacts: '${name}'`);
-}
+failures.push(...formatReportCoverageFailures(coverage, artifactFiles));
 
 function javaAvailable(): boolean {
   try {
@@ -61,7 +56,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Report content check OK: all ${coverage.scenarioNames.length} ui scenarios present in Serenity artefacts` +
+    `Report content check OK: all ${coverage.scenarioNames.length} ui scenarios present and SUCCESS` +
       (existsSync(indexHtml) ? '; HTML report present.' : ' (JSON evidence; HTML checked in CI).')
   );
 }

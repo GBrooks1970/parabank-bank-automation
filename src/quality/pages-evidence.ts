@@ -239,6 +239,13 @@ export function validatePagesEvidence(sourceRefValue: string, paths: PagesEviden
   if (coverage.missingScenarioNames.length > 0) {
     throw new Error(`Serenity report is missing scenarios: ${coverage.missingScenarioNames.join(', ')}`);
   }
+  if (coverage.nonSuccessScenarios.length > 0) {
+    const details = coverage.nonSuccessScenarios.map((s) => `'${s.name}' is ${s.result}`).join(', ');
+    throw new Error(`Serenity report contains non-SUCCESS scenarios: ${details}`);
+  }
+  if (coverage.unexpectedScenarioNames.length > 0) {
+    throw new Error(`Serenity report contains unexpected scenarios: ${coverage.unexpectedScenarioNames.join(', ')}`);
+  }
 
   assertLocalReferences(resolved.stagingDir);
   assertPublicArtifactSafe(resolved.stagingDir);
