@@ -4,9 +4,9 @@ created: 2026-11-09T16:50Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-09 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-09 (owner)
-delivered: null
+delivered: 2026-11-09 (#68, 17818db)
 language: en-GB
 ---
 
@@ -137,3 +137,19 @@ All reads conducted in worktree `wt-parabank-t09` tracking `origin/main` at `702
 4. **D-T09-4 (Shallow Skip):** Approve graceful `t.skip` when Git history is shallow or Git CLI is unavailable.
 5. **D-T09-5 (Implementation Structure):** Approve creating `src/quality/backlog-integrity.ts` and `tests/unit/backlog-integrity.test.ts`.
 6. **D-T09-6 (Two-PR Cadence):** Approve implementation PR followed by outcome PR updating backlog to v41.
+
+---
+
+## Outcome
+
+Delivered in PR [#68](https://github.com/GBrooks1970/parabank-bank-automation/pull/68), merged as `17818db` (implementation commit `3a24f88`) on 2026-11-09.
+
+- **PR CI Run:** [42660176622](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42660176622) passed in 3m6s (`sut-boot-gate`).
+- **Post-Merge CI Run on `main`:** [42661356074](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42661356074) passed on `17818db`.
+- **Implementation:**
+  - `src/quality/backlog-integrity.ts` provides `parseCurrentVersionEntry`, `extractPendingPrNumbers`, `isGitHistoryAvailable`, `getMergedPrNumbersFromGit`, and `validateBacklogPending` / `assertNoMergedPrsPending`.
+  - `tests/unit/backlog-integrity.test.ts` adds 6 unit tests (suite expanded 61 → 67).
+  - Must-fail rejection verified on pending-but-merged fixture (PR #66).
+  - Passing behavior verified on unmerged pending PR fixture and reconciled live backlog v40.
+  - Shallow clone skip verified with clear skip message (`t.skip`).
+- **Differences from Plan:** None.

@@ -20,18 +20,19 @@ export interface BacklogValidationResult {
  */
 export function parseCurrentVersionEntry(backlogContent: string): VersionEntry {
   const lines = backlogContent.split(/\r?\n/);
-  const versionHeaderRegex = /^(?:\*{0,2}Version:\*{0,2}\s*|v)(\d+)\s*(?:—|-)\s*(.+)$/i;
+  const versionLineRegex = /^(?:\*{0,2}Version:\*{0,2}\s*|v)(\d+)\s*(?:—|-)\s*(.+)$/i;
 
   let startIndex = -1;
   let version = 0;
   let header = '';
 
   for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(versionHeaderRegex);
+    const match = lines[i].match(versionLineRegex);
     if (match) {
       startIndex = i;
       version = parseInt(match[1], 10);
-      header = match[2].trim();
+      const headlineMatch = lines[i].match(/^(?:\*{0,2}Version:\*{0,2}\s*|v)\d+\s*(?:—|-)\s*\*\*([^*]+)\*\*/i);
+      header = headlineMatch ? headlineMatch[1].trim() : match[2].trim();
       break;
     }
   }
@@ -44,7 +45,7 @@ export function parseCurrentVersionEntry(backlogContent: string): VersionEntry {
   const entryLines: string[] = [lines[startIndex]];
   for (let i = startIndex + 1; i < lines.length; i++) {
     const line = lines[i];
-    if (versionHeaderRegex.test(line) || /^#{1,3}\s+/.test(line)) {
+    if (versionLineRegex.test(line) || /^#{1,3}\s+/.test(line)) {
       break;
     }
     entryLines.push(line);
@@ -58,36 +59,59 @@ export function parseCurrentVersionEntry(backlogContent: string): VersionEntry {
 }
 
 /**
- * Extracts PR numbers from text associated with pending markers (e.g. "PENDING", "MERGE PENDING", "MERGE EVIDENCE PENDING").
+ * Extracts PR numbers from text associated with pending status markers
+ * (e.g. "MERGE PENDING", "MERGE EVIDENCE PENDING", "STATUS: PENDING").
  */
 export function extractPendingPrNumbers(text: string): number[] {
-  const pendingRegex = /\bPENDING\b/i;
+  const pendingStatusRegex = /\b(?:MERGE(?:\s+EVIDENCE)?\s+PENDING|STATUS:\s*PENDING)\b/i;
   const prPattern = /(?:\[#(\d+)\]|(?:PR|pull\s+request|pull)?\s*#(\d+))/gi;
+  const mergedAsPattern = /(?:merged\s+as|merged\s+in)\s*\[?#(\d+)\]?/gi;
+  const reviewVehiclePatterns = [
+    /(?:review\s+vehicle\s+(?:is\s+)?(?:PR\s+)?|vehicle\s+is\s+(?:PR\s+)?)\[?#?(\d+)\]?/gi,
+    /(?:\[#(\d+)\]|PR\s*#?(\d+))\s+is\s+(?:the\s+)?review\s+vehicle/gi
+  ];
 
   const pendingPrs = new Set<number>();
+  const mergedPrs = new Set<number>();
 
-  // If the text has no mention of PENDING anywhere, there are no pending PRs
-  if (!pendingRegex.test(text)) {
-    return [];
+  // Collect PRs explicitly marked as already merged in the text (e.g. "merged as [#68]")
+  let mergedMatch: RegExpExecArray | null;
+  while ((mergedMatch = mergedAsPattern.exec(text)) !== null) {
+    const prNum = parseInt(mergedMatch[1], 10);
+    if (!isNaN(prNum) && prNum > 0) {
+      mergedPrs.add(prNum);
+    }
   }
 
-  // Split into lines first
+  // Extract title (the text inside **...** on the first line)
   const lines = text.split(/\r?\n/);
+  const titleMatch = lines[0]?.match(/^(?:\*{0,2}Version:\*{0,2}\s*|v)\d+\s*(?:—|-)\s*\*\*([^*]+)\*\*/i);
+  const headline = titleMatch ? titleMatch[1] : (lines[0] ?? '');
+  const headerHasPending = pendingStatusRegex.test(headline);
+
   for (const rawLine of lines) {
     const line = rawLine.trim();
     if (!line) continue;
 
     // Within each line, split by sentence/clause boundaries (. ; !), allowing for markdown asterisks
-    const sentences = line.split(/(?<=[.!;])\*{0,2}\s+/);
-    for (const sentence of sentences) {
-      if (pendingRegex.test(sentence)) {
+    const clauses = line.split(/(?<=[.!;])\*{0,2}\s+/);
+    for (const clause of clauses) {
+      // Ignore explanatory clauses discussing test fixtures, defects, or quoted status
+      if (/\bfixture\b/i.test(clause) || /\bDefect:\b/i.test(clause)) {
+        continue;
+      }
+
+      // Strip quoted occurrences like '"PENDING"' or '"MERGE EVIDENCE PENDING"'
+      const unquoted = clause.replace(/["'][^"']*PENDING[^"']*["']/gi, '');
+
+      if (pendingStatusRegex.test(unquoted)) {
         prPattern.lastIndex = 0;
         let match: RegExpExecArray | null;
-        while ((match = prPattern.exec(sentence)) !== null) {
+        while ((match = prPattern.exec(unquoted)) !== null) {
           const prStr = match[1] ?? match[2];
           if (prStr) {
             const prNum = parseInt(prStr, 10);
-            if (!isNaN(prNum) && prNum > 0) {
+            if (!isNaN(prNum) && prNum > 0 && !mergedPrs.has(prNum)) {
               pendingPrs.add(prNum);
             }
           }
@@ -96,17 +120,34 @@ export function extractPendingPrNumbers(text: string): number[] {
     }
   }
 
-  // If the header itself marks the entire version pending and specific clauses didn't isolate PRs,
-  // scan the entire entry text for referenced PR numbers
-  if (pendingPrs.size === 0 && pendingRegex.test(text)) {
-    prPattern.lastIndex = 0;
-    let match: RegExpExecArray | null;
-    while ((match = prPattern.exec(text)) !== null) {
-      const prStr = match[1] ?? match[2];
-      if (prStr) {
-        const prNum = parseInt(prStr, 10);
-        if (!isNaN(prNum) && prNum > 0) {
-          pendingPrs.add(prNum);
+  // If the version headline itself has pending status (e.g. "PB-PIN-05 IMPLEMENTED; MERGE EVIDENCE PENDING"),
+  // look for review vehicle PRs in the entry text
+  if (headerHasPending) {
+    for (const pattern of reviewVehiclePatterns) {
+      pattern.lastIndex = 0;
+      let rvMatch: RegExpExecArray | null;
+      while ((rvMatch = pattern.exec(text)) !== null) {
+        const prStr = rvMatch[1] ?? rvMatch[2];
+        if (prStr) {
+          const prNum = parseInt(prStr, 10);
+          if (!isNaN(prNum) && prNum > 0 && !mergedPrs.has(prNum)) {
+            pendingPrs.add(prNum);
+          }
+        }
+      }
+    }
+
+    // If specific review vehicle syntax wasn't used, check for any PR in the first line
+    if (pendingPrs.size === 0) {
+      prPattern.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = prPattern.exec(lines[0])) !== null) {
+        const prStr = match[1] ?? match[2];
+        if (prStr) {
+          const prNum = parseInt(prStr, 10);
+          if (!isNaN(prNum) && prNum > 0 && !mergedPrs.has(prNum)) {
+            pendingPrs.add(prNum);
+          }
         }
       }
     }

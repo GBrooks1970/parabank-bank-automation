@@ -26,7 +26,7 @@ v38 — **TRIAGE-07 COMPLETE.** Description of v38.
   assert.equal(entry.version, 40);
   assert.equal(
     entry.header,
-    '**TRIAGE-08 COMPLETE (2026-11-09): performance workflow split.** Description of v40.'
+    'TRIAGE-08 COMPLETE (2026-11-09): performance workflow split.'
   );
   assert.ok(entry.text.includes('Merged as [#66] into main.'));
   assert.ok(!entry.text.includes('v39'));
