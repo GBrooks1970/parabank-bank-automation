@@ -4,11 +4,11 @@
 # builds the WAR in a pinned Maven image, and generates Dockerfile.pinned from the pinned
 # upstream Dockerfile plus config/container-image-pins.psd1).
 #
-# Lifecycle (probe finding F-06):
-#   docker compose up -d                      # start; first boot self-seeds (~18 s)
-#   POST /parabank/services/bank/initializeDB # in-place deterministic reset to seed data
+# Lifecycle (probe finding F-06, DR-PB-06):
+#   docker compose up -d                      # start container (boots unseeded)
+#   POST /parabank/services/bank/initializeDB # in-place deterministic seed/reset (boot → seed → use)
 #   docker compose restart                    # NOT a reset — data persists in the container
-#   docker compose down && up -d              # clean slate (recreates the container)
+#   docker compose down && up -d              # clean slate (recreates the container, boots unseeded)
 #
 # DR-PB-04: only Tomcat 8080 is mapped (host 8090); HSQLDB 9001 and ActiveMQ 61616 stay
 # unmapped — not needed by any test lane, and avoids the upstream-documented port-clash class.

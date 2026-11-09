@@ -124,7 +124,7 @@ ownership and recovery procedure.
 
 - [`docs/design-document.md`](docs/design-document.md) — the approved design (scope,
   requirements FR-A1…A5 / FR-B1…B4, screenplay inventory, policies).
-- [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…10 with rationale.
+- [`docs/decision-register.md`](docs/decision-register.md) — DR-PB-01…13 with rationale.
 - [`docs/qa-strategy.md`](docs/qa-strategy.md) — ISTQB levels, types, techniques, exit criteria.
 - [`docs/naming-conventions.md`](docs/naming-conventions.md) — files, Gherkin, screenplay, git.
 - [`docs/github-actions-pin-policy.md`](docs/github-actions-pin-policy.md) — immutable action

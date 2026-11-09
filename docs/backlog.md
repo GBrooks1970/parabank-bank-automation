@@ -101,9 +101,9 @@ Previous:
 (<https://gbrooks1970.github.io/parabank-bank-automation/>) and linked from the public portfolio
 (landing [PR #21](https://github.com/GBrooks1970/portfolio/pull/21) merged `9b4be69`), closing the
 LAND-09A cross-repo slice. **PBR-03 RESOLVED** (PR #28 merged `5bd3674`; `npm audit` 1 HIGH → 0);
-PBR-01, PBR-02, PBR-04, and PBR-05 remain recorded maintenance triggers (trigger-gated on a future
-upstream/Node-runtime bump). No immediately-actionable items remain.
-**Last Updated:** 2026-11-08
+PBR-01, PBR-04, PBR-05, and PBR-09 remain recorded maintenance triggers (trigger-gated on a future
+upstream/library bump). Current delivery loop tracked in root worklist.
+**Last Updated:** 2026-11-09
 **Based on:** portfolio `portfolio-docs/PORTFOLIO_PARABANK_SCOPING_PLAN_2026-07-22.md` (§5
 phases, owner-approved) and `portfolio-docs/PORTFOLIO_PARABANK_DOCKER_PROBE_2026-07-22.md`
 (findings F-01…F-07, cited throughout as "probe F-0x"), plus merged review
@@ -861,6 +861,23 @@ it; drop the allowance and resolve this risk if so.
 **Success Criteria:**
 - [ ] On any future upstream bump, the allowance is re-justified or removed.
 
+#### Risk PBR-09: Transitive dependency advisories in development/reporting toolchain — Score: 5
+
+**Priority Score:** Security Impact (2) + Breakage Probability (1) + Maintenance Burden (2) = **5 points**
+**Impact:** `npm audit` on 2026-11-05 reported 11 advisories (7 HIGH) across transitive dependencies. Exposure is LOW: dev/test toolchain only, not reachable via untrusted production traffic.
+**Status:** RECORDED / ACCEPTED MAINTENANCE TRIGGER — HIGH advisories resolved in-major; residual low/moderate dependencies trigger-gated on upstream library updates.
+**Affected:** `package.json`, `package-lock.json`
+
+**Problem:** Four packages had vulnerabilities: `fast-uri` (5 HIGH, GHSA-cf4q-vjgg-v654), `axios` (1 HIGH, GHSA-8hc4-vh64-cxmj), `follow-redirects` (GHSA-jchw-25xp-jwwc), and `brace-expansion` (GHSA-mh99-v99m-4gvg). TRIAGE-01 moved `fast-uri` to 3.1.9 lockfile-only, and TRIAGE-07 added `package.json` `"overrides": { "axios": "1.20.0" }` while in-range updating `follow-redirects` to 1.16.2 and `brace-expansion` to 5.0.12, clearing all HIGH advisories inside current majors with 0 regressions.
+
+Two residual dependencies remain trigger-gated:
+1. `deepmerge@4.3.1` (LOW, GHSA-gcqx-w48m-w2h4): prototype pollution advisory via `@serenity-js/playwright-test`. 4.3.1 is the latest release on npm; upstream Serenity/JS 3.49.0 still depends on 4.3.1, so no upstream patch exists. Trigger: bump when Serenity/JS patches or replaces `deepmerge`.
+2. `glob` / `minimatch` (MODERATE, GHSA-52f3-5v77-6656 / GHSA-f8mg-x85v-4845): required by `@cucumber/cucumber@^10.9.0`. Trigger: bump when `@cucumber/cucumber` 13 is reviewed and adopted as a major upgrade.
+
+**Success Criteria:**
+- [ ] When upstream Serenity/JS publishes a release addressing `deepmerge` GHSA-gcqx-w48m-w2h4, evaluate and adopt.
+- [ ] When `@cucumber/cucumber` 13 is scheduled for evaluated upgrade, verify resolved glob/minimatch trees and drop residual audit allowances.
+
 ### Resolved Risks
 
 Moved here from the priority bands above: an item whose `**Status:**` records it as
@@ -1020,16 +1037,16 @@ The style folders' setup independently never resets a non-loopback host.
 
 | Priority | Outstanding | Accepted (RECORDED) | Status |
 |---|---:|---:|---|
-| HIGH (20–30) | 0 | 0 | — |
+| HIGH (20–30) | 0 | 0 | All review findings resolved (R-01, R-02, R-03, R-04) |
 | MEDIUM (10–19) | 0 | 0 | PBR-06, PBR-07 resolved 2026-09-01; PBR-08 resolved 2026-10-19 |
-| LOW (0–9) | 0 | 3 | PBR-01, PBR-04, PBR-05 — asserted, not accommodated |
-| **Total requiring action** | **0** | **3** | — |
+| LOW (0–9) | 0 | 4 | PBR-01, PBR-04, PBR-05, PBR-09 — asserted, not accommodated |
+| **Total requiring action** | **0** | **4** | — |
 | Resolved | 7 | — | PBR-02, PBR-03, PBR-06, PBR-07, PBR-08 + 2 phase-0 risks |
 
-**Nothing requires action.** The three LOW items are `RECORDED`: each is a live upstream
-defect this project asserts against rather than accommodates, re-checked whenever the pinned
-SUT moves (DR-PB-02). They are accepted risks, not a backlog — the shared Kanban generator
-renders them as **Parked**, outside the Backlog → Done flow.
+**Nothing requires immediate action.** The four LOW items are `RECORDED`: PBR-01, PBR-04, and PBR-05 are live upstream
+defects asserted against rather than accommodated, while PBR-09 records toolchain dependency advisories;
+each is re-checked on upstream SUT/library triggers. Active maintenance items (TRIAGE-10..16, all LOW) are tracked
+in the root worklist.
 
 ---
 
