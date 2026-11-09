@@ -4,9 +4,9 @@ created: 2026-11-08T10:41Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-07 (approved worklist item; proposed backlog candidate)
-status: approved
+status: implemented
 approved: 2026-11-09 (owner)
-delivered: not yet
+delivered: 2026-11-09 (#62, e9abaec)
 language: en-GB
 ---
 
@@ -176,4 +176,26 @@ and must end with `docker compose down`.
 
 ## Outcome
 
-Not yet delivered.
+**Delivered 2026-11-09** as [#62](https://github.com/GBrooks1970/parabank-bank-automation/pull/62):
+- implementation commit `90ae27e`, merge commit `e9abaec`;
+- PR CI `sut-boot-gate` [run 42622434710](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42622434710)
+  passed on head `90ae27e`, running the full five-command contract on the updated lock;
+- post-merge `main` CI [run 42639683808](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42639683808)
+  passed on `e9abaec` (`sut-boot-gate` and `Deploy GitHub Pages` both successful).
+
+Evidence is in
+[`../implementation-logs/2026-11-09_triage-07-in-major-overrides.md`](../implementation-logs/2026-11-09_triage-07-in-major-overrides.md).
+
+**Delivered as planned (option H, hybrid mechanism).**
+- `axios` 1.20.0 was re-checked at execution (matches upstream Serenity/JS 3.49.0, >2 months old).
+- `package.json` gained only the `"overrides": { "axios": "1.20.0" }` block.
+- In-range lock updates moved `follow-redirects` (1.16.0 → 1.16.2) and `brace-expansion` (5.0.9 → 5.0.12).
+- The lock diff was strictly 10 insertions and 10 deletions across the three packages.
+- The must-fail audit check exited 1 before (10 advisories, 6 high) and 0 after (5 advisories, 0 high).
+- Audit totals went from 10 (6 high) to 5 (0 high), with no collateral change (`deepmerge` LOW, `glob`/`minimatch` MODERATE).
+- `npm ci`, typecheck (root, style-02, style-03), tag linting, `test:unit` 50/50, and functional `serenity-bdd update` CLI jar download probe passed locally. The five-command contract ran in PR CI and post-merge CI, as D-T07-4 decided.
+
+**Differences from the plan:** none.
+- The esbuild install script was left unapproved during `npm ci`, as planned.
+- Backlog v38, this Outcome and the index status were written in this follow-up (D-T07-6).
+- The `deepmerge` no-fix evidence note (D-T07-5) is recorded in backlog v38 for PBR-09 and amended in the root worklist tick.
