@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { SEED_OWNER_ENV, SMOKE_SAFETY_OWNER, seedOwnedExternally } from '../../src/quality/seed-ownership';
+import {
+  SEED_OWNER_ENV,
+  SMOKE_SAFETY_OWNER,
+  assertResetAllowed,
+  seedOwnedExternally
+} from '../../src/quality/seed-ownership';
 
 test('seed ownership is taken only by the exact smoke-safety value', () => {
   assert.equal(SEED_OWNER_ENV, 'PARABANK_SEED_OWNER');
@@ -26,4 +31,21 @@ test('the default reads process.env', () => {
     if (previous === undefined) delete process.env[SEED_OWNER_ENV];
     else process.env[SEED_OWNER_ENV] = previous;
   }
+});
+
+test('assertResetAllowed throws descriptive error when smoke-safety owns the seed state', () => {
+  assert.throws(
+    () => assertResetAllowed('Mutating account scenario', { [SEED_OWNER_ENV]: SMOKE_SAFETY_OWNER }),
+    {
+      name: 'Error',
+      message:
+        'smoke-safety owns the seed state; scenario "Mutating account scenario" would reset it. @smoke scenarios must not trigger a reset hook.'
+    }
+  );
+});
+
+test('assertResetAllowed passes silently when seed state is not owned externally', () => {
+  assert.doesNotThrow(() => assertResetAllowed('Normal scenario', {}));
+  assert.doesNotThrow(() => assertResetAllowed('Normal scenario', { [SEED_OWNER_ENV]: '' }));
+  assert.doesNotThrow(() => assertResetAllowed('Normal scenario', { [SEED_OWNER_ENV]: 'other' }));
 });

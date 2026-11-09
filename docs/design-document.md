@@ -360,11 +360,12 @@ lane. An architecture unit test keeps every destructive call site on a reviewed,
 
 ```
 beforeEach mutating scenario:  POST initializeDB  → expect 204
+afterEach mutating scenario:   POST initializeDB  → expect 204 (TRIAGE-11 symmetric bracket)
    (read-only scenarios skip the bracket and are taggable @smoke, §5.9)
 ```
 
 Implemented once (`src/api/reset.ts`), used by both lanes' hooks via tags: scenarios tagged
-`@mutates` get the bracket automatically; a scenario without `@mutates` that fails a
+`@mutates` (or `@loan` / `@contract-matrix`) get the symmetric bracket automatically: re-seeding before execution ensures clean initial state, and re-seeding after execution ensures subsequent read-only scenarios observe true seed state regardless of scenario execution order. A single `After('@mutates or @loan or @contract-matrix')` hook avoids duplicate resets and subsumes admin parameter restoration. A scenario without `@mutates` that fails a
 seed-state precondition fails loudly, pointing at a missing tag.
 
 ### 5.6 Pinning the A5 loan decision
@@ -571,6 +572,7 @@ None blocking.
 | v1.10 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D6 | Extend §5.11 to test-style-03, Serenity/JS Screenplay on Playwright Test (PB-STYLE-02) |
 | v1.11 | 2026-10-19 | Claude (Opus 5.5) + owner decisions D1–D4 (plan v2) | Local-only guard (§5.5) and remote style runs (§5.11), DR-PB-13 (PB-STYLE-03) |
 | v1.12 | 2026-11-08 | Claude (Opus 5.5) + owner decisions D-T02-1 to D-T02-8 | §5.9 store-safety proof: runner-owned seed, per-lane comparison, measured scope stated (TRIAGE-02); smoke set and count unchanged |
+| v1.13 | 2026-11-09 | Claude (Opus 5.5) + owner decisions D-T11-1 to D-T11-5 | §5.5 symmetric reset bracket: re-seed after every @mutates scenario, subsuming @loan/@contract-matrix (TRIAGE-11) |
 
 ## Approval
 
