@@ -46,6 +46,7 @@ import {
 const paula = () => actorCalled('Paula');
 const round2 = (n: number): number => Math.round(n * 100) / 100;
 const SEEDED_PASSWORD = 'demo';
+const REGISTERED_PASSWORD = 'S3curePass!';
 
 // ---------- navigation and login ----------
 
@@ -85,9 +86,16 @@ When('she registers a new customer with generated unique details', async functio
     phoneNumber: '310-555-0199',
     ssn: '999-99-9999',
     username: `pb-${suffix}`,
-    password: 'S3curePass!'
+    password: REGISTERED_PASSWORD
   };
-  await paula().attemptsTo(theNotes().set('registration', details), RegisterCustomer(details));
+  await paula().attemptsTo(
+    theNotes().set('registration', {
+      firstName: details.firstName,
+      lastName: details.lastName,
+      username: details.username
+    }),
+    RegisterCustomer(details)
+  );
 });
 
 Then('the registration confirmation greets the new username', async function (this: PBWorld) {
@@ -101,7 +109,7 @@ When('she logs out', async function (this: PBWorld) {
 
 When('she logs in through the UI with the newly registered credentials', async function (this: PBWorld) {
   const details = await paula().answer(theNotes().get('registration'));
-  await paula().attemptsTo(LogInAs(details.username, details.password));
+  await paula().attemptsTo(LogInAs(details.username, REGISTERED_PASSWORD));
 });
 
 Then("the overview greets the new customer's full name", async function (this: PBWorld) {
