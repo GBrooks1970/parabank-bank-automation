@@ -36,6 +36,22 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $app = Join-Path $root 'target-app/parabank'
 
+# Validate that docker-compose.yml image tag matches the pinned upstream commit (TRIAGE-16).
+$composeFile = Join-Path $root 'docker-compose.yml'
+if (-not (Test-Path -LiteralPath $composeFile -PathType Leaf)) {
+    throw "COMPOSE FILE MISSING: docker-compose.yml was not found at $composeFile"
+}
+$composeText = [System.IO.File]::ReadAllText($composeFile)
+$composeMatch = [regex]::Match($composeText, '(?m)^\s*image:\s*parabank:([a-f0-9]+)\s*$')
+if (-not $composeMatch.Success) {
+    throw "COMPOSE IMAGE TAG MALFORMED: docker-compose.yml has no valid 'image: parabank:<short-sha>' declaration"
+}
+$declaredTag = $composeMatch.Groups[1].Value
+$expectedShort = if ($UpstreamCommit.Length -ge 7) { $UpstreamCommit.Substring(0, 7) } else { $UpstreamCommit }
+if ($declaredTag -ne $expectedShort) {
+    throw "COMPOSE IMAGE TAG MISMATCH: docker-compose.yml specifies image 'parabank:$declaredTag', but pinned upstream commit is '$UpstreamCommit' (expected 'parabank:$expectedShort')."
+}
+
 function Resolve-PinnedImage {
     param(
         [Parameter(Mandatory)] [string]$Name,
