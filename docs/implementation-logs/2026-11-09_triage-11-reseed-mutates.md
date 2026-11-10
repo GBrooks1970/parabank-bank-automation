@@ -98,3 +98,10 @@ The temporary assertion was removed so that B3 retains its specific focus on cro
   - Each `POST /initializeDB` call against the containerized ParaBank SUT takes ~100–250ms.
   - Net runtime increase: ~1.2s in the API lane and ~1.0s in the UI lane.
   - Total overhead is well within the 30s scenario step timeout and 150s `BeforeAll` budget.
+
+
+---
+
+## Delivery Outcome
+
+Delivered in PR [#76](https://github.com/GBrooks1970/parabank-bank-automation/pull/76), merged as `1b8c5c7` (implementation commit `cdf3621`) on 2026-11-09. PR CI run [42724007650](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42724007650) passed on head `cdf3621` (`sut-boot-gate` in 2m50s), and post-merge `main` CI passed on `1b8c5c7`.
