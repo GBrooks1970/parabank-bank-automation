@@ -4,7 +4,7 @@ created: 2026-11-10T21:05Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-16 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
 approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
@@ -152,3 +152,16 @@ All reads and commands conducted in worktree `wt-parabank-t16` on branch `workli
 | **D-T16-4** | Compose Tag Validation | In `scripts/build-sut.ps1`, validate `docker-compose.yml` image tag matches `$UpstreamCommit.Substring(0, 7)`. |
 | **D-T16-5** | Unit Test Suite | Author `tests/unit/reproducibility-gaps.test.ts` enforcing all 4 reproducibility guards. |
 | **D-T16-6** | Must-Fail Protocol | Invoke `build-sut.ps1` with mismatched upstream commit, proving it aborts with clear mismatch error. |
+
+---
+
+## Outcome
+
+Delivered 2026-11-10:
+- Implementation merged in PR [#86](https://github.com/GBrooks1970/parabank-bank-automation/pull/86) as merge commit `e4acf6ed3c57af854adb13fad19a2fb8038b0365` (implementation commit `64cbd417652043be88984b5d4874c2fd77b1e685`).
+- PR CI run [42909241554](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42909241554) passed:
+  - `Fast static checks` passed in 14s (tag lint, 4 typechecks, 113 unit tests, non-blocking audit).
+  - `SUT boot gate & functional verification` passed in 2m50s (SUT boot, smoke-safety, API + UI lanes, Serenity BDD reporting, styles 02 & 03, static Pages packaging).
+- Unit test suite expanded from 108 to 113 tests across 19 suites (`tests/unit/reproducibility-gaps.test.ts`).
+- Empirical must-fail proof captured: `pwsh scripts/build-sut.ps1 -UpstreamCommit 1234567890abcdef1234567890abcdef12345678 -ValidateImagePinsOnly` threw `COMPOSE IMAGE TAG MISMATCH` and exited code 1.
+- All 16 items in the ParaBank triage backlog are now 100% complete!
