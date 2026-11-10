@@ -59,3 +59,21 @@ Plan: [`../implementation-plans/2026-11-10_triage-15-static-ci-concurrency.md`](
 4. ✅ Author `src/quality/ci-workflow-integrity.ts` and `tests/unit/ci-workflow-integrity.test.ts` (D-T15-6).
 5. ✅ Update `docs/github-actions-pin-policy.md`.
 6. ✅ Quality gates: `npm run test:unit` passes 108/108, all four typechecks pass, `lint:tags` passes, root `check-support.ps1 -Only Docs` passes 9/9.
+
+---
+
+## Verification & Must-Fail Proof (D-T15-7)
+
+1. **Empirical Must-Fail Run (Commit `2c9a72f`):**
+   - Introduced a deliberate compile error in `src/quality/seed-ownership.ts`:
+     `export const _mustFailTypeCheck: number = 'deliberate_compilation_failure_for_triage_15_must_fail_proof';`
+   - Pushed commit `2c9a72f` to branch `worklist/triage-15-static-ci-concurrency` and opened PR #84.
+   - GitHub Actions CI Run: [`42898893950`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42898893950).
+   - **Result:** Job `Fast static checks` (ID `130119256258`) failed in **19 seconds** at step `Typechecks (main, style-02, style-03, perf)` with:
+     `src/quality/seed-ownership.ts(35,14): error TS2322: Type 'string' is not assignable to type 'number'.`
+   - **Gating Proof:** `sut-boot-gate` was completely skipped and never scheduled. Zero Maven builds or Docker containers were run.
+   - Time savings: ~2.5 - 3.5 minutes saved on failure.
+
+2. **Clean Resolution (Commit `9b0e9f7`):**
+   - Reverted `2c9a72f` restoring clean compilation.
+   - Pushed clean state to `worklist/triage-15-static-ci-concurrency`.
