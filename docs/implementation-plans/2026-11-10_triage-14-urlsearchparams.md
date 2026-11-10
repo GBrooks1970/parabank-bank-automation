@@ -4,7 +4,8 @@ created: 2026-11-10T14:20Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-14 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
+delivered: 2026-11-10 (PR #82, 165f8d6)
 approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
@@ -158,3 +159,12 @@ All reads conducted in worktree `wt-parabank-t14` on branch `worklist/triage-14-
 | Explicitly named `rawQuery` escape hatch provided | `RequestOptions.rawQuery` supported across `buildQueryUrl` and all 5 client methods; unit tested. |
 | B4 `"abc"` partition behaves as before | `features/api/b4-negative-paths.feature:13-17` passes with HTTP 404 empty body in `npm run test:api`. |
 | `npm run verify` and PR CI pass | All local gates and GitHub Actions PR CI `sut-boot-gate` green. |
+
+---
+
+## Delivery Outcome
+
+- **PR:** [#82](https://github.com/GBrooks1970/parabank-bank-automation/pull/82) merged as commit `165f8d6ee37b60a3ecbaee611a21e649089f2cf0` on 2026-11-10 (implementation commit `d5fae1f`).
+- **CI Run:** Run [`42859727043`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42859727043) passed (`sut-boot-gate` in 4m7s).
+- **Unit Tests:** Suite expanded from 93 to 99 tests across 17 test suites (`npm run test:unit` passing 99/99).
+- **Backlog:** Bumped to **v48**.
