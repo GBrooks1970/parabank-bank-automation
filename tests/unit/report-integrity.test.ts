@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  collectChildActivityDescriptions,
+  collectStepDescriptions,
+  EXPECTED_REST_CROSS_CHECK_PATTERNS,
   formatReportCoverageFailures,
   inspectSerenityCoverage,
   scenarioNamesFromFeature,
+  verifyRestCrossCheckActivities,
   verifySerenityReport
 } from '../../src/quality/report-integrity';
 
@@ -129,4 +133,68 @@ test('verifySerenityReport ignores non-scenario JSON artifacts without a string 
   assert.deepEqual(result.nonSuccessScenarios, []);
   assert.deepEqual(result.unexpectedScenarioNames, []);
   assert.deepEqual(result.invalidArtifactIndexes, []);
+});
+
+test('collectStepDescriptions and collectChildActivityDescriptions extract descriptions from nested children', () => {
+  const root = {
+    description: 'Step 1',
+    children: [
+      { description: 'Sub-step 1.1' },
+      {
+        description: 'Sub-step 1.2',
+        children: [{ description: 'Deep activity 1.2.1' }]
+      }
+    ]
+  };
+
+  const descriptions = collectStepDescriptions(root);
+  assert.deepEqual(descriptions, ['Step 1', 'Sub-step 1.1', 'Sub-step 1.2', 'Deep activity 1.2.1']);
+
+  const childOnly = collectChildActivityDescriptions(root);
+  assert.deepEqual(childOnly, ['Sub-step 1.1', 'Sub-step 1.2', 'Deep activity 1.2.1']);
+});
+
+test('verifyRestCrossCheckActivities passes when all required REST activity patterns are found in child steps', () => {
+  const artifact = JSON.stringify({
+    name: 'transfer scenario',
+    result: 'SUCCESS',
+    testSteps: [
+      {
+        description: 'Given balances recorded',
+        children: [{ description: 'Paula ensures that the REST balance of account 12345 does equal 1000' }]
+      },
+      {
+        description: 'Then verify transactions',
+        children: [{ description: 'Paula ensures that the REST transaction descriptions of account 12345 does contain...' }]
+      },
+      {
+        description: 'Then verify customer id',
+        children: [{ description: 'Paula ensures that the REST customer id of account 12345 does equal 12212' }]
+      },
+      {
+        description: 'Given pin loan',
+        children: [{ description: 'Paula sets loan parameters via REST' }]
+      }
+    ]
+  });
+
+  const verification = verifyRestCrossCheckActivities([artifact]);
+  assert.deepEqual(verification.missingActivities, []);
+  assert.deepEqual(verification.foundActivities, [...EXPECTED_REST_CROSS_CHECK_PATTERNS]);
+});
+
+test('MUST-FAIL: verifyRestCrossCheckActivities flags missing activities when report steps lack REST cross-check child nodes', () => {
+  // Un-refactored legacy scenario where REST steps had children: 0
+  const legacyArtifact = JSON.stringify({
+    name: 'transfer scenario',
+    result: 'SUCCESS',
+    testSteps: [
+      { description: 'Given the REST balances of accounts 12345 and 12456 are recorded' },
+      { description: 'And via REST account 12345 decreased by $100.00' }
+    ]
+  });
+
+  const verification = verifyRestCrossCheckActivities([legacyArtifact]);
+  assert.equal(verification.foundActivities.length, 0);
+  assert.deepEqual(verification.missingActivities, [...EXPECTED_REST_CROSS_CHECK_PATTERNS]);
 });

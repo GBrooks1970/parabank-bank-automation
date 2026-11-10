@@ -12,6 +12,12 @@ export interface ReportCoverageResult {
   invalidArtifactIndexes: number[];
 }
 
+export interface ActivityVerificationResult {
+  expectedActivities: string[];
+  foundActivities: string[];
+  missingActivities: string[];
+}
+
 /** Extract concrete Scenario and Scenario Outline names from Gherkin source. */
 export function scenarioNamesFromFeature(source: string): string[] {
   return source
@@ -102,4 +108,84 @@ export function formatReportCoverageFailures(
     failures.push(`unexpected scenario in Serenity artefacts: '${name}'`);
   }
   return failures;
+}
+
+/** Recursively collect all activity descriptions from child nodes of a Serenity testStep. */
+export function collectChildActivityDescriptions(step: { children?: unknown }): string[] {
+  const descriptions: string[] = [];
+  if (Array.isArray(step.children)) {
+    for (const child of step.children) {
+      if (child && typeof child === 'object') {
+        if (typeof (child as { description?: unknown }).description === 'string') {
+          descriptions.push((child as { description: string }).description);
+        }
+        descriptions.push(...collectChildActivityDescriptions(child as { children?: unknown }));
+      }
+    }
+  }
+  return descriptions;
+}
+
+/** Recursively collect all activity descriptions from Serenity testStep nodes. */
+export function collectStepDescriptions(step: { description?: unknown; children?: unknown }): string[] {
+  const descriptions: string[] = [];
+  if (typeof step.description === 'string') {
+    descriptions.push(step.description);
+  }
+  descriptions.push(...collectChildActivityDescriptions(step));
+  return descriptions;
+}
+
+/**
+ * Expected UI-lane REST cross-check activity patterns (TRIAGE-13 / R-08).
+ * Ensures REST cross-checks appear as named Serenity child activities in the report.
+ */
+export const EXPECTED_REST_CROSS_CHECK_PATTERNS: readonly string[] = [
+  'the REST balance of account',
+  'the REST transaction descriptions of account',
+  'the REST customer id of account',
+  'sets loan parameters via REST'
+];
+
+/**
+ * Verify that required REST cross-check activities are present across Serenity report JSON artifacts.
+ */
+export function verifyRestCrossCheckActivities(
+  artifactJsonTexts: readonly string[],
+  requiredPatterns: readonly string[] = EXPECTED_REST_CROSS_CHECK_PATTERNS
+): ActivityVerificationResult {
+  const allChildDescriptions: string[] = [];
+
+  for (const text of artifactJsonTexts) {
+    try {
+      const parsed = JSON.parse(text) as { testSteps?: unknown[] } | null;
+      if (parsed && Array.isArray(parsed.testSteps)) {
+        for (const step of parsed.testSteps) {
+          if (step && typeof step === 'object') {
+            allChildDescriptions.push(...collectChildActivityDescriptions(step as { children?: unknown }));
+          }
+        }
+      }
+    } catch {
+      // Ignore invalid JSON; handled by verifySerenityReport
+    }
+  }
+
+  const foundActivities: string[] = [];
+  const missingActivities: string[] = [];
+
+  for (const pattern of requiredPatterns) {
+    const matched = allChildDescriptions.some((desc) => desc.toLowerCase().includes(pattern.toLowerCase()));
+    if (matched) {
+      foundActivities.push(pattern);
+    } else {
+      missingActivities.push(pattern);
+    }
+  }
+
+  return {
+    expectedActivities: [...requiredPatterns],
+    foundActivities,
+    missingActivities
+  };
 }

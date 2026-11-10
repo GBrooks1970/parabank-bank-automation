@@ -1,19 +1,26 @@
-import assert from 'node:assert/strict';
 import { Given, When, Then } from '@cucumber/cucumber';
 import { actorCalled, Wait } from '@serenity-js/core';
-import { Ensure, includes, equals, isPresent } from '@serenity-js/assertions';
+import {
+  and,
+  containAtLeastOneItemThat,
+  Ensure,
+  equals,
+  includes,
+  isGreaterThan,
+  isPresent,
+  matches
+} from '@serenity-js/assertions';
 import { isVisible } from '@serenity-js/web';
 import { PBWorld } from '../../support/world';
-import { CallParaBankRest } from '../../../src/screenplay/abilities';
-import { TheAccount, TheTransactions } from '../../../src/screenplay/questions';
-import { Account } from '../../../src/api/types';
 import { formatCurrency } from '../../../src/quality/currency';
+import { theNotes } from '../../../src/screenplay/ui/notes';
 import {
   LogInAs,
   LogOut,
   NewCustomerDetails,
   OpenNewAccount,
   PayBill,
+  PinTheLoanEnvironment,
   RegisterCustomer,
   RequestLoanUI,
   StartOnHomePage,
@@ -28,6 +35,9 @@ import {
   TheNewAccountId,
   TheNewLoanAccountId,
   TheOverviewTableText,
+  TheRestAccountBalance,
+  TheRestAccountCustomerId,
+  TheRestTransactionDescriptions,
   TheTransferResultAmount,
   TheTransferResultText,
   TheWelcomeMessage
@@ -36,6 +46,7 @@ import {
 const paula = () => actorCalled('Paula');
 const round2 = (n: number): number => Math.round(n * 100) / 100;
 const SEEDED_PASSWORD = 'demo';
+const REGISTERED_PASSWORD = 'S3curePass!';
 
 // ---------- navigation and login ----------
 
@@ -75,14 +86,20 @@ When('she registers a new customer with generated unique details', async functio
     phoneNumber: '310-555-0199',
     ssn: '999-99-9999',
     username: `pb-${suffix}`,
-    password: 'S3curePass!'
+    password: REGISTERED_PASSWORD
   };
-  this.actor.remember('registration', details);
-  await paula().attemptsTo(RegisterCustomer(details));
+  await paula().attemptsTo(
+    theNotes().set('registration', {
+      firstName: details.firstName,
+      lastName: details.lastName,
+      username: details.username
+    }),
+    RegisterCustomer(details)
+  );
 });
 
 Then('the registration confirmation greets the new username', async function (this: PBWorld) {
-  const details = this.actor.recall<NewCustomerDetails>('registration');
+  const details = await paula().answer(theNotes().get('registration'));
   await paula().attemptsTo(Ensure.that(TheContentTitle(), includes(details.username)));
 });
 
@@ -91,25 +108,26 @@ When('she logs out', async function (this: PBWorld) {
 });
 
 When('she logs in through the UI with the newly registered credentials', async function (this: PBWorld) {
-  const details = this.actor.recall<NewCustomerDetails>('registration');
-  await paula().attemptsTo(LogInAs(details.username, details.password));
+  const details = await paula().answer(theNotes().get('registration'));
+  await paula().attemptsTo(LogInAs(details.username, REGISTERED_PASSWORD));
 });
 
 Then("the overview greets the new customer's full name", async function (this: PBWorld) {
-  const details = this.actor.recall<NewCustomerDetails>('registration');
+  const details = await paula().answer(theNotes().get('registration'));
   await paula().attemptsTo(Ensure.that(TheWelcomeMessage(), includes(`${details.firstName} ${details.lastName}`)));
 });
 
 // ---------- REST baselines (cross-check preparation) ----------
 
 Given('the REST balance of account {int} is recorded as the funding baseline', async function (this: PBWorld, accountId: number) {
-  const account = await this.actor.asks(TheAccount.withId(accountId));
-  this.actor.remember('fundingBaseline', account.balance);
+  await paula().attemptsTo(theNotes().set('fundingBaseline', TheRestAccountBalance.of(accountId)));
 });
 
 Given('the REST balances of accounts {int} and {int} are recorded', async function (this: PBWorld, a: number, b: number) {
-  this.actor.remember(`baseline:${a}`, (await this.actor.asks(TheAccount.withId(a))).balance);
-  this.actor.remember(`baseline:${b}`, (await this.actor.asks(TheAccount.withId(b))).balance);
+  await paula().attemptsTo(
+    theNotes().set(`baseline:${a}`, TheRestAccountBalance.of(a)),
+    theNotes().set(`baseline:${b}`, TheRestAccountBalance.of(b))
+  );
 });
 
 // ---------- FR-A2 open account ----------
@@ -120,23 +138,28 @@ When('she opens a new {string} account funded from account {int} through the UI'
 
 Then('the UI confirms the new account and its id is captured', async function (this: PBWorld) {
   const idText = await paula().answer(TheNewAccountId());
-  const newAccountId = Number(idText);
-  assert.ok(Number.isInteger(newAccountId) && newAccountId > 0, `new account id not numeric: '${idText}'`);
-  this.actor.remember('uiNewAccountId', newAccountId);
+  await paula().attemptsTo(
+    Ensure.that(TheNewAccountId(), matches(/^\d+$/)),
+    theNotes().set('uiNewAccountId', Number(idText.trim()))
+  );
 });
 
 Then('via REST the new account belongs to customer {int} with a positive opening balance', async function (this: PBWorld, customerId: number) {
-  const account = await this.actor.asks(TheAccount.withId(this.actor.recall<number>('uiNewAccountId')));
-  assert.equal(account.customerId, customerId);
-  assert.ok(account.balance > 0, `opening balance not positive: ${account.balance}`);
-  this.actor.remember('uiNewAccountBalance', account.balance);
+  const newAccountId = await paula().answer(theNotes().get('uiNewAccountId'));
+  const balance = await paula().answer(TheRestAccountBalance.of(newAccountId));
+  await paula().attemptsTo(
+    Ensure.that(TheRestAccountCustomerId.of(newAccountId), equals(customerId)),
+    Ensure.that(TheRestAccountBalance.of(newAccountId), isGreaterThan(0)),
+    theNotes().set('uiNewAccountBalance', balance)
+  );
 });
 
 Then("via REST the funding account {int} decreased by exactly the new account's opening balance", async function (this: PBWorld, fundingId: number) {
-  const funding = await this.actor.asks(TheAccount.withId(fundingId));
-  const baseline = this.actor.recall<number>('fundingBaseline');
-  const openingBalance = this.actor.recall<number>('uiNewAccountBalance');
-  assert.equal(funding.balance, round2(baseline - openingBalance));
+  const baseline = await paula().answer(theNotes().get('fundingBaseline'));
+  const openingBalance = await paula().answer(theNotes().get('uiNewAccountBalance'));
+  await paula().attemptsTo(
+    Ensure.that(TheRestAccountBalance.of(fundingId), equals(round2(baseline - openingBalance)))
+  );
 });
 
 // ---------- FR-A3 transfer ----------
@@ -153,26 +176,30 @@ Then('the UI confirms the transfer of ${float}', async function (this: PBWorld, 
 });
 
 Then('via REST account {int} decreased by ${float} and account {int} increased by ${float}', async function (this: PBWorld, a: number, dec: number, b: number, inc: number) {
-  const accountA = await this.actor.asks(TheAccount.withId(a));
-  const accountB = await this.actor.asks(TheAccount.withId(b));
-  assert.equal(accountA.balance, round2(this.actor.recall<number>(`baseline:${a}`) - dec));
-  assert.equal(accountB.balance, round2(this.actor.recall<number>(`baseline:${b}`) + inc));
+  const baselineA = await paula().answer(theNotes().get(`baseline:${a}`));
+  const baselineB = await paula().answer(theNotes().get(`baseline:${b}`));
+  await paula().attemptsTo(
+    Ensure.that(TheRestAccountBalance.of(a), equals(round2(baselineA - dec))),
+    Ensure.that(TheRestAccountBalance.of(b), equals(round2(baselineB + inc)))
+  );
 });
 
 Then('via REST account {int} has a {string} transaction and account {int} a {string} one', async function (this: PBWorld, a: number, descA: string, b: number, descB: string) {
-  const hasDescription = (transactions: { description: string }[], expected: string) =>
-    transactions.some((t) => t.description.includes(expected));
-  assert.ok(hasDescription(await this.actor.asks(TheTransactions.forAccount(a)), descA), `account ${a}: no '${descA}' transaction`);
-  assert.ok(hasDescription(await this.actor.asks(TheTransactions.forAccount(b)), descB), `account ${b}: no '${descB}' transaction`);
+  await paula().attemptsTo(
+    Ensure.that(TheRestTransactionDescriptions.forAccount(a), containAtLeastOneItemThat(includes(descA))),
+    Ensure.that(TheRestTransactionDescriptions.forAccount(b), containAtLeastOneItemThat(includes(descB)))
+  );
 });
 
 // ---------- FR-A4 bill pay ----------
 
 When('she pays a bill of ${float} to a generated payee from account {int} through the UI', async function (this: PBWorld, amount: number, from: number) {
   const payeeName = `Payee-${Date.now().toString(36)}`;
-  this.actor.remember('payeeName', payeeName);
-  this.actor.remember('billAmount', amount);
-  await paula().attemptsTo(PayBill(payeeName, amount, from));
+  await paula().attemptsTo(
+    theNotes().set('payeeName', payeeName),
+    theNotes().set('billAmount', amount),
+    PayBill(payeeName, amount, from)
+  );
 });
 
 Then('the UI confirms the bill payment completed for ${float}', async function (this: PBWorld, amount: number) {
@@ -183,31 +210,26 @@ Then('the UI confirms the bill payment completed for ${float}', async function (
 });
 
 Then('via REST the funding account {int} decreased by exactly ${float}', async function (this: PBWorld, fundingId: number, amount: number) {
-  const funding = await this.actor.asks(TheAccount.withId(fundingId));
-  assert.equal(funding.balance, round2(this.actor.recall<number>('fundingBaseline') - amount));
+  const baseline = await paula().answer(theNotes().get('fundingBaseline'));
+  await paula().attemptsTo(
+    Ensure.that(TheRestAccountBalance.of(fundingId), equals(round2(baseline - amount)))
+  );
 });
 
 Then('via REST account {int} has a {string} transaction naming that payee', async function (this: PBWorld, accountId: number, description: string) {
-  const payeeName = this.actor.recall<string>('payeeName');
-  const transactions = await this.actor.asks(TheTransactions.forAccount(accountId));
-  assert.ok(
-    transactions.some((t) => t.description.includes(description) && t.description.includes(payeeName)),
-    `account ${accountId}: no '${description} … ${payeeName}' transaction in ${JSON.stringify(transactions.map((t) => t.description))}`
+  const payeeName = await paula().answer(theNotes().get('payeeName'));
+  await paula().attemptsTo(
+    Ensure.that(
+      TheRestTransactionDescriptions.forAccount(accountId),
+      containAtLeastOneItemThat(and(includes(description), includes(payeeName)))
+    )
   );
 });
 
 // ---------- FR-A5 loan ----------
 
 Given('the loan decision environment is pinned to the local down-payment processor at 20 percent', async function (this: PBWorld) {
-  const rest = this.actor.abilityTo(CallParaBankRest);
-  for (const [name, value] of [
-    ['loanProvider', 'local'],
-    ['loanProcessor', 'down'],
-    ['loanProcessorThreshold', '20']
-  ] as const) {
-    const res = await rest.call((c) => c.setParameter(name, value));
-    assert.ok(res.status === 200 || res.status === 204, `setParameter ${name}=${value} → HTTP ${res.status}: ${res.text}`);
-  }
+  await paula().attemptsTo(PinTheLoanEnvironment());
 });
 
 When('she requests a loan of ${float} with a down payment of ${float} from account {int} through the UI', async function (this: PBWorld, amount: number, down: number, from: number) {
@@ -219,7 +241,8 @@ Then('the UI shows the loan decision {string}', async function (this: PBWorld, d
 });
 
 Then('the UI shows a new loan account id', async function (this: PBWorld) {
-  await paula().attemptsTo(Wait.until(LoanPage.approvedSection, isVisible()));
-  const idText = await paula().answer(TheNewLoanAccountId());
-  assert.ok(/^\d+$/.test(idText.trim()), `new loan account id not numeric: '${idText}'`);
+  await paula().attemptsTo(
+    Wait.until(LoanPage.approvedSection, isVisible()),
+    Ensure.that(TheNewLoanAccountId(), matches(/^\d+$/))
+  );
 });

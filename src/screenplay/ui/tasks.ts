@@ -1,6 +1,7 @@
-import { Masked, Task, Wait } from '@serenity-js/core';
+import { Interaction, Masked, Task, Wait } from '@serenity-js/core';
 import { Click, Enter, isVisible, Navigate, Select } from '@serenity-js/web';
 import { isPresent } from '@serenity-js/assertions';
+import { CallParaBankRest } from '../abilities';
 import {
   BillPayPage,
   LoanPage,
@@ -117,4 +118,30 @@ export const RequestLoanUI = (amount: number, downPayment: number, fromAccountId
     Select.value(String(fromAccountId)).from(LoanPage.fromSelect),
     Click.on(LoanPage.applyButton),
     Wait.until(LoanPage.result, isVisible())
+  );
+
+/**
+ * Task pinning loan decision parameters via REST (TRIAGE-13 / R-08 / DR-PB-13).
+ * Encapsulates setParameter calls away from step definitions into Screenplay task.
+ */
+export const PinTheLoanEnvironment = (
+  provider: string = 'local',
+  processor: string = 'down',
+  threshold: string = '20'
+): Task =>
+  Task.where(
+    `#actor pins the loan decision environment to ${provider} ${processor} at ${threshold}%`,
+    Interaction.where('#actor sets loan parameters via REST', async (actor) => {
+      const rest = CallParaBankRest.as(actor);
+      for (const [name, value] of [
+        ['loanProvider', provider],
+        ['loanProcessor', processor],
+        ['loanProcessorThreshold', threshold]
+      ] as const) {
+        const res = await rest.call((c) => c.setParameter(name, value));
+        if (res.status !== 200 && res.status !== 204) {
+          throw new Error(`setParameter ${name}=${value} → HTTP ${res.status}: ${res.text}`);
+        }
+      }
+    })
   );

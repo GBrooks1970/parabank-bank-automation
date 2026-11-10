@@ -1,12 +1,19 @@
+import { Ability } from '@serenity-js/core';
 import { ParaBankRestClient } from '../api/client';
 import { soapCall, SoapResult } from '../api/soap';
 import { ApiResponse } from '../api/types';
 
-/** Lane B ability: call ParaBank over REST; keeps the last raw response for Questions. */
-export class CallParaBankRest {
+/** Ability to call ParaBank over REST; keeps the last raw response for Questions. */
+export class CallParaBankRest extends Ability {
   lastResponse?: ApiResponse;
 
-  constructor(public readonly client: ParaBankRestClient) {}
+  static using(client: ParaBankRestClient): CallParaBankRest {
+    return new CallParaBankRest(client);
+  }
+
+  constructor(public readonly client: ParaBankRestClient) {
+    super();
+  }
 
   async call(invoke: (client: ParaBankRestClient) => Promise<ApiResponse>): Promise<ApiResponse> {
     this.lastResponse = await invoke(this.client);
@@ -22,10 +29,16 @@ export class CallParaBankRest {
 }
 
 /** Lane B ability: call ParaBank over SOAP (DR-PB-07); keeps the last result. */
-export class CallParaBankSoap {
+export class CallParaBankSoap extends Ability {
   lastResult?: SoapResult;
 
-  constructor(public readonly baseUrl: string) {}
+  static at(baseUrl: string): CallParaBankSoap {
+    return new CallParaBankSoap(baseUrl);
+  }
+
+  constructor(public readonly baseUrl: string) {
+    super();
+  }
 
   async call(
     operation: string,

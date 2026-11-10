@@ -34,7 +34,7 @@ const ALLOWED: Record<string, { marker: string | string[] | null; reason: string
   'src/quality/target-guard.ts': { marker: null, reason: 'the guard itself; names the operations in its message' },
   'src/screenplay/contract-tasks.ts': { marker: null, reason: 'calls the guarded ParaBankRestClient methods only' },
   'features/support/hooks.ts': { marker: null, reason: 'comment only; resets through the guarded seedDatabase()' },
-  'features/ui/steps/ui.steps.ts': { marker: null, reason: 'calls the guarded ParaBankRestClient.setParameter only' },
+  'src/screenplay/ui/tasks.ts': { marker: null, reason: 'calls the guarded ParaBankRestClient.setParameter only' },
   'scripts/smoke-safety.mjs': { marker: "assertLocalSut(BASE_URL, 'The smoke-safety check')", reason: 'seeds directly; guarded at entry' },
   'scripts/gate.ps1': { marker: 'GATE REFUSED', reason: 'POSTs initializeDB; refuses a non-loopback -BaseUrl first' },
   'scripts/run-perf.mjs': { marker: "assertLocalSut(baseUrl, 'The perf lane')", reason: 'starts the k6 lane, which resets' },
