@@ -42,4 +42,13 @@ Resolved Claude v1 review finding R-10 (score 4, LOW) — closing the final tria
    - Expanded unit test inventory from 108 to 113 tests (19 test suites, 100% passing).
 
 Plan: [`../implementation-plans/2026-11-10_triage-16-reproducibility-gaps.md`](../implementation-plans/2026-11-10_triage-16-reproducibility-gaps.md)
-(approved 2026-11-10 by owner, decisions D-T16-1 to D-T16-6 confirmed).
+(approved 2026-11-10 by owner, decisions D-T16-1 to D-T16-6 confirmed; delivered in PR [#86](https://github.com/GBrooks1970/parabank-bank-automation/pull/86), commit `e4acf6e`).
+
+## Delivery Outcome
+
+- Implementation merged into `main` via PR [#86](https://github.com/GBrooks1970/parabank-bank-automation/pull/86) as merge commit `e4acf6ed3c57af854adb13fad19a2fb8038b0365` (head `64cbd417652043be88984b5d4874c2fd77b1e685`).
+- PR CI run [42909241554](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42909241554) passed:
+  - `Fast static checks` passed in 14s (tag lint, 4 typechecks, 113 unit tests, non-blocking audit).
+  - `SUT boot gate & functional verification` passed in 2m50s (SUT boot, smoke-safety, API + UI lanes, Serenity BDD reporting, styles 02 & 03, static Pages packaging).
+- Unit tests: 113/113 passing across 19 suites.
+- Backlog updated to **Version 50**, marking all 16 items in the ParaBank triage backlog complete.
