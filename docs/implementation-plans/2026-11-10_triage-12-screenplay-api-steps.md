@@ -4,7 +4,8 @@ created: 2026-11-10T00:15Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-12 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
+delivered: 2026-11-10 (PR #78, 858f604)
 approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
@@ -213,9 +214,18 @@ All reads conducted in worktree `wt-parabank-t12` on branch `worklist/triage-12-
    - `grep "abilityTo(" features/api/steps/api.steps.ts`: 0 matches.
    - `npm run lint:tags`: disjoint tags and smoke counts intact.
 3. **Unit Test Suite:**
-   - Run `npm run test:unit`: suite expands from 80 to 82+ tests (including new architecture test for API step discipline).
+   - Run `npm run test:unit`: suite expands from 80 to 85 tests (including new architecture test for API step discipline).
 4. **Full Verification:**
    - Run `npm run test:api` (14/14 green) and `npm run test:ui` (8/8 green).
    - Run root documentation check: `pwsh -File tools/ci/check-support.ps1 -Only Docs` (9/9 PASS).
 5. **CI Gate:**
    - Push branch `worklist/triage-12-screenplay-api-steps`, open PR, and confirm `sut-boot-gate` passes in GitHub Actions.
+
+---
+
+## Delivery Outcome
+
+- **PR:** [#78](https://github.com/GBrooks1970/parabank-bank-automation/pull/78) merged as `858f604` (implementation commit `62e08f7`).
+- **CI Run:** Run [`42779247839`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42779247839) passed (`sut-boot-gate` in 4m27s).
+- **Unit Tests:** Suite expanded from 80 to 85 tests across 13 test areas.
+- **Backlog:** Bumped to **v46**.
