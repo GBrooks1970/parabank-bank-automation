@@ -3,6 +3,39 @@ import { OPERATION_CONTRACTS, OperationName } from './operation-contracts';
 import { withRequestDeadline } from './request-deadline';
 import { assertLocalSut } from '../quality/target-guard';
 
+export interface RequestOptions {
+  /**
+   * Explicit escape hatch for sending an unencoded/raw query string on purpose
+   * (e.g. testing malformed query strings or raw injection attempts).
+   * When provided, this query string is appended verbatim (`?${rawQuery}`)
+   * instead of building and encoding parameters with URLSearchParams.
+   */
+  rawQuery?: string;
+}
+
+/**
+ * Constructs a service URL with query parameters encoded via URLSearchParams.
+ * If `options?.rawQuery` is provided, it is appended verbatim as an explicit escape hatch.
+ */
+export function buildQueryUrl(
+  basePath: string,
+  params: Record<string, string | number | undefined>,
+  options?: RequestOptions
+): string {
+  if (options?.rawQuery !== undefined) {
+    const raw = options.rawQuery.startsWith('?') ? options.rawQuery.slice(1) : options.rawQuery;
+    return `${basePath}?${raw}`;
+  }
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+  const query = searchParams.toString();
+  return query ? `${basePath}?${query}` : basePath;
+}
+
 /**
  * Shared ParaBank REST client (design doc §5.4) — used by Lane B Abilities and, from
  * PB-P3, by Lane A verification steps. Mutations use QUERY PARAMETERS and several
@@ -59,36 +92,36 @@ export class ParaBankRestClient {
     return this.exec('transactions', 'GET', `${this.services}/accounts/${accountId}/transactions`);
   }
 
-  createAccount(customerId: number, newAccountType: number, fromAccountId: number): Promise<ApiResponse> {
+  createAccount(customerId: number, newAccountType: number, fromAccountId: number, options?: RequestOptions): Promise<ApiResponse> {
     return this.exec(
       'createAccount',
       'POST',
-      `${this.services}/createAccount?customerId=${customerId}&newAccountType=${newAccountType}&fromAccountId=${fromAccountId}`
+      buildQueryUrl(`${this.services}/createAccount`, { customerId, newAccountType, fromAccountId }, options)
     );
   }
 
-  deposit(accountId: number, amount: number | string): Promise<ApiResponse> {
-    return this.exec('deposit', 'POST', `${this.services}/deposit?accountId=${accountId}&amount=${amount}`);
+  deposit(accountId: number, amount: number | string, options?: RequestOptions): Promise<ApiResponse> {
+    return this.exec('deposit', 'POST', buildQueryUrl(`${this.services}/deposit`, { accountId, amount }, options));
   }
 
-  withdraw(accountId: number, amount: number | string): Promise<ApiResponse> {
-    return this.exec('withdraw', 'POST', `${this.services}/withdraw?accountId=${accountId}&amount=${amount}`);
+  withdraw(accountId: number, amount: number | string, options?: RequestOptions): Promise<ApiResponse> {
+    return this.exec('withdraw', 'POST', buildQueryUrl(`${this.services}/withdraw`, { accountId, amount }, options));
   }
 
   /** `amount` is typed loosely so FR-B4 can send malformed values on purpose. */
-  transfer(fromAccountId: number, toAccountId: number, amount: number | string): Promise<ApiResponse> {
+  transfer(fromAccountId: number, toAccountId: number, amount: number | string, options?: RequestOptions): Promise<ApiResponse> {
     return this.exec(
       'transfer',
       'POST',
-      `${this.services}/transfer?fromAccountId=${fromAccountId}&toAccountId=${toAccountId}&amount=${amount}`
+      buildQueryUrl(`${this.services}/transfer`, { fromAccountId, toAccountId, amount }, options)
     );
   }
 
-  requestLoan(customerId: number, amount: number, downPayment: number, fromAccountId: number): Promise<ApiResponse> {
+  requestLoan(customerId: number, amount: number, downPayment: number, fromAccountId: number, options?: RequestOptions): Promise<ApiResponse> {
     return this.exec(
       'requestLoan',
       'POST',
-      `${this.services}/requestLoan?customerId=${customerId}&amount=${amount}&downPayment=${downPayment}&fromAccountId=${fromAccountId}`
+      buildQueryUrl(`${this.services}/requestLoan`, { customerId, amount, downPayment, fromAccountId }, options)
     );
   }
 
