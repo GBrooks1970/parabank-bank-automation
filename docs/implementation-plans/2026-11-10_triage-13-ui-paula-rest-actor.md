@@ -4,7 +4,8 @@ created: 2026-11-10T08:25Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-13 (approved worklist item; proposed backlog candidate)
-status: proposed
+status: approved
+approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
 ---
