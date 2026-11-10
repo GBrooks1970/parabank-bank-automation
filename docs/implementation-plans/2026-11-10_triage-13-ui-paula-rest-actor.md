@@ -4,7 +4,8 @@ created: 2026-11-10T08:25Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-13 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
+delivered: 2026-11-10 (PR #80, c7cb0f1)
 approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
@@ -193,3 +194,12 @@ All reads conducted in worktree `wt-parabank-t13` on branch `worklist/triage-13-
 
 3. **PR CI Verification:**
    - Push branch `worklist/triage-13-ui-paula-rest-actor`, open PR, and verify `sut-boot-gate` passes in GitHub Actions.
+
+---
+
+## Delivery Outcome
+
+- **PR:** [#80](https://github.com/GBrooks1970/parabank-bank-automation/pull/80) merged as commit `c7cb0f104bfedbe88b88127b1f6c07ff6f56e6a4` on 2026-11-10 (implementation commits `84217c6`, `d85e737`, `5379456`).
+- **CI Run:** Run [`42829245390`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42829245390) passed (`sut-boot-gate` in 3m14s).
+- **Unit Tests:** Suite expanded from 85 to 93 tests across 16 test suites (`npm run test:unit` passing 93/93).
+- **Backlog:** Bumped to **v47**.
