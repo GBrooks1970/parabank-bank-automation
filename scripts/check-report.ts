@@ -3,7 +3,11 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { formatReportCoverageFailures, inspectSerenityCoverage } from '../src/quality/report-integrity';
+import {
+  formatReportCoverageFailures,
+  inspectSerenityCoverage,
+  verifyRestCrossCheckActivities
+} from '../src/quality/report-integrity';
 
 const SITE = 'target/site/serenity';
 const failures: string[] = [];
@@ -20,9 +24,10 @@ const featureSources = [...featureFiles('features/ui')].map((file) => readFileSy
 const artifactFiles = existsSync(SITE)
   ? readdirSync(SITE).filter((name) => name.endsWith('.json'))
   : [];
+const artifactJsonTexts = artifactFiles.map((name) => readFileSync(join(SITE, name), 'utf8'));
 const coverage = inspectSerenityCoverage(
   featureSources,
-  artifactFiles.map((name) => readFileSync(join(SITE, name), 'utf8'))
+  artifactJsonTexts
 );
 
 if (coverage.scenarioNames.length === 0) failures.push('no ui scenarios found under features/ui');
@@ -30,6 +35,15 @@ if (artifactFiles.length === 0) {
   failures.push(`${SITE} contains no Serenity JSON artefacts — did the ui lane run?`);
 }
 failures.push(...formatReportCoverageFailures(coverage, artifactFiles));
+
+if (artifactFiles.length > 0) {
+  const restActivities = verifyRestCrossCheckActivities(artifactJsonTexts);
+  if (restActivities.missingActivities.length > 0) {
+    failures.push(
+      `missing named REST cross-check activities in Serenity report: ${restActivities.missingActivities.join(', ')}`
+    );
+  }
+}
 
 function javaAvailable(): boolean {
   try {
@@ -56,7 +70,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Report content check OK: all ${coverage.scenarioNames.length} ui scenarios present and SUCCESS` +
+    `Report content check OK: all ${coverage.scenarioNames.length} ui scenarios present and SUCCESS; REST cross-checks verified` +
       (existsSync(indexHtml) ? '; HTML report present.' : ' (JSON evidence; HTML checked in CI).')
   );
 }

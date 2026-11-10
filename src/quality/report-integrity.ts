@@ -12,6 +12,12 @@ export interface ReportCoverageResult {
   invalidArtifactIndexes: number[];
 }
 
+export interface ActivityVerificationResult {
+  expectedActivities: string[];
+  foundActivities: string[];
+  missingActivities: string[];
+}
+
 /** Extract concrete Scenario and Scenario Outline names from Gherkin source. */
 export function scenarioNamesFromFeature(source: string): string[] {
   return source
@@ -102,4 +108,74 @@ export function formatReportCoverageFailures(
     failures.push(`unexpected scenario in Serenity artefacts: '${name}'`);
   }
   return failures;
+}
+
+/** Recursively collect all activity descriptions from Serenity testStep nodes. */
+export function collectStepDescriptions(step: { description?: unknown; children?: unknown }): string[] {
+  const descriptions: string[] = [];
+  if (typeof step.description === 'string') {
+    descriptions.push(step.description);
+  }
+  if (Array.isArray(step.children)) {
+    for (const child of step.children) {
+      if (child && typeof child === 'object') {
+        descriptions.push(...collectStepDescriptions(child as { description?: unknown; children?: unknown }));
+      }
+    }
+  }
+  return descriptions;
+}
+
+/**
+ * Expected UI-lane REST cross-check activity patterns (TRIAGE-13 / R-08).
+ * Ensures REST cross-checks appear as named Serenity activities in the report.
+ */
+export const EXPECTED_REST_CROSS_CHECK_PATTERNS: readonly string[] = [
+  'Ensure that the REST balance of account',
+  'Ensure that the REST transaction descriptions of account',
+  'Ensure that the REST customer id of account',
+  'sets loan parameters via REST'
+];
+
+/**
+ * Verify that required REST cross-check activities are present across Serenity report JSON artifacts.
+ */
+export function verifyRestCrossCheckActivities(
+  artifactJsonTexts: readonly string[],
+  requiredPatterns: readonly string[] = EXPECTED_REST_CROSS_CHECK_PATTERNS
+): ActivityVerificationResult {
+  const allDescriptions: string[] = [];
+
+  for (const text of artifactJsonTexts) {
+    try {
+      const parsed = JSON.parse(text) as { testSteps?: unknown[] } | null;
+      if (parsed && Array.isArray(parsed.testSteps)) {
+        for (const step of parsed.testSteps) {
+          if (step && typeof step === 'object') {
+            allDescriptions.push(...collectStepDescriptions(step as { description?: unknown; children?: unknown }));
+          }
+        }
+      }
+    } catch {
+      // Ignore invalid JSON; handled by verifySerenityReport
+    }
+  }
+
+  const foundActivities: string[] = [];
+  const missingActivities: string[] = [];
+
+  for (const pattern of requiredPatterns) {
+    const matched = allDescriptions.some((desc) => desc.includes(pattern));
+    if (matched) {
+      foundActivities.push(pattern);
+    } else {
+      missingActivities.push(pattern);
+    }
+  }
+
+  return {
+    expectedActivities: [...requiredPatterns],
+    foundActivities,
+    missingActivities
+  };
 }
