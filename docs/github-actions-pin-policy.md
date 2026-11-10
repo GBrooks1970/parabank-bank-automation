@@ -12,8 +12,8 @@ from their official `actions/*` release commits on 2026-08-02:
 
 | Action | Release | Full commit SHA | Review note |
 |---|---|---|---|
-| `actions/checkout` | [`v5.1.0`](https://github.com/actions/checkout/releases/tag/v5.1.0) | `fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09` | Safer `pull_request_target` checkout default does not alter this workflow's `pull_request` trigger. |
-| `actions/setup-node` | [`v5.0.0`](https://github.com/actions/setup-node/releases/tag/v5.0.0) | `a0853c24544627f65ddf259abe73b1d18a591444` | Node 24 action runtime; existing explicit npm cache configuration is retained. |
+| `actions/checkout` | [`v5.1.0`](https://github.com/actions/checkout/releases/tag/v5.1.0) | `fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09` | Safer `pull_request_target` checkout default does not alter this workflow's `pull_request` trigger. Reused in `static` job. |
+| `actions/setup-node` | [`v5.0.0`](https://github.com/actions/setup-node/releases/tag/v5.0.0) | `a0853c24544627f65ddf259abe73b1d18a591444` | Node 24 action runtime; existing explicit npm cache configuration is retained. Reused in `static` job. |
 | `actions/setup-java` | [`v6.0.0`](https://github.com/actions/setup-java/releases/tag/v6.0.0) | `dd06d9cba3e5552c54d9f8ea23572deb30010f7c` | Node 24 runtime (`runs.using: node24`), reviewed 2026-09-01 (PBR-02). v5 made the Node 24 jump; v6 migrated to ESM (documented as not user-facing), moved Zulu to the Azul Metadata API, and renamed `jdkFile` to `jdk-file` with a deprecated alias. This workflow pins `distribution: temurin` / `java-version: 21` and uses neither, so no input changes. |
 | `actions/upload-artifact` | [`v7.0.1`](https://github.com/actions/upload-artifact/releases/tag/v7.0.1) | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` | Node 24 runtime (`runs.using: node24`), reviewed 2026-09-01 (PBR-02). v5 added Node 24 support, v6 switched the default runtime to it (runner >= 2.327.1, satisfied by `ubuntu-latest`), v7 added opt-in unzipped `archive: false` uploads and moved to ESM. All three call sites pass only `name`/`path`/`if-no-files-found`, so behaviour is unchanged; v4's immutable-artifact semantics still apply. |
 | `actions/download-artifact` | [`v8.0.2`](https://github.com/actions/download-artifact/releases/tag/v8.0.2) | `9000827ccba6bdab643e8b6fd33ac0654aef8333` | Node 24 runtime (`runs.using: node24`), reviewed 2026-11-09 (TRIAGE-08). Downloads the `perf-summary` artifact in the isolated `publish` job under `permissions: contents: write` without running third-party code. Compatible with artifacts uploaded via `actions/upload-artifact@v7.0.1`. |
@@ -21,11 +21,16 @@ from their official `actions/*` release commits on 2026-08-02:
 | `actions/configure-pages` | [`v6.0.0`](https://github.com/actions/configure-pages/releases/tag/v6.0.0) | `45bfe0192ca1faeb007ade9deae92b16b8254a0d` | Node 24 release; reads Pages metadata in the deployment job and receives no PAT or repository secret. |
 | `actions/deploy-pages` | [`v5.0.0`](https://github.com/actions/deploy-pages/releases/tag/v5.0.0) | `cd2ce8fcbc39b97be8ca5fce6e763baed58fa128` | Node 24 release; deploys the named Pages artefact through GitHub's OIDC-backed Pages API. |
 
-The workflow-level default and full verification job grant only `contents: read`. The dependent
+The workflow-level default and verification jobs grant only `contents: read`. Under TRIAGE-15,
+`ci.yml` introduces a fast `static` gate (running `npm ci`, tag lint, four TypeScript compilation targets,
+unit tests, and non-blocking dependency audit) with top-level `concurrency` cancelling superseded runs
+(`cancel-in-progress: true`); the heavy SUT boot gate declares `needs: static`. The dependent
 `deploy-pages` job alone adds `pages: write` and `id-token: write`; pull requests never reach
-that job and cannot upload a Pages artefact. In `perf.yml` (TRIAGE-08), `perf-smoke` runs under `contents: read` with `persist-credentials: false`, and only the dependent `publish` job receives `contents: write` on main success without executing third-party code. A future action that requires another token
-permission must justify the narrowest additional permission in the same PR. Write access must
-never be added merely to silence an action failure.
+that job and cannot upload a Pages artefact. In `perf.yml` (TRIAGE-08), `perf-smoke` runs under
+`contents: read` with `persist-credentials: false`, and only the dependent `publish` job receives
+`contents: write` on main success without executing third-party code. A future action that requires
+another token permission must justify the narrowest additional permission in the same PR. Write access
+must never be added merely to silence an action failure.
 
 ## Review and refresh procedure
 
