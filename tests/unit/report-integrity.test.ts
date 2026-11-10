@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  collectChildActivityDescriptions,
   collectStepDescriptions,
   EXPECTED_REST_CROSS_CHECK_PATTERNS,
   formatReportCoverageFailures,
@@ -134,7 +135,7 @@ test('verifySerenityReport ignores non-scenario JSON artifacts without a string 
   assert.deepEqual(result.invalidArtifactIndexes, []);
 });
 
-test('collectStepDescriptions recursively extracts descriptions from nested children', () => {
+test('collectStepDescriptions and collectChildActivityDescriptions extract descriptions from nested children', () => {
   const root = {
     description: 'Step 1',
     children: [
@@ -148,6 +149,9 @@ test('collectStepDescriptions recursively extracts descriptions from nested chil
 
   const descriptions = collectStepDescriptions(root);
   assert.deepEqual(descriptions, ['Step 1', 'Sub-step 1.1', 'Sub-step 1.2', 'Deep activity 1.2.1']);
+
+  const childOnly = collectChildActivityDescriptions(root);
+  assert.deepEqual(childOnly, ['Sub-step 1.1', 'Sub-step 1.2', 'Deep activity 1.2.1']);
 });
 
 test('verifyRestCrossCheckActivities passes when all required REST activity patterns are found in child steps', () => {
@@ -157,15 +161,15 @@ test('verifyRestCrossCheckActivities passes when all required REST activity patt
     testSteps: [
       {
         description: 'Given balances recorded',
-        children: [{ description: 'Ensure that the REST balance of account 12345 does equal 1000' }]
+        children: [{ description: 'Paula ensures that the REST balance of account 12345 does equal 1000' }]
       },
       {
         description: 'Then verify transactions',
-        children: [{ description: 'Ensure that the REST transaction descriptions of account 12345 does contain...' }]
+        children: [{ description: 'Paula ensures that the REST transaction descriptions of account 12345 does contain...' }]
       },
       {
         description: 'Then verify customer id',
-        children: [{ description: 'Ensure that the REST customer id of account 12345 does equal 12212' }]
+        children: [{ description: 'Paula ensures that the REST customer id of account 12345 does equal 12212' }]
       },
       {
         description: 'Given pin loan',

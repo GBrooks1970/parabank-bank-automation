@@ -110,30 +110,40 @@ export function formatReportCoverageFailures(
   return failures;
 }
 
-/** Recursively collect all activity descriptions from Serenity testStep nodes. */
-export function collectStepDescriptions(step: { description?: unknown; children?: unknown }): string[] {
+/** Recursively collect all activity descriptions from child nodes of a Serenity testStep. */
+export function collectChildActivityDescriptions(step: { children?: unknown }): string[] {
   const descriptions: string[] = [];
-  if (typeof step.description === 'string') {
-    descriptions.push(step.description);
-  }
   if (Array.isArray(step.children)) {
     for (const child of step.children) {
       if (child && typeof child === 'object') {
-        descriptions.push(...collectStepDescriptions(child as { description?: unknown; children?: unknown }));
+        if (typeof (child as { description?: unknown }).description === 'string') {
+          descriptions.push((child as { description: string }).description);
+        }
+        descriptions.push(...collectChildActivityDescriptions(child as { children?: unknown }));
       }
     }
   }
   return descriptions;
 }
 
+/** Recursively collect all activity descriptions from Serenity testStep nodes. */
+export function collectStepDescriptions(step: { description?: unknown; children?: unknown }): string[] {
+  const descriptions: string[] = [];
+  if (typeof step.description === 'string') {
+    descriptions.push(step.description);
+  }
+  descriptions.push(...collectChildActivityDescriptions(step));
+  return descriptions;
+}
+
 /**
  * Expected UI-lane REST cross-check activity patterns (TRIAGE-13 / R-08).
- * Ensures REST cross-checks appear as named Serenity activities in the report.
+ * Ensures REST cross-checks appear as named Serenity child activities in the report.
  */
 export const EXPECTED_REST_CROSS_CHECK_PATTERNS: readonly string[] = [
-  'Ensure that the REST balance of account',
-  'Ensure that the REST transaction descriptions of account',
-  'Ensure that the REST customer id of account',
+  'the REST balance of account',
+  'the REST transaction descriptions of account',
+  'the REST customer id of account',
   'sets loan parameters via REST'
 ];
 
@@ -144,7 +154,7 @@ export function verifyRestCrossCheckActivities(
   artifactJsonTexts: readonly string[],
   requiredPatterns: readonly string[] = EXPECTED_REST_CROSS_CHECK_PATTERNS
 ): ActivityVerificationResult {
-  const allDescriptions: string[] = [];
+  const allChildDescriptions: string[] = [];
 
   for (const text of artifactJsonTexts) {
     try {
@@ -152,7 +162,7 @@ export function verifyRestCrossCheckActivities(
       if (parsed && Array.isArray(parsed.testSteps)) {
         for (const step of parsed.testSteps) {
           if (step && typeof step === 'object') {
-            allDescriptions.push(...collectStepDescriptions(step as { description?: unknown; children?: unknown }));
+            allChildDescriptions.push(...collectChildActivityDescriptions(step as { children?: unknown }));
           }
         }
       }
@@ -165,7 +175,7 @@ export function verifyRestCrossCheckActivities(
   const missingActivities: string[] = [];
 
   for (const pattern of requiredPatterns) {
-    const matched = allDescriptions.some((desc) => desc.includes(pattern));
+    const matched = allChildDescriptions.some((desc) => desc.toLowerCase().includes(pattern.toLowerCase()));
     if (matched) {
       foundActivities.push(pattern);
     } else {
