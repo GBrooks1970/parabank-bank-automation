@@ -133,4 +133,8 @@ const MATRIX_HAS_NO_EXTRA_NAMES: Exclude<OperationName, ClientOperationName> ext
 void MATRIX_HAS_NO_EXTRA_NAMES;
 
 export const OPERATION_NAMES = Object.freeze(Object.keys(OPERATION_CONTRACTS) as OperationName[]);
+
+export function isOperationName(value: string): value is OperationName {
+  return (OPERATION_NAMES as readonly string[]).includes(value);
+}
 import type { ParaBankRestClient } from './client';
