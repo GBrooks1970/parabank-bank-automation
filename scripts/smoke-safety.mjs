@@ -9,6 +9,7 @@ import { execSync } from 'node:child_process';
 import { assertLocalSut } from '../src/quality/target-guard.ts';
 import { SEED_OWNER_ENV, SMOKE_SAFETY_OWNER } from '../src/quality/seed-ownership.ts';
 import { diffSnapshots } from '../src/quality/smoke-snapshot.ts';
+import { withRequestDeadline } from '../src/api/request-deadline.ts';
 
 const BASE_URL = process.env.PARABANK_URL ?? 'http://localhost:8090';
 // DR-PB-13: this check seeds (initializeDB) before anything else; refuse a remote host first.
@@ -18,12 +19,20 @@ const SEEDED_CUSTOMER = 12212;
 const SERVICES = `${BASE_URL}/parabank/services/bank`;
 
 async function seed() {
-  const res = await fetch(`${SERVICES}/initializeDB`, { method: 'POST' });
+  const res = await withRequestDeadline(
+    { method: 'POST' },
+    { operation: 'smoke-safety initializeDB', safePath: '/initializeDB' },
+    (signal) => fetch(`${SERVICES}/initializeDB`, { method: 'POST', signal })
+  );
   if (res.status !== 204) throw new Error(`initializeDB → HTTP ${res.status}`);
 }
 
 async function readJson(path, what) {
-  const res = await fetch(`${SERVICES}${path}`, { headers: { Accept: 'application/json' } });
+  const res = await withRequestDeadline(
+    { headers: { Accept: 'application/json' } },
+    { operation: `smoke-safety ${what}`, safePath: path },
+    (signal) => fetch(`${SERVICES}${path}`, { headers: { Accept: 'application/json' }, signal })
+  );
   if (res.status !== 200) throw new Error(`${what} snapshot → HTTP ${res.status}`);
   return await res.json();
 }

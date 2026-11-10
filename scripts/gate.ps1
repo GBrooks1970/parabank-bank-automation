@@ -47,17 +47,17 @@ while (-not $seeded) {
 }
 Write-Host '  [1/4] initializeDB OK (204) - app is up and the database is seeded'
 
-$r = Invoke-WebRequest "$BaseUrl/parabank/services/bank/login/john/demo" -Headers @{ Accept = 'application/json' } -UseBasicParsing
+$r = Invoke-WebRequest "$BaseUrl/parabank/services/bank/login/john/demo" -Headers @{ Accept = 'application/json' } -UseBasicParsing -TimeoutSec 10
 $customer = $r.Content | ConvertFrom-Json
 if ($r.StatusCode -ne 200 -or $customer.id -ne 12212) { Write-Error "GATE FAIL: seeded login expected customer 12212, got status $($r.StatusCode) / '$($customer.id)'" }
 Write-Host "  [2/4] REST login OK - seeded customer 12212 ($($customer.firstName) $($customer.lastName))"
 
-$oa = Invoke-WebRequest "$BaseUrl/parabank/services/bank/openapi.json" -UseBasicParsing
+$oa = Invoke-WebRequest "$BaseUrl/parabank/services/bank/openapi.json" -UseBasicParsing -TimeoutSec 10
 $oaVersion = ($oa.Content | ConvertFrom-Json).openapi
 if ($oa.StatusCode -ne 200 -or -not $oaVersion) { Write-Error 'GATE FAIL: openapi.json missing or malformed' }
 Write-Host "  [3/4] OpenAPI spec OK - version $oaVersion"
 
-$wsdl = Invoke-WebRequest "$BaseUrl/parabank/services/ParaBank?wsdl" -UseBasicParsing
+$wsdl = Invoke-WebRequest "$BaseUrl/parabank/services/ParaBank?wsdl" -UseBasicParsing -TimeoutSec 10
 if ($wsdl.StatusCode -ne 200 -or $wsdl.Content -notmatch 'wsdl:definitions') { Write-Error 'GATE FAIL: ParaBank WSDL not served' }
 Write-Host '  [4/4] SOAP WSDL OK'
 
