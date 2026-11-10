@@ -30,3 +30,6 @@ export function assertResetAllowed(scenarioName: string, env: NodeJS.ProcessEnv 
     );
   }
 }
+
+// TRIAGE-15 must-fail proof: deliberate type mismatch to prove static job fails before SUT build
+export const _mustFailTypeCheck: number = 'deliberate_compilation_failure_for_triage_15_must_fail_proof';
