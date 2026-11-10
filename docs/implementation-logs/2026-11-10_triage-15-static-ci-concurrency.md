@@ -77,3 +77,14 @@ Plan: [`../implementation-plans/2026-11-10_triage-15-static-ci-concurrency.md`](
 2. **Clean Resolution (Commit `9b0e9f7`):**
    - Reverted `2c9a72f` restoring clean compilation.
    - Pushed clean state to `worklist/triage-15-static-ci-concurrency`.
+
+---
+
+## Delivery Outcome
+
+- **PR:** [#84](https://github.com/GBrooks1970/parabank-bank-automation/pull/84) merged as commit `c10e4654f391f5739412bd7676d2798eef388658` on 2026-11-10.
+- **Head Commit:** `7cca41d0c86117de8c913b9e7bf03b54eb0cc643`.
+- **Must-Fail Proof:** Commit `2c9a72f` in PR CI [run 42898893950](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42898893950) failed job `Fast static checks` (ID `130119256258`) in **19 seconds** at `Typechecks` step (`seed-ownership.ts#35: error TS2322: Type 'string' is not assignable to type 'number'`). The heavy `sut-boot-gate` job was skipped and not scheduled.
+- **Passing PR CI Run:** Run [`42899100594`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42899100594) passed (`static` in 19s, `sut-boot-gate` in 2m46s).
+- **Unit Tests:** Suite expanded from 99 to 108 tests across 18 test suites (`npm run test:unit` passing 108/108).
+- **Backlog:** Bumped to **v49**.

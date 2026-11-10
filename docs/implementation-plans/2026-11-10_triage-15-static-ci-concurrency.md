@@ -4,7 +4,8 @@ created: 2026-11-10T17:15Z
 project: parabank-bank-automation
 type: implementation-plan
 item: TRIAGE-15 (approved worklist item; proposed backlog candidate)
-status: approved
+status: delivered
+delivered: 2026-11-10 (PR #84, c10e465)
 approved: 2026-11-10 (owner)
 presented: 2026-11-10
 language: en-GB
@@ -209,3 +210,14 @@ All reads and commands conducted in worktree `wt-parabank-t15` on branch `workli
 | **D-T15-5** | Job Dependencies | Gate `sut-boot-gate` on `needs: static`; `deploy-pages` transitively gated via `needs: sut-boot-gate`. |
 | **D-T15-6** | Architecture Unit Guard | Author `tests/unit/ci-workflow-integrity.test.ts` enforcing workflow structure and 40-character action pin discipline. |
 | **D-T15-7** | Must-Fail Protocol | Push deliberate type mismatch commit, capture `static` failure and skipped SUT build, then push clean commit. |
+
+---
+
+## Delivery Outcome
+
+- **PR:** [#84](https://github.com/GBrooks1970/parabank-bank-automation/pull/84) merged as commit `c10e4654f391f5739412bd7676d2798eef388658` on 2026-11-10.
+- **Head Commit:** `7cca41d0c86117de8c913b9e7bf03b54eb0cc643`.
+- **Must-Fail Proof:** Commit `2c9a72f` in PR CI [run 42898893950](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42898893950) failed job `Fast static checks` (ID `130119256258`) in **19 seconds** at `Typechecks` step (`seed-ownership.ts#35: error TS2322: Type 'string' is not assignable to type 'number'`). The heavy `sut-boot-gate` job was skipped and not scheduled.
+- **Passing PR CI Run:** Run [`42899100594`](https://github.com/GBrooks1970/parabank-bank-automation/actions/runs/42899100594) passed (`static` in 19s, `sut-boot-gate` in 2m46s).
+- **Unit Tests:** Suite expanded from 99 to 108 tests across 18 test suites (`npm run test:unit` passing 108/108).
+- **Backlog:** Bumped to **v49**.
