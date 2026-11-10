@@ -60,3 +60,18 @@ export class TheLastResponse implements Question<ApiResponse> {
     return actor.abilityTo(CallParaBankRest).last;
   }
 }
+
+/** The last SOAP response properties — FR-B4 asserts status and fault text from it. */
+export class TheSoapResponse {
+  static status(): Question<number> {
+    return {
+      answeredBy: async (actor: Actor) => actor.abilityTo(CallParaBankSoap).last.status
+    };
+  }
+
+  static fault(): Question<string | undefined> {
+    return {
+      answeredBy: async (actor: Actor) => actor.abilityTo(CallParaBankSoap).last.fault
+    };
+  }
+}
